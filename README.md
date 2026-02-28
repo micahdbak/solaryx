@@ -53,3 +53,11 @@ For the `backend` terminal, run:
 ```node server.js```
 
 When you make changes to the backend, CTRL+C then run the above command again.
+
+## Linting
+
+Be sure to lint your code before committing it. You can do this by running:
+
+```npm run lint```
+
+In both the frontend and backend directories.
