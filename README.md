@@ -1,5 +1,37 @@
 # Codename Sorbet
 
+## Local Setup
+
+This project requires a local PostgreSQL database named `sorbet`.
+
+### Installing PostgreSQL
+
+**macOS (using [Homebrew](https://brew.sh/)):**
+```bash
+brew install postgresql
+brew services start postgresql
+```
+
+**Ubuntu / WSL:**
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo service postgresql start
+```
+
+### Creating the `sorbet` Database
+
+Once PostgreSQL is installed and running, you can create the database by running:
+
+```bash
+createdb sorbet
+```
+
+Or, alternatively, you can enter the PostgreSQL interactive terminal (`psql postgres`) and run:
+```sql
+CREATE DATABASE sorbet;
+```
+
 ## Running it locally
 
 Open two terminals, `cd` into `frontend` in one of them, and `backend` in the other.
