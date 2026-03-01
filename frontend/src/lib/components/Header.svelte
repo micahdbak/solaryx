@@ -138,7 +138,7 @@
 				</button>
 				<a
 					href="/"
-					class="font-normal text-xl hidden sm:block tracking-wide transition-colors duration-700"
+					class="font-normal text-xl tracking-wide transition-colors duration-700"
 				>
 					SOLARYX
 				</a>
