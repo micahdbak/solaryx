@@ -1,7 +1,6 @@
 <script>
 	import {
 		isHydeStore,
-		themeLockedStore,
 		searchQueryStore,
 		activeTopicStore,
 		selectedCurrencyStore,

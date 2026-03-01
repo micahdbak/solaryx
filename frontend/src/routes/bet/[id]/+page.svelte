@@ -200,7 +200,9 @@
 	let authUser = $state(null);
 
 	let winnerShare = $derived(
-		currentBet?.winning_share ? shares.find((s) => s.id === currentBet.winning_share) ?? null : null
+		currentBet?.winning_share
+			? (shares.find((s) => s.id === currentBet.winning_share) ?? null)
+			: null
 	);
 
 	let winnerCharityName = $derived(() => {
@@ -644,24 +646,38 @@
 
 		<!-- ===== RIGHT COLUMN ===== -->
 		<div class="sticky top-24 self-start space-y-3">
-			{#if currentBet.status === 'COMPLETE' && winnerShare}
+			{#if currentBet.status === "COMPLETE" && winnerShare}
 				<!-- ── Receipt card (persistent after market ends) ── -->
 				<div class="bg-[#11141c] border border-green-900/40 rounded-2xl p-6 shadow-2xl">
-					<div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-800/80">
+					<div
+						class="flex items-center justify-between mb-5 pb-4 border-b border-gray-800/80"
+					>
 						<h2 class="text-xl font-bold text-white">Market Ended</h2>
-						<span class="text-xs font-bold bg-green-900/40 text-green-400 px-2.5 py-1 rounded-full uppercase tracking-widest">Complete</span>
+						<span
+							class="text-xs font-bold bg-green-900/40 text-green-400 px-2.5 py-1 rounded-full uppercase tracking-widest"
+							>Complete</span
+						>
 					</div>
 
 					<!-- Winner -->
 					<div class="text-center py-2 mb-4">
 						{#if winnerShare.avatar_url}
-							<img src={winnerShare.avatar_url} alt="Winner" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-green-500/50 shadow-lg" />
+							<img
+								src={winnerShare.avatar_url}
+								alt="Winner"
+								class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-green-500/50 shadow-lg"
+							/>
 						{:else}
-							<div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center text-2xl font-black text-gray-400 mx-auto mb-3">
+							<div
+								class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center text-2xl font-black text-gray-400 mx-auto mb-3"
+							>
 								{(winnerShare.username || "A").charAt(0).toUpperCase()}
 							</div>
 						{/if}
-						<a href="/profile/{winnerShare.user_id}" class="text-xl font-black text-white hover:text-green-300 transition-colors">
+						<a
+							href="/profile/{winnerShare.user_id}"
+							class="text-xl font-black text-white hover:text-green-300 transition-colors"
+						>
 							{winnerShare.username || "Anonymous"}
 						</a>
 						<p class="text-gray-500 text-xs mt-1">Lucky Donor</p>
@@ -671,15 +687,23 @@
 					<div class="bg-black/40 rounded-xl p-4 space-y-3">
 						<div class="flex justify-between items-center">
 							<span class="text-gray-400 text-sm">Winning Bet</span>
-							<span class="text-white font-bold">{convertSol(Number(winnerShare.amount_sol))}</span>
+							<span class="text-white font-bold"
+								>{convertSol(Number(winnerShare.amount_sol))}</span
+							>
 						</div>
 						<div class="flex justify-between items-center">
 							<span class="text-gray-400 text-sm">Total Donated</span>
-							<span class="text-green-400 font-extrabold text-lg">{convertSol(currentBet.totalSol)}</span>
+							<span class="text-green-400 font-extrabold text-lg"
+								>{convertSol(currentBet.totalSol)}</span
+							>
 						</div>
-						<div class="flex justify-between items-center pt-3 border-t border-gray-800/60">
+						<div
+							class="flex justify-between items-center pt-3 border-t border-gray-800/60"
+						>
 							<span class="text-gray-400 text-sm">Charity</span>
-							<span class="text-white font-bold max-w-[160px] text-right truncate">{winnerCharityName()}</span>
+							<span class="text-white font-bold max-w-[160px] text-right truncate"
+								>{winnerCharityName()}</span
+							>
 						</div>
 					</div>
 
@@ -687,10 +711,25 @@
 					{#if currentBet.payout_tx}
 						<div class="mt-4 bg-green-950/30 border border-green-900/40 rounded-xl p-4">
 							<div class="flex items-center gap-2 mb-2">
-								<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-								<span class="text-green-400 text-xs font-bold uppercase tracking-widest">Donation Sent On-Chain</span>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="w-4 h-4 text-green-400 shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><polyline points="20 6 9 17 4 12" /></svg
+								>
+								<span
+									class="text-green-400 text-xs font-bold uppercase tracking-widest"
+									>Donation Sent On-Chain</span
+								>
 							</div>
-							<p class="font-mono text-xs text-gray-500 truncate mb-3">{currentBet.payout_tx}</p>
+							<p class="font-mono text-xs text-gray-500 truncate mb-3">
+								{currentBet.payout_tx}
+							</p>
 							<a
 								href="https://explorer.solana.com/tx/{currentBet.payout_tx}?cluster=devnet"
 								target="_blank"
@@ -698,198 +737,235 @@
 								class="flex items-center justify-center gap-2 w-full py-2.5 bg-green-900/30 hover:bg-green-900/50 border border-green-800/50 rounded-lg text-green-400 text-sm font-semibold transition-colors"
 							>
 								View on Solana Explorer
-								<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="w-3.5 h-3.5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><path
+										d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+									/><polyline points="15 3 21 3 21 9" /><line
+										x1="10"
+										y1="14"
+										x2="21"
+										y2="3"
+									/></svg
+								>
 							</a>
 						</div>
 					{:else}
-						<div class="mt-4 flex items-center gap-2 text-gray-500 text-xs justify-center py-3">
-							<svg class="w-3.5 h-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+						<div
+							class="mt-4 flex items-center gap-2 text-gray-500 text-xs justify-center py-3"
+						>
+							<svg
+								class="w-3.5 h-3.5 animate-spin"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								><circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								/><path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8v8z"
+								/></svg
+							>
 							Submitting donation on-chain...
 						</div>
 					{/if}
 				</div>
 			{:else}
-			<!-- Make an Impact Card -->
-			<div
-				class="bg-[var(--bg-card)] transition-colors duration-700 border border-[var(--border-card)] rounded-2xl p-6 shadow-2xl"
-			>
-				<!-- Header with timer -->
+				<!-- Make an Impact Card -->
 				<div
-					class="flex items-center justify-between mb-4 pb-4 border-b border-gray-800/80 var-border-card"
+					class="bg-[var(--bg-card)] transition-colors duration-700 border border-[var(--border-card)] rounded-2xl p-6 shadow-2xl"
 				>
-					<h2
-						class="text-xl font-bold text-[var(--text-primary)] transition-colors duration-700"
-					>
-						Make an Impact
-					</h2>
+					<!-- Header with timer -->
 					<div
-						class="flex items-center gap-1.5 text-sm font-mono font-bold bg-gray-800/50 var-bg-muted px-2.5 py-1 rounded text-gray-300 var-text-primary"
+						class="flex items-center justify-between mb-4 pb-4 border-b border-gray-800/80 var-border-card"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="13"
-							height="13"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							class="text-gray-500 var-text-muted"
-							><circle cx="12" cy="12" r="10" /><polyline
-								points="12 6 12 12 16 14"
-							/></svg
+						<h2
+							class="text-xl font-bold text-[var(--text-primary)] transition-colors duration-700"
 						>
-						{liveTimeRemaining}
+							Make an Impact
+						</h2>
+						<div
+							class="flex items-center gap-1.5 text-sm font-mono font-bold bg-gray-800/50 var-bg-muted px-2.5 py-1 rounded text-gray-300 var-text-primary"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="13"
+								height="13"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="text-gray-500 var-text-muted"
+								><circle cx="12" cy="12" r="10" /><polyline
+									points="12 6 12 12 16 14"
+								/></svg
+							>
+							{liveTimeRemaining}
+						</div>
 					</div>
-				</div>
 
-				<!-- Choose Cause -->
-				<div class="grid grid-cols-2 gap-3 mb-6">
-					<button
-						class="py-4 flex flex-col items-center justify-center rounded-xl font-bold cursor-pointer transition-all duration-200 hover-vibrate
+					<!-- Choose Cause -->
+					<div class="grid grid-cols-2 gap-3 mb-6">
+						<button
+							class="py-4 flex flex-col items-center justify-center rounded-xl font-bold cursor-pointer transition-all duration-200 hover-vibrate
                     {selectedCause === currentBet.optionA.name
-							? 'bg-[#224d37] text-[#4ade80] shadow-[0_0_12px_rgba(34,77,55,0.4)]'
-							: 'bg-[#142a1e] text-[#2d6b4a] hover:bg-[#224d37] hover:text-white'}"
-						onclick={() => (selectedCause = currentBet.optionA.name)}
-					>
-						<span>{currentBet.optionA.name}</span>
-					</button>
-					<button
-						class="py-4 flex flex-col items-center justify-center rounded-xl font-bold cursor-pointer transition-all duration-200 hover-vibrate
+								? 'bg-[#224d37] text-[#4ade80] shadow-[0_0_12px_rgba(34,77,55,0.4)]'
+								: 'bg-[#142a1e] text-[#2d6b4a] hover:bg-[#224d37] hover:text-white'}"
+							onclick={() => (selectedCause = currentBet.optionA.name)}
+						>
+							<span>{currentBet.optionA.name}</span>
+						</button>
+						<button
+							class="py-4 flex flex-col items-center justify-center rounded-xl font-bold cursor-pointer transition-all duration-200 hover-vibrate
                     {selectedCause === currentBet.optionB.name
-							? 'bg-[#4d2222] text-[#ef4444] shadow-[0_0_12px_rgba(77,34,34,0.4)]'
-							: 'bg-[#2a1414] text-[#6b2d2d] hover:bg-[#4d2222] hover:text-white'}"
-						onclick={() => (selectedCause = currentBet.optionB.name)}
-					>
-						<span>{currentBet.optionB.name}</span>
-					</button>
+								? 'bg-[#4d2222] text-[#ef4444] shadow-[0_0_12px_rgba(77,34,34,0.4)]'
+								: 'bg-[#2a1414] text-[#6b2d2d] hover:bg-[#4d2222] hover:text-white'}"
+							onclick={() => (selectedCause = currentBet.optionB.name)}
+						>
+							<span>{currentBet.optionB.name}</span>
+						</button>
+					</div>
+
+					<!-- Amount -->
+					<div class="space-y-3 relative group">
+						<div class="flex justify-between items-center text-sm font-medium">
+							<span
+								class="text-gray-400 var-text-muted group-focus-within:text-[#e0e4f0] transition-colors"
+								>Donation Amount ({getCurrencyLabel()})</span
+							>
+							<span
+								class="text-gray-500 var-text-muted hover:text-[#e0e4f0] cursor-pointer transition-colors"
+								onclick={() => (donationAmount = 0)}>Balance: {convertSol(0)}</span
+							>
+						</div>
+						<div class="relative">
+							<span
+								class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-[#e0e4f0] transition-colors"
+							>
+								{#if $selectedCurrencyStore === "SOL"}
+									<svg
+										class="w-5 h-5"
+										viewBox="0 0 397 311"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
+											fill="currentColor"
+										/><path
+											d="M64.6 3.8C67 1.4 70.3 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
+											fill="currentColor"
+										/><path
+											d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
+											fill="currentColor"
+										/></svg
+									>
+								{:else}
+									<span class="text-xl font-bold"
+										>{getCurrencySymbol($selectedCurrencyStore)}</span
+									>
+								{/if}
+							</span>
+							<input
+								type="text"
+								inputmode="decimal"
+								min="0"
+								placeholder="0"
+								bind:value={donationAmount}
+								oninput={(e) => {
+									e.target.value = e.target.value
+										.replace(/[^0-9.]/g, "")
+										.replace(/(\..*)\./g, "$1");
+									donationAmount = e.target.value;
+								}}
+								class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-4 pl-10 pr-4 text-right text-2xl font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all no-spinners"
+							/>
+						</div>
+						<div class="flex gap-2 text-xs font-semibold">
+							<button
+								class="flex-1 py-2 bg-[var(--bg-muted)]/80 hover:bg-[var(--bg-muted)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+								onclick={() =>
+									(donationAmount = Number(
+										(Number(donationAmount || 0) + 0.1).toFixed(9)
+									))}>+0.1</button
+							>
+							<button
+								class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
+								onclick={() =>
+									(donationAmount = Number(
+										(Number(donationAmount || 0) + 0.5).toFixed(9)
+									))}>+0.5</button
+							>
+							<button
+								class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
+								onclick={() =>
+									(donationAmount = Number(
+										(Number(donationAmount || 0) + 1).toFixed(9)
+									))}>+1</button
+							>
+							<button
+								class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
+								onclick={() =>
+									(donationAmount = Number(
+										(Number(donationAmount || 0) + 5).toFixed(9)
+									))}>+5</button
+							>
+							<button
+								class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
+								onclick={() =>
+									(donationAmount = authUser ? authUser.balance_sol : 0)}
+								>Max</button
+							>
+						</div>
+					</div>
+
+					<div class="mt-6">
+						<button
+							onclick={handleDonate}
+							disabled={donating}
+							class="w-full py-4 bg-[var(--donate-bg)] hover:bg-[var(--donate-bg-hover)] border-none disabled:opacity-50 text-[var(--donate-text)] hover:text-white font-extrabold text-lg rounded-xl shadow-[var(--donate-shadow)] hover:shadow-[var(--donate-shadow-hover)] active:scale-[0.98] transition-all cursor-pointer tracking-wide hover-vibrate"
+						>
+							{donating
+								? "Donating..."
+								: `Donate ${donationAmount ? `${getCurrencySymbol($selectedCurrencyStore)}${donationAmount} ${getCurrencyLabel()}` : "Now"}`}
+						</button>
+					</div>
 				</div>
 
-				<!-- Amount -->
-				<div class="space-y-3 relative group">
-					<div class="flex justify-between items-center text-sm font-medium">
-						<span
-							class="text-gray-400 var-text-muted group-focus-within:text-[#e0e4f0] transition-colors"
-							>Donation Amount ({getCurrencyLabel()})</span
-						>
-						<span
-							class="text-gray-500 var-text-muted hover:text-[#e0e4f0] cursor-pointer transition-colors"
-							onclick={() => (donationAmount = 0)}>Balance: {convertSol(0)}</span
-						>
-					</div>
-					<div class="relative">
-						<span
-							class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-[#e0e4f0] transition-colors"
-						>
-							{#if $selectedCurrencyStore === "SOL"}
-								<svg
-									class="w-5 h-5"
-									viewBox="0 0 397 311"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-									><path
-										d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
-										fill="currentColor"
-									/><path
-										d="M64.6 3.8C67 1.4 70.3 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
-										fill="currentColor"
-									/><path
-										d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
-										fill="currentColor"
-									/></svg
-								>
-							{:else}
-								<span class="text-xl font-bold"
-									>{getCurrencySymbol($selectedCurrencyStore)}</span
-								>
-							{/if}
-						</span>
-						<input
-							type="text"
-							inputmode="decimal"
-							min="0"
-							placeholder="0"
-							bind:value={donationAmount}
-							oninput={(e) => {
-								e.target.value = e.target.value
-									.replace(/[^0-9.]/g, "")
-									.replace(/(\..*)\./g, "$1");
-								donationAmount = e.target.value;
-							}}
-							class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-4 pl-10 pr-4 text-right text-2xl font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all no-spinners"
-						/>
-					</div>
-					<div class="flex gap-2 text-xs font-semibold">
-						<button
-							class="flex-1 py-2 bg-[var(--bg-muted)]/80 hover:bg-[var(--bg-muted)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
-							onclick={() =>
-								(donationAmount = Number(
-									(Number(donationAmount || 0) + 0.1).toFixed(9)
-								))}>+0.1</button
-						>
-						<button
-							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() =>
-								(donationAmount = Number(
-									(Number(donationAmount || 0) + 0.5).toFixed(9)
-								))}>+0.5</button
-						>
-						<button
-							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() =>
-								(donationAmount = Number(
-									(Number(donationAmount || 0) + 1).toFixed(9)
-								))}>+1</button
-						>
-						<button
-							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() =>
-								(donationAmount = Number(
-									(Number(donationAmount || 0) + 5).toFixed(9)
-								))}>+5</button
-						>
-						<button
-							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() => (donationAmount = authUser ? authUser.balance_sol : 0)}
-							>Max</button
-						>
-					</div>
-				</div>
-
-				<div class="mt-6">
-					<button
-						onclick={handleDonate}
-						disabled={donating}
-						class="w-full py-4 bg-[var(--donate-bg)] hover:bg-[var(--donate-bg-hover)] border-none disabled:opacity-50 text-[var(--donate-text)] hover:text-white font-extrabold text-lg rounded-xl shadow-[var(--donate-shadow)] hover:shadow-[var(--donate-shadow-hover)] active:scale-[0.98] transition-all cursor-pointer tracking-wide hover-vibrate"
-					>
-						{donating
-							? "Donating..."
-							: `Donate ${donationAmount ? `${getCurrencySymbol($selectedCurrencyStore)}${donationAmount} ${getCurrencyLabel()}` : "Now"}`}
-					</button>
-				</div>
-			</div>
-
-			<!-- Total Pot -->
-			<div
-				class="bg-[var(--bg-card)] transition-colors duration-700 border border-[var(--border-card)] rounded-xl px-5 py-4 flex items-center justify-between"
-			>
-				<span class="text-sm text-[var(--text-muted)] font-semibold">Total Pot</span>
-				<span
-					class="text-lg font-extrabold text-[var(--text-primary)]"
-					class:shake={refreshing}>{convertSol(currentBet.totalSol)}</span
+				<!-- Total Pot -->
+				<div
+					class="bg-[var(--bg-card)] transition-colors duration-700 border border-[var(--border-card)] rounded-xl px-5 py-4 flex items-center justify-between"
 				>
-			</div>
+					<span class="text-sm text-[var(--text-muted)] font-semibold">Total Pot</span>
+					<span
+						class="text-lg font-extrabold text-[var(--text-primary)]"
+						class:shake={refreshing}>{convertSol(currentBet.totalSol)}</span
+					>
+				</div>
 
-			<!-- Terms -->
-			<p class="text-center text-xs text-[var(--text-muted)] px-2 mt-2">
-				By donating you agree to our
-				<a
-					href="/terms"
-					class="underline hover:text-[var(--text-primary)] transition-colors"
-					>Terms of Service</a
-				>.
-			</p>
+				<!-- Terms -->
+				<p class="text-center text-xs text-[var(--text-muted)] px-2 mt-2">
+					By donating you agree to our
+					<a
+						href="/terms"
+						class="underline hover:text-[var(--text-primary)] transition-colors"
+						>Terms of Service</a
+					>.
+				</p>
 			{/if}
 		</div>
 	</section>
@@ -944,25 +1020,40 @@
 			<div
 				class="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-500"
 			>
-				<div class="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-sm w-full mx-4 text-center shadow-2xl">
-					<div class="text-xs font-bold text-green-400 uppercase tracking-widest mb-5">Winner Selected</div>
+				<div
+					class="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-sm w-full mx-4 text-center shadow-2xl"
+				>
+					<div class="text-xs font-bold text-green-400 uppercase tracking-widest mb-5">
+						Winner Selected
+					</div>
 
 					{#if rouletteWinner.avatar_url}
-						<img src={rouletteWinner.avatar_url} alt="Winner" class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-white shadow-lg" />
+						<img
+							src={rouletteWinner.avatar_url}
+							alt="Winner"
+							class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-white shadow-lg"
+						/>
 					{:else}
-						<div class="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-black text-gray-300 mx-auto mb-3">
+						<div
+							class="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-black text-gray-300 mx-auto mb-3"
+						>
 							{(rouletteWinner.username || "A").charAt(0).toUpperCase()}
 						</div>
 					{/if}
-					<div class="text-2xl font-black text-white">{rouletteWinner.username || "Anonymous"}</div>
+					<div class="text-2xl font-black text-white">
+						{rouletteWinner.username || "Anonymous"}
+					</div>
 					<div class="text-gray-500 text-xs mt-1 mb-5">Lucky Donor</div>
 
 					<!-- Total pot hero -->
 					<div class="bg-black/50 rounded-xl p-4 mb-4">
 						<div class="text-gray-400 text-xs mb-1">Total Pot Donated to</div>
-						<div class="text-green-400 font-black text-3xl">{convertSol(currentBet.totalSol)}</div>
+						<div class="text-green-400 font-black text-3xl">
+							{convertSol(currentBet.totalSol)}
+						</div>
 						<div class="text-white font-bold mt-1">
-							{rouletteWinner.market_charity_id === currentBet.optionA.market_charity_id
+							{rouletteWinner.market_charity_id ===
+							currentBet.optionA.market_charity_id
 								? currentBet.optionA.name
 								: currentBet.optionB.name}
 						</div>
@@ -970,16 +1061,37 @@
 
 					<div class="flex justify-between items-center px-1 mb-5">
 						<span class="text-gray-500 text-sm">Winning Bet</span>
-						<span class="text-white font-bold">{convertSol(Number(rouletteWinner.amount_sol))}</span>
+						<span class="text-white font-bold"
+							>{convertSol(Number(rouletteWinner.amount_sol))}</span
+						>
 					</div>
 
 					{#if currentBet.payout_tx}
-						<div class="bg-green-950/40 border border-green-800/40 rounded-xl p-3 mb-5 text-left">
+						<div
+							class="bg-green-950/40 border border-green-800/40 rounded-xl p-3 mb-5 text-left"
+						>
 							<div class="flex items-center gap-1.5 mb-2">
-								<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-green-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-								<span class="text-green-400 text-xs font-bold uppercase tracking-widest">Donation Confirmed</span>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="w-3.5 h-3.5 text-green-400 shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><polyline points="20 6 9 17 4 12" /></svg
+								>
+								<span
+									class="text-green-400 text-xs font-bold uppercase tracking-widest"
+									>Donation Confirmed</span
+								>
 							</div>
-							<p class="font-mono text-xs text-gray-500 truncate mb-2.5">{currentBet.payout_tx.slice(0,10)}…{currentBet.payout_tx.slice(-10)}</p>
+							<p class="font-mono text-xs text-gray-500 truncate mb-2.5">
+								{currentBet.payout_tx.slice(0, 10)}…{currentBet.payout_tx.slice(
+									-10
+								)}
+							</p>
 							<a
 								href="https://explorer.solana.com/tx/{currentBet.payout_tx}?cluster=devnet"
 								target="_blank"
@@ -987,19 +1099,57 @@
 								class="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 font-semibold transition-colors"
 							>
 								View on Solana Explorer
-								<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="w-3 h-3"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><path
+										d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+									/><polyline points="15 3 21 3 21 9" /><line
+										x1="10"
+										y1="14"
+										x2="21"
+										y2="3"
+									/></svg
+								>
 							</a>
 						</div>
 					{:else}
-						<div class="flex items-center justify-center gap-2 text-gray-500 text-xs mb-5 py-3 bg-black/30 rounded-xl">
-							<svg class="w-3.5 h-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+						<div
+							class="flex items-center justify-center gap-2 text-gray-500 text-xs mb-5 py-3 bg-black/30 rounded-xl"
+						>
+							<svg
+								class="w-3.5 h-3.5 animate-spin"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								><circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								/><path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8v8z"
+								/></svg
+							>
 							Submitting donation on-chain…
 						</div>
 					{/if}
 
 					<button
 						class="w-full py-3 bg-white text-black font-bold uppercase tracking-wider rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
-						onclick={() => { showRoulette = false; }}
+						onclick={() => {
+							showRoulette = false;
+						}}
 					>
 						View Results
 					</button>
