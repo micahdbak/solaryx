@@ -1,6 +1,7 @@
 <script>
 	import {
 		isHydeStore,
+		themeLockedStore,
 		searchQueryStore,
 		activeTopicStore,
 		selectedCurrencyStore,
@@ -52,6 +53,7 @@
 
 	function handleThemeToggle(e) {
 		e.preventDefault();
+		if ($themeLockedStore) return;
 		$isHydeStore = !$isHydeStore;
 	}
 
@@ -99,13 +101,37 @@
 			<div class="flex items-center gap-1 mr-8 md:mr-12">
 				<button
 					onclick={handleThemeToggle}
-					class="bg-transparent border-none flex items-center justify-center w-12 h-12 text-2xl text-[#e0e4f0] no-underline tracking-wide whitespace-nowrap hover:scale-105 transition-transform cursor-pointer"
+					class="bg-transparent border-none flex items-center justify-center w-12 h-12 text-2xl text-[#e0e4f0] no-underline tracking-wide whitespace-nowrap transition-all cursor-pointer relative {$themeLockedStore
+						? 'opacity-50 grayscale scale-95 cursor-not-allowed'
+						: 'hover:scale-105'}"
 					aria-label="Toggle theme"
+					disabled={$themeLockedStore}
 				>
 					{#if $isHydeStore}
 						<img src="/hyde.png" alt="Icon" style="width: 40px; height: 40px;" />
 					{:else}
 						<img src="/jekyll.png" alt="Icon" style="width: 40px; height: 40px;" />
+					{/if}
+					{#if $themeLockedStore}
+						<div
+							class="absolute -bottom-1 -right-1 bg-gray-900/80 rounded-full p-0.5 border border-white/10 scale-75"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="12"
+								height="12"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="lucide lucide-lock text-gray-400"
+								><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path
+									d="M7 11V7a5 5 0 0 1 10 0v4"
+								/></svg
+							>
+						</div>
 					{/if}
 				</button>
 				<a
@@ -143,15 +169,11 @@
 			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets"}
 				<div
 					bind:this={topicContainerEl}
-					class="topic-switcher relative flex items-center ml-2 rounded-full p-0.5 {$isHydeStore
-						? 'bg-red-950/30'
-						: 'bg-white/[0.06]'}"
+					class="topic-switcher relative flex items-center ml-2 rounded-full p-0.5 bg-white/[0.06]"
 				>
 					<!-- Sliding pill indicator -->
 					<div
-						class="topic-pill absolute top-0.5 left-0 h-[calc(100%-4px)] rounded-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none {$isHydeStore
-							? 'bg-red-900/50 shadow-[0_0_12px_rgba(239,68,68,0.25)]'
-							: 'bg-white/[0.12] shadow-[0_0_12px_rgba(255,255,255,0.08)]'}"
+						class="topic-pill absolute top-0.5 left-0 h-[calc(100%-4px)] rounded-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none bg-white/[0.12] shadow-[0_0_12px_rgba(255,255,255,0.08)]"
 						style={pillStyle}
 					></div>
 					{#each topics as topic, i}
@@ -163,12 +185,8 @@
 							}}
 							class="relative z-10 px-3.5 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-colors duration-300 ease-in-out bg-transparent border-none cursor-pointer {$activeTopicStore ===
 							topic
-								? $isHydeStore
-									? 'text-red-100'
-									: 'text-[#e0e4f0]'
-								: $isHydeStore
-									? 'text-red-800 hover:text-red-300'
-									: 'text-gray-400 hover:text-gray-200'}"
+								? 'text-[#e0e4f0]'
+								: 'text-gray-400 hover:text-gray-200'}"
 						>
 							{topic}
 						</button>
@@ -181,12 +199,8 @@
 				href="/leaderboard"
 				class="flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out no-underline {$page
 					.url.pathname === '/leaderboard'
-					? $isHydeStore
-						? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-						: 'bg-white/10 text-[#e0e4f0] shadow-[0_0_10px_rgba(255,255,255,0.1)]'
-					: $isHydeStore
-						? 'text-red-700 hover:text-red-400 hover:bg-red-900/20'
-						: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
+					? 'bg-white/10 text-[#e0e4f0] shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+					: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -218,9 +232,7 @@
 				>
 				<a
 					href="/signup"
-					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-[#e0e4f0] hover:-translate-y-px {$isHydeStore
-						? 'bg-red-600 shadow-[0_4px_14px_rgba(220,38,38,0.4)] hover:bg-red-800 hover:shadow-[0_6px_20px_rgba(220,38,38,0.6)]'
-						: 'bg-blue-500 shadow-[0_4px_14px_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.39)]'}"
+					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-[#e0e4f0] hover:-translate-y-px bg-blue-500 shadow-[0_4px_14px_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.39)]"
 					>SIGN UP</a
 				>
 			{/if}
@@ -231,9 +243,7 @@
 				<div class="relative" bind:this={currencyMenuContainer}>
 					<button
 						onclick={toggleCurrencyMenu}
-						class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 hover:-translate-y-px cursor-pointer {$isHydeStore
-							? 'bg-red-950/30 border-red-900/50 text-red-300 hover:bg-red-900/40'
-							: 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-[#e0e4f0]'}"
+						class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 hover:-translate-y-px cursor-pointer bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-[#e0e4f0]"
 					>
 						{#if $selectedCurrencyStore === "SOL"}
 							<svg

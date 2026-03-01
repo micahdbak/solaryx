@@ -2,7 +2,12 @@
 	import { onMount, onDestroy } from "svelte";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-	import { isHydeStore, selectedCurrencyStore, exchangeRatesStore } from "$lib/theme";
+	import {
+		isHydeStore,
+		themeLockedStore,
+		selectedCurrencyStore,
+		exchangeRatesStore
+	} from "$lib/theme";
 	import { formatSol } from "$lib/utils";
 	import {
 		fetchMarket,
@@ -383,6 +388,7 @@
 			}
 
 			$isHydeStore = currentBet.isHyde;
+			$themeLockedStore = true;
 			selectedCause = currentBet.optionA.name;
 		} catch (e) {
 			console.error("Failed to load market:", e);
@@ -398,6 +404,7 @@
 	onDestroy(() => {
 		if (refreshInterval) clearInterval(refreshInterval);
 		if (tickInterval) clearInterval(tickInterval);
+		$themeLockedStore = false;
 	});
 </script>
 
