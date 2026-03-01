@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const auth = require("./auth");
 const charities = require("./charities");
+const markets = require("./markets");
+const shares = require("./shares");
 
 const cookieParser = require("cookie-parser");
 
@@ -12,6 +14,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", auth);
 app.use(charities);
+app.use(markets);
+app.use(shares);
 
 app.get("/", (_, res) => {
 	res.json({ status: true });

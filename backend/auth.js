@@ -91,9 +91,12 @@ router.post("/signup", async (req, res) => {
 	const hash = await hash_password(password);
 
 	try {
-		await pool.query("INSERT INTO users(email, password) VALUES ($1, $2)", [email, hash]);
+		const result = await pool.query(
+			"INSERT INTO users(email, password_hash) VALUES ($1, $2) RETURNING id, email",
+			[email, hash]
+		);
 
-		return res.status(200).json({ status: true });
+		return res.status(200).json({ status: true, user: result.rows[0] });
 	} catch {
 		return res.status(400).json({ error: "Email already exists" });
 	}
@@ -112,7 +115,7 @@ router.post("/login", async (req, res) => {
 		}
 
 		const user = result.rows[0];
-		const match = await verify_password(password, user.password);
+		const match = await verify_password(password, user.password_hash);
 		if (!match) {
 			return res.status(401).json({ error: "Invalid credentials" });
 		}
@@ -128,7 +131,10 @@ router.post("/login", async (req, res) => {
 			maxAge: 24 * 60 * 60 * 1000 // 24 hours
 		});
 
-		res.json({ message: "User logged in successfully" });
+		res.json({
+			message: "User logged in successfully",
+			user: { id: user.id, email: user.email }
+		});
 	} catch (err) {
 		console.error("Login error:", err);
 		res.status(500).json({ error: "Internal server error" });
