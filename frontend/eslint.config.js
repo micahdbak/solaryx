@@ -16,7 +16,9 @@ export default [
 		},
 		rules: {
 			"no-unused-vars": "warn",
-			"no-useless-escape": "off"
+			"no-useless-escape": "off",
+			"svelte/no-navigation-without-resolve": "off",
+			"svelte/require-each-key": "off"
 		}
 	},
 	{
