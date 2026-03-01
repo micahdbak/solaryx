@@ -6,12 +6,15 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+
 DROP TABLE IF EXISTS payouts CASCADE;
 DROP TABLE IF EXISTS bets CASCADE;
 DROP TABLE IF EXISTS market_charity CASCADE;
 DROP TABLE IF EXISTS markets CASCADE;
 DROP TABLE IF EXISTS charities CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+DROP TABLE IF EXISTS shares CASCADE;
 
 -- ==========================================================
 -- 2. TABLES CREATION
@@ -21,6 +24,13 @@ CREATE TABLE users (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email           VARCHAR(255) UNIQUE NOT NULL,
     password_hash   VARCHAR(255) NOT NULL,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE profiles (
+    user_id         UUID PRIMARY KEY REFERENCES users(id),
+    username        VARCHAR(255) UNIQUE NOT NULL,
+    avatar_url      TEXT DEFAULT 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

@@ -78,28 +78,50 @@ router.post("/signup", async (req, res) => {
 	/* User will submit a JSON body to the request with fields:
 	 * - "email": email to sign up with
 	 * - "password": password to sign up with
+	 * - "username": chosen display name
 	 */
-	const { email, password } = req.body;
-	if (!email || !password) {
-		return res.status(400).json({ error: "Email and password are required" });
+	const { email, password, username } = req.body;
+	if (!email || !password || !username) {
+		return res.status(400).json({ error: "Email, password, and username are required" });
 	}
 
 	if (!is_valid_password(password)) {
 		return res.status(400).json({ error: "Invalid password" });
 	}
 
+	// Double-check username is not taken before hashing
+	const usernameCheck = await pool.query("SELECT 1 FROM profiles WHERE username ILIKE $1", [
+		username
+	]);
+	if (usernameCheck.rows.length > 0) {
+		return res.status(400).json({ error: "Username already taken" });
+	}
+
 	const hash = await hash_password(password);
+	const client = await pool.connect();
 
 	try {
-		const result = await pool.query(
+		await client.query("BEGIN");
+
+		const result = await client.query(
 			"INSERT INTO users(email, password_hash) VALUES ($1, $2) RETURNING id, email",
 			[email, hash]
 		);
+		const user = result.rows[0];
 
+		await client.query("INSERT INTO profiles(user_id, username) VALUES ($1, $2)", [
+			user.id,
+			username
+		]);
+
+		await client.query("COMMIT");
 		return res.status(200).json({ status: true });
 	} catch (ex) {
+		await client.query("ROLLBACK");
 		console.error(ex);
-		return res.status(400).json({ error: "Email already exists" });
+		return res.status(400).json({ error: "Email or username already exists" });
+	} finally {
+		client.release();
 	}
 });
 
