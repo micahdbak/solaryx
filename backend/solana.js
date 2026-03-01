@@ -1,11 +1,12 @@
-const { Connection, PublicKey, LAMPORTS_PER_SOL } = require("@solana/web3.js");
+const { Connection, LAMPORTS_PER_SOL } = require("@solana/web3.js");
 
 // Use devnet for testing
 const network = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
 const connection = new Connection(network, "confirmed");
 
 // Expected receiver
-const GLOBAL_POOL_WALLET = process.env.DEV_WALLET_ADDRESS || "YOUR_WALLET_ADDRESS_HERE";
+const GLOBAL_POOL_WALLET =
+	process.env.DEV_WALLET_ADDRESS || "GqpKUJUhKJCvLTLwtfdetfQGDkAtkcCVimnvHRUZe8WG";
 
 function createWallet() {
 	return {

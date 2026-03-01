@@ -1,7 +1,6 @@
 const express = require("express");
 const pool = require("./db");
 const { verify_session } = require("./auth");
-const { checkTransaction } = require("./solana");
 const { Share, ErrorResponse } = require("./models");
 
 const router = express.Router();
@@ -13,15 +12,15 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 	const user_id = req.user.id;
 
 	if (!market_charity_id || !amount_sol) {
-		return res.status(400).json({
-			error: "market_charity_id and amount_sol are required"
-		});
+		return res
+			.status(400)
+			.json(new ErrorResponse("market_charity_id and amount_sol are required"));
 	}
 
 	try {
 		const finalAmount = parseFloat(amount_sol);
 		if (isNaN(finalAmount) || finalAmount <= 0) {
-			return res.status(400).json({ error: "Invalid amount" });
+			return res.status(400).json(new ErrorResponse("Invalid amount"));
 		}
 
 		await pool.query("BEGIN");
@@ -34,7 +33,7 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 
 		if (balanceResult.rows.length === 0) {
 			await pool.query("ROLLBACK");
-			return res.status(400).json({ error: "Insufficient balance" });
+			return res.status(400).json(new ErrorResponse("Insufficient balance"));
 		}
 
 		const result = await pool.query(
@@ -45,7 +44,7 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 		);
 
 		await pool.query("COMMIT");
-		res.status(201).json(result.rows[0]);
+		res.status(201).json(new Share(result.rows[0]));
 	} catch (err) {
 		await pool.query("ROLLBACK");
 		console.error("Error creating share:", err);

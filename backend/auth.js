@@ -89,7 +89,9 @@ router.post("/signup", async (req, res) => {
 	 */
 	const { email, password, username } = req.body;
 	if (!email || !password || !username) {
-		return res.status(400).json({ error: "Email, password, and username are required" });
+		return res
+			.status(400)
+			.json(new ErrorResponse("Email, password, and username are required"));
 	}
 
 	if (!is_valid_password(password)) {
@@ -101,7 +103,7 @@ router.post("/signup", async (req, res) => {
 		username
 	]);
 	if (usernameCheck.rows.length > 0) {
-		return res.status(400).json({ error: "Username already taken" });
+		return res.status(400).json(new ErrorResponse("Username already taken"));
 	}
 
 	const hash = await hash_password(password);
@@ -133,7 +135,7 @@ router.post("/signup", async (req, res) => {
 	} catch (ex) {
 		await client.query("ROLLBACK");
 		console.error(ex);
-		return res.status(400).json({ error: "Email or username already exists" });
+		return res.status(400).json(new ErrorResponse("Email or username already exists"));
 	}
 
 	client.release();
@@ -220,14 +222,7 @@ router.post("/login", async (req, res) => {
 			maxAge: 24 * 60 * 60 * 1000 // 24 hours
 		});
 
-		res.json({
-			message: "User logged in successfully",
-			user: {
-				id: user.id,
-				email: user.email,
-				balance_sol: user.balance_sol ? parseFloat(user.balance_sol) : 0
-			}
-		});
+		res.json(new LoginResponse("User logged in successfully", user));
 	} catch (err) {
 		console.error("Login error:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));
@@ -241,9 +236,7 @@ router.post("/logout", (req, res) => {
 });
 
 router.get("/status", verify_session, (req, res) => {
-	const statusRes = new StatusResponse(true);
-	statusRes.user = new User(req.user);
-	res.json(statusRes);
+	res.json(new StatusResponse(true, req.user));
 });
 
 module.exports = router;

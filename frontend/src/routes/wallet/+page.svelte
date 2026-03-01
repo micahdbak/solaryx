@@ -8,7 +8,7 @@
 	const network = "https://api.devnet.solana.com";
 	const connection = new Connection(network, "confirmed");
 	// This connects to the default platform wallet defined in env (or hardcoded for frontend tests)
-	const platformWalletStr = "YOUR_WALLET_ADDRESS_HERE";
+	const platformWalletStr = "GqpKUJUhKJCvLTLwtfdetfQGDkAtkcCVimnvHRUZe8WG"; // Fallback to System Program ID if not set
 	const platformWalletPubKey = new PublicKey(platformWalletStr);
 
 	let balance = $state(0);

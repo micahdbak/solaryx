@@ -5,8 +5,11 @@ class ErrorResponse {
 }
 
 class StatusResponse {
-	constructor(status) {
+	constructor(status, user = undefined) {
 		this.status = status;
+		if (user !== undefined) {
+			this.user = user instanceof User ? user : new User(user);
+		}
 	}
 }
 
@@ -15,6 +18,8 @@ class User {
 		this.id = row.id;
 		this.email = row.email;
 		this.is_email_verified = row.is_email_verified;
+		this.balance_sol = row.balance_sol !== undefined ? parseFloat(row.balance_sol) : 0;
+		this.created_at = row.created_at;
 	}
 }
 

@@ -149,13 +149,17 @@ router.get("/markets/:id", async (req, res) => {
 						);
 
 						if (shares.length > 0) {
-							const totalSol = shares.reduce((acc, s) => acc + parseFloat(s.amount_sol), 0);
+							const totalSol = shares.reduce(
+								(acc, s) => acc + parseFloat(s.amount_sol),
+								0
+							);
 							if (totalSol > 0) {
 								const crypto = require("crypto");
 
 								// 1. Randomize the array of shares
 								shares.sort(() => {
-									const randomFraction = crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
+									const randomFraction =
+										crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
 									return randomFraction - 0.5;
 								});
 
@@ -165,7 +169,8 @@ router.get("/markets/:id", async (req, res) => {
 								// 2. Iterate each, rolling the dice with probability = amount_sol / total_sol
 								for (const share of shares) {
 									const probability = parseFloat(share.amount_sol) / totalSol;
-									const randomFraction = crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
+									const randomFraction =
+										crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
 
 									if (randomFraction <= probability) {
 										winningShareId = share.id;
@@ -235,10 +240,10 @@ router.get("/my-bets", verify_session, async (req, res) => {
 			 ORDER BY m.created_at DESC`,
 			[req.user.id]
 		);
-		res.json(result.rows);
+		res.json(result.rows.map((row) => new Market(row)));
 	} catch (err) {
 		console.error("Error fetching my bets:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });
 

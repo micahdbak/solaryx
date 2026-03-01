@@ -18,6 +18,8 @@ All API responses return JSON objects structured according to the following mode
 - `id` (uuid): The user's internal ID.
 - `email` (string): The user's email address.
 - `is_email_verified` (boolean): `true` if email is verified.
+- `balance_sol` (number): User's current balance in SOL.
+- `created_at` (timestamp)
 
 ### `LoginResponse`
 
@@ -78,9 +80,9 @@ A recorded bet/contribution from a user.
 
 Create a new user account.
 
-**Body:** `{ "email": string, "password": string }`
+**Body:** `{ "email": string, "password": string, "username": string }`
 
-**Response:** `StatusResponse`
+**Response:** `LoginResponse` — sets `token` cookie.
 
 ### `POST /auth/login`
 
@@ -161,6 +163,12 @@ List all markets with aggregated share data.
 Get a single market by ID with aggregated share data.
 
 **Response:** `Market`
+
+### `GET /markets/my-bets`
+
+List all markets that the logged-in user has participated in. **Requires auth.**
+
+**Response:** Array of `Market`
 
 ---
 
