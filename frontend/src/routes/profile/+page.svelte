@@ -8,6 +8,7 @@
 	let markets = $state([]);
 	let loading = $state(true);
 	let activeTab = $state("ACTIVE");
+	let timeFilter = $state("ALL"); // '1D', '1W', 'ALL'
 
 	onMount(async () => {
 		try {
@@ -43,18 +44,102 @@
 		}
 	});
 
-	let totalDonation = $derived(shares.reduce((sum, s) => sum + Number(s.amount_sol), 0));
-	let topDonation = $derived(
-		shares.length > 0 ? Math.max(...shares.map((s) => Number(s.amount_sol))) : 0
+	// 1. Filter shares by Time
+	let timeFilteredShares = $derived(
+		shares.filter((s) => {
+			if (timeFilter === "ALL") return true;
+			const shareTime = new Date(s.created_at).getTime();
+			const now = Date.now();
+			if (timeFilter === "1D") return now - shareTime <= 86400000;
+			if (timeFilter === "1W") return now - shareTime <= 604800000;
+			return true;
+		})
 	);
 
+	// 2. Base metrics specifically bound to the time filter
+	let totalDonation = $derived(
+		timeFilteredShares.reduce((sum, s) => sum + Number(s.amount_sol), 0)
+	);
+	let topDonation = $derived(
+		timeFilteredShares.length > 0
+			? Math.max(...timeFilteredShares.map((s) => Number(s.amount_sol)))
+			: 0
+	);
+
+	// 3. Tab filter for the list below the chart (Active/Closed)
 	let displayShares = $derived(
-		shares.filter((s) => {
+		timeFilteredShares.filter((s) => {
 			if (activeTab === "ACTIVE") return s.transaction_status === "WAITING";
 			if (activeTab === "CLOSED") return s.transaction_status === "FINALIZED";
 			return true;
 		})
 	);
+
+	// 4. Generate SVG Path Data for Chart
+	let graphData = $derived.by(() => {
+		// Only chart FINALIZED (actual past donations over time) to look realistic, or all if preferred.
+		// For aesthetics, let's chart all filtered shares but sort them chronologically
+		let chartShares = [...timeFilteredShares].sort(
+			(a, b) => new Date(a.created_at) - new Date(b.created_at)
+		);
+
+		if (chartShares.length === 0) {
+			// Flat line at zero
+			return { path: "M0,90 L400,90", area: "M0,90 L400,90 L400,100 L0,100 Z" };
+		}
+		if (chartShares.length === 1) {
+			// Flat line at their one donation
+			return { path: "M0,50 L400,50", area: "M0,50 L400,50 L400,100 L0,100 Z" };
+		}
+
+		let runningTotal = 0;
+		const points = chartShares.map((s) => {
+			runningTotal += Number(s.amount_sol);
+			return {
+				time: new Date(s.created_at).getTime(),
+				value: runningTotal
+			};
+		});
+
+		const minTime = points[0].time;
+		const maxTime = points[points.length - 1].time;
+		const timeRange = maxTime - minTime || 1; // avoid division by zero
+		const maxValue = points[points.length - 1].value;
+		const minValue = 0;
+		const valueRange = maxValue - minValue || 1;
+
+		// SVG ViewBox is 400x100
+		// Y goes from 10 (top) to 90 (bottom) to give some padding
+		const SVG_WIDTH = 400;
+		const SVG_HEIGHT = 100;
+		const Y_PADDING = 10;
+		const Y_USABLE = SVG_HEIGHT - Y_PADDING * 2;
+
+		let pathD = "";
+		let areaD = "";
+
+		points.forEach((pt, i) => {
+			// X coordinate mapping (0 to 400)
+			const x = ((pt.time - minTime) / timeRange) * SVG_WIDTH;
+			// Y coordinate mapping (inverted, so higher value = lower Y pixel)
+			// Map value [0, maxValue] to [90, 10]
+			const y = SVG_HEIGHT - Y_PADDING - (pt.value / maxValue) * Y_USABLE;
+
+			if (i === 0) {
+				pathD += `M${x.toFixed(1)},${y.toFixed(1)} `;
+				areaD += `M${x.toFixed(1)},${y.toFixed(1)} `;
+			} else {
+				pathD += `L${x.toFixed(1)},${y.toFixed(1)} `;
+				areaD += `L${x.toFixed(1)},${y.toFixed(1)} `;
+			}
+		});
+
+		// Close the area path down to the bottom of the SVG
+		const lastX = SVG_WIDTH;
+		areaD += `L${lastX},100 L0,100 Z`;
+
+		return { path: pathD, area: areaD };
+	});
 </script>
 
 <div class="max-w-[1240px] mx-auto p-4 md:p-6 lg:p-8 pt-8 font-sans">
@@ -201,21 +286,34 @@
 					<div
 						class="flex items-center gap-1 text-[0.75rem] font-bold text-gray-400 bg-black/20 p-1 rounded-md"
 					>
-						<button class="px-2.5 py-1 rounded hover:text-white transition-colors"
-							>1D</button
-						>
-						<button class="px-2.5 py-1 rounded hover:text-white transition-colors"
-							>1W</button
+						<button
+							onclick={() => (timeFilter = "1D")}
+							class="px-2.5 py-1 rounded transition-colors {timeFilter === '1D'
+								? $isHydeStore
+									? 'bg-red-500/20 text-red-400'
+									: 'bg-blue-500/20 text-blue-400'
+								: 'hover:text-white'}">1D</button
 						>
 						<button
-							class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-400 {$isHydeStore
-								? 'bg-red-500/20 text-red-400'
-								: ''}">ALL</button
+							onclick={() => (timeFilter = "1W")}
+							class="px-2.5 py-1 rounded transition-colors {timeFilter === '1W'
+								? $isHydeStore
+									? 'bg-red-500/20 text-red-400'
+									: 'bg-blue-500/20 text-blue-400'
+								: 'hover:text-white'}">1W</button
+						>
+						<button
+							onclick={() => (timeFilter = "ALL")}
+							class="px-2.5 py-1 rounded transition-colors {timeFilter === 'ALL'
+								? $isHydeStore
+									? 'bg-red-500/20 text-red-400'
+									: 'bg-blue-500/20 text-blue-400'
+								: 'hover:text-white'}">ALL</button
 						>
 					</div>
 				</div>
 
-				<!-- Mockup Graph -->
+				<!-- Track Graph -->
 				<div
 					class="absolute inset-0 w-full h-full flex items-end opacity-80 pt-16 pointer-events-none rounded-[1rem] overflow-hidden"
 				>
@@ -250,13 +348,10 @@
 							</style>
 						</defs>
 						<!-- Area -->
-						<path
-							d="M0,80 Q50,75 100,78 T200,60 T300,65 T350,50 T400,10 L400,100 L0,100 Z"
-							fill="url(#chartGrad)"
-						/>
+						<path d={graphData.area} fill="url(#chartGrad)" />
 						<!-- Line -->
 						<path
-							d="M0,80 Q50,75 100,78 T200,60 T300,65 T350,50 T400,10"
+							d={graphData.path}
 							fill="none"
 							class="chart-path"
 							stroke-width="2.5"
