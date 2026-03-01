@@ -167,7 +167,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 mb-10">
 			<!-- Left Box: User Info & Core Stats -->
 			<div
-				class="bg-[#1e212b] rounded-[1rem] p-6 shadow-lg border border-gray-800/60 {$isHydeStore
+				class="bg-[#11141c] rounded-2xl p-6 shadow-lg border border-gray-800 {$isHydeStore
 					? 'bg-red-950/20 border-red-900/40'
 					: ''}"
 			>
@@ -273,7 +273,7 @@
 
 			<!-- Right Box: Chart & Total Value -->
 			<div
-				class="bg-[#1e212b] rounded-[1rem] p-6 shadow-lg border border-gray-800/60 flex flex-col min-h-[220px] relative {$isHydeStore
+				class="bg-[#11141c] rounded-2xl p-6 shadow-lg border border-gray-800 flex flex-col min-h-[220px] relative {$isHydeStore
 					? 'bg-red-950/20 border-red-900/40'
 					: ''}"
 			>
@@ -384,14 +384,14 @@
 		<div class="mb-6">
 			<div class="flex items-center justify-between">
 				<div
-					class="flex items-center bg-[#1e212b] p-1 rounded-lg border border-gray-800/60 {$isHydeStore
+					class="flex items-center bg-[#11141c] p-1 rounded-lg border border-gray-800 {$isHydeStore
 						? 'bg-red-950/20 border-red-900/40'
 						: ''}"
 				>
 					<button
 						class="px-5 py-1.5 rounded-md text-[0.85rem] font-bold transition-all {activeTab ===
 						'ACTIVE'
-							? 'bg-[#2a2d36] text-white shadow-sm'
+							? 'bg-gray-700 text-white shadow-sm'
 							: 'text-gray-400 hover:text-gray-200'}"
 						onclick={() => (activeTab = "ACTIVE")}
 					>
@@ -400,7 +400,7 @@
 					<button
 						class="px-5 py-1.5 rounded-md text-[0.85rem] font-bold transition-all {activeTab ===
 						'CLOSED'
-							? 'bg-[#2a2d36] text-white shadow-sm'
+							? 'bg-gray-700 text-white shadow-sm'
 							: 'text-gray-400 hover:text-gray-200'}"
 						onclick={() => (activeTab = "CLOSED")}
 					>

@@ -145,7 +145,7 @@
 						: 'text-white'}">SOLARYX</span
 				>
 			</div>
-			{#if $page.url.pathname !== "/login" && $page.url.pathname !== "/signup" && $page.url.pathname !== "/create" && $page.url.pathname !== "/create-charity" && $page.url.pathname !== "/settings" && $page.url.pathname !== "/terms" && $page.url.pathname !== "/profile"}
+			{#if !["/login", "/signup", "/create", "/create-charity", "/settings", "/terms", "/profile", "/wallet", "/leaderboard"].includes($page.url.pathname)}
 				<div
 					class="flex items-center bg-white/5 border border-white/10 rounded-full py-2.5 px-5 w-full max-w-[450px] transition-all duration-300 focus-within:bg-white/[0.08] focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
 				>
@@ -170,13 +170,13 @@
 					/>
 				</div>
 			{/if}
-			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets" || $page.url.pathname === "/leaderboard"}
+			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets"}
 				<div class="flex items-center gap-2 ml-2">
 					{#each topics as topic}
 						<button
 							onclick={() => ($activeTopicStore = topic)}
 							class="px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out {$activeTopicStore ===
-								topic && $page.url.pathname !== '/leaderboard'
+							topic
 								? $isHydeStore
 									? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
 									: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
@@ -193,14 +193,14 @@
 		<div class="flex items-center gap-4 pl-4">
 			<a
 				href="/leaderboard"
-				class="flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-sm transition-all duration-300 ease-in-out no-underline {$page
+				class="flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out no-underline {$page
 					.url.pathname === '/leaderboard'
 					? $isHydeStore
 						? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
 						: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
 					: $isHydeStore
 						? 'text-red-700 hover:text-red-400 hover:bg-red-900/20'
-						: 'text-gray-300 hover:text-white hover:bg-white/10'}"
+						: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

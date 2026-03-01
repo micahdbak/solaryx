@@ -80,12 +80,19 @@
 				</div>
 			</div>
 
-			<!-- Search and Columns -->
+			<!-- Enhanced Search and Sort Header -->
 			<div
-				class="flex items-center text-xs text-slate-400 mb-4 px-4 font-semibold uppercase tracking-wider"
+				class="bg-[#11141c] border border-gray-800 rounded-xl p-3 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
 			>
-				<div class="flex-1 flex gap-2 items-center">
-					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<div
+					class="flex-1 flex items-center bg-black/20 border border-gray-800/50 rounded-lg px-3 py-2 w-full sm:max-w-xs focus-within:border-gray-600 transition-colors"
+				>
+					<svg
+						class="w-4 h-4 text-gray-400 mr-2 shrink-0"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -95,18 +102,38 @@
 					</svg>
 					<input
 						type="text"
-						placeholder="Search by name"
-						class="bg-transparent border-none outline-none text-slate-200 placeholder-slate-500 w-full"
+						placeholder="Search by username..."
+						class="bg-transparent border-none outline-none text-gray-200 placeholder-gray-500 w-full text-sm"
 					/>
 				</div>
-				<div class="w-32 text-right relative">
-					<span class="pb-2 inline-block">Profit/Loss</span>
-					<div class="absolute bottom-0 right-0 w-8 h-[2px] bg-white"></div>
-				</div>
-				<div class="w-24 text-right hidden sm:block">Volume</div>
-			</div>
 
-			<hr class="border-slate-800 mb-2" />
+				<div
+					class="flex items-center gap-6 text-xs text-gray-400 font-bold uppercase tracking-wider px-2 w-full sm:w-auto overflow-hidden"
+				>
+					<div
+						class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+					>
+						Profit/Loss
+						<svg
+							class="w-3 h-3 text-white"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M19 9l-7 7-7-7"
+							></path></svg
+						>
+					</div>
+					<div
+						class="hidden sm:flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+					>
+						Volume
+					</div>
+				</div>
+			</div>
 
 			<!-- Leaderboard Rows -->
 			<div class="flex flex-col gap-1">
@@ -175,7 +202,7 @@
 		<!-- Right Side Component: Biggest Wins -->
 		<div class="w-full lg:w-[400px] shrink-0 sticky top-24 self-start">
 			<div
-				class="bg-[#1c1c21] rounded-2xl p-6 border border-slate-800/60 shadow-xl shadow-black/20 flex flex-col h-[70vh] lg:h-[80vh] min-h-[500px]"
+				class="bg-[#11141c] rounded-2xl p-6 border border-gray-800 shadow-xl shadow-black/20 flex flex-col h-[70vh] lg:h-[80vh] min-h-[500px]"
 			>
 				<h2 class="text-xl font-bold mb-6 text-white tracking-tight shrink-0">
 					Biggest wins this month
@@ -183,7 +210,7 @@
 
 				<div
 					class="overflow-y-auto flex-1 pr-2 -mr-2 space-y-5
-					scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+					scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
 				>
 					{#each biggestWins as win, i}
 						<div class="flex items-start gap-4">
