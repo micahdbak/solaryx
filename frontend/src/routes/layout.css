@@ -1,204 +1,29 @@
 @import "tailwindcss";
 
+/* Base body styles */
+html {
+    overscroll-behavior: none;
+}
+
 body {
-	background-color: #0b0f19;
-	color: #ffffff;
-	font-family:
-		"Inter",
-		system-ui,
-		-apple-system,
-		sans-serif;
-	margin: 0;
-	padding: 0;
-}
-
-.navbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 1rem 2rem;
-	width: 100%;
-}
-
-.nav-left-group {
-	display: flex;
-	align-items: center;
-	gap: 2rem;
-	flex: 1;
-}
-
-.nav-left-group .logo {
-	font-size: 1.5rem;
-	font-weight: 800;
-	color: #ffffff;
-	text-decoration: none;
-	letter-spacing: 1px;
-	white-space: nowrap;
-}
-
-.search-bar {
-	display: flex;
-	align-items: center;
-	background-color: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 9999px;
-	padding: 0.6rem 1.25rem;
-	width: 100%;
-	max-width: 450px;
-	transition: all 0.3s ease;
-}
-
-.search-bar:focus-within {
-	background-color: rgba(255, 255, 255, 0.08);
-	border-color: #3b82f6;
-	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.search-icon {
-	width: 18px;
-	height: 18px;
-	color: #9ca3af;
-	margin-right: 0.75rem;
-	flex-shrink: 0;
-}
-
-.search-bar input {
-	background: transparent;
-	border: none;
-	color: #ffffff;
-	width: 100%;
-	outline: none;
-	font-size: 0.95rem;
-}
-
-.search-bar input::placeholder {
-	color: #9ca3af;
-}
-
-.nav-right {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	padding-left: 1rem;
-}
-
-.btn {
-	padding: 0.5rem 1.25rem;
-	border-radius: 9999px;
-	font-weight: 600;
-	text-decoration: none;
-	transition: all 0.2s ease;
-	font-size: 0.875rem;
-	cursor: pointer;
-	white-space: nowrap;
-}
-
-.btn-login {
-	color: #d1d5db;
-	background-color: transparent;
-}
-
-.btn-login:hover {
-	color: #ffffff;
-	background-color: rgba(255, 255, 255, 0.1);
-}
-
-.btn-signup {
-	color: #ffffff;
-	background-color: #3b82f6;
-	box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
-}
-
-.btn-signup:hover {
-	background-color: #2563eb;
-	transform: translateY(-1px);
-	box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.39);
-}
-
-.hero-section {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	min-height: calc(100vh - 80px);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-	.navbar {
-		padding: 1rem;
-		flex-wrap: wrap;
-		gap: 1rem;
-	}
-
-	.nav-left-group {
-		width: 100%;
-		gap: 1rem;
-		justify-content: space-between;
-	}
-
-	.nav-right {
-		padding-left: 0;
-	}
-
-	.search-bar {
-		max-width: 100%;
-		order: 3;
-	}
-}
-
-@media (max-width: 480px) {
-	.btn {
-		padding: 0.4rem 1rem;
-		font-size: 0.8rem;
-	}
-
-	.nav-left-group .logo {
-		font-size: 1.2rem;
-	}
+    background-color: #0b0f19;
+    color: #ffffff;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
 }
 
 /* Evil Theme Transitions */
-body,
-.navbar,
-.search-bar,
-.btn {
-	transition:
-		background-color 0.8s ease-in-out,
-		border-color 0.8s ease-in-out,
-		color 0.8s ease-in-out,
-		box-shadow 0.8s ease-in-out;
+body {
+    transition: background-color 0.8s ease-in-out, color 0.8s ease-in-out;
 }
 
 body.evil-mode {
 	background-color: #1a0000;
 }
 
-body.evil-mode .nav-left-group .logo {
-	color: #ef4444;
-	text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-}
-
-body.evil-mode .search-bar {
-	background-color: rgba(255, 0, 0, 0.05);
-	border-color: rgba(255, 0, 0, 0.2);
-}
-
-body.evil-mode .search-bar:focus-within {
-	border-color: #ef4444;
-	box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
-}
-
-body.evil-mode .btn-signup {
-	background-color: #dc2626;
-	box-shadow: 0 4px 14px 0 rgba(220, 38, 38, 0.4);
-}
-
-body.evil-mode .btn-signup:hover {
-	background-color: #991b1b;
-	box-shadow: 0 6px 20px 0 rgba(220, 38, 38, 0.6);
-}
-
+/* Evil mode overrides for interactive elements */
 body.evil-mode .dropdown-menu {
 	border-color: rgba(255, 0, 0, 0.2);
 }
@@ -208,57 +33,12 @@ body.evil-mode .dropdown-menu a:hover {
 	color: #ef4444;
 }
 
-/* Evil Mode CSS Color Variables overrides */
-body.evil-mode {
-	--text-primary: #fca5a5;
-	--text-israel: #ef4444;
-	--text-palestine: #f87171;
-	--text-muted: #b91c1c;
-
-	--bg-israel-light: rgba(239, 68, 68, 0.1);
-	--bg-israel-medium: rgba(239, 68, 68, 0.2);
-	--bg-palestine-light: rgba(248, 113, 113, 0.1);
-	--bg-palestine-medium: rgba(248, 113, 113, 0.2);
-
-	--border-israel: #ef4444;
-	--border-palestine: #f87171;
-	--shadow-israel: 0 0 15px rgba(239, 68, 68, 0.15);
-	--shadow-palestine: 0 0 15px rgba(248, 113, 113, 0.15);
-
-	--bg-card: #200505;
-	--border-card: #450a0a;
-	--bg-muted: #450a0a;
-
-	--fill-palestine-light: rgba(248, 113, 113, 0.15);
-	--stroke-divider: #ef4444;
-
-	--bg-tooltip: #200505;
-	--text-tooltip: #fca5a5;
-	--shadow-tooltip: 0 0 10px rgba(239, 68, 68, 0.2);
-
-	--hover-bg: rgba(255, 0, 0, 0.1);
-	--hover-text: #fca5a5;
-
-	--divide-card: #450a0a;
-
-	--bg-input: #150000;
-	--border-input: #7f1d1d;
-	--border-primary: #ef4444;
-	--ring-primary: #ef4444;
-	--caret-primary: #ef4444;
-
-	--bg-primary: #ef4444;
-	--bg-primary-hover: #dc2626;
-	--text-invert: #ffffff;
-	--shadow-primary: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
-	--shadow-primary-hover: 0 6px 20px 0 rgba(239, 68, 68, 0.5);
-}
-
 /* Hide Number Input Spinners globally */
-input[type="number"].no-spinners::-webkit-inner-spin-button,
-input[type="number"].no-spinners::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+input[type=number].no-spinners::-webkit-inner-spin-button,
+input[type=number].no-spinners::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
 }
 
 input[type="number"].no-spinners {
@@ -267,10 +47,8 @@ input[type="number"].no-spinners {
 
 /* Global color variables (Default Good Mode) */
 :root {
-	--color-primary: #3b82f6;
-	/* Blue neutral */
-	--color-secondary: #0ea5e9;
-	/* Sky neutral */
+    --color-primary: #3b82f6;
+    --color-secondary: #0ea5e9;
 
 	--bg-primary-light: rgba(59, 130, 246, 0.1);
 	--bg-primary-medium: rgba(59, 130, 246, 0.2);
@@ -303,11 +81,10 @@ input[type="number"].no-spinners {
 	--fill-secondary-light: rgba(14, 165, 233, 0.15);
 }
 
+/* Evil Mode CSS Variables */
 body.evil-mode {
-	--color-primary: #dc2626;
-	/* Red Aggressive */
-	--color-secondary: #991b1b;
-	/* Orange Aggressive */
+    --color-primary: #dc2626;
+    --color-secondary: #991b1b;
 
 	--bg-primary-light: rgba(239, 68, 68, 0.1);
 	--bg-primary-medium: rgba(239, 68, 68, 0.2);
@@ -341,7 +118,34 @@ body.evil-mode {
 	--fill-secondary-light: rgba(249, 115, 22, 0.15);
 }
 
-/* Base overrides using these vars */
+/* Duplicate evil-mode overrides for bet pages */
+body.evil-mode {
+    --text-israel: #ef4444;
+    --text-palestine: #f87171;
+
+    --bg-israel-light: rgba(239, 68, 68, 0.1);
+    --bg-israel-medium: rgba(239, 68, 68, 0.2);
+    --bg-palestine-light: rgba(248, 113, 113, 0.1);
+    --bg-palestine-medium: rgba(248, 113, 113, 0.2);
+
+    --border-israel: #ef4444;
+    --border-palestine: #f87171;
+    --shadow-israel: 0 0 15px rgba(239, 68, 68, 0.15);
+    --shadow-palestine: 0 0 15px rgba(248, 113, 113, 0.15);
+
+    --fill-palestine-light: rgba(248, 113, 113, 0.15);
+
+    --border-primary: #ef4444;
+    --ring-primary: #ef4444;
+    --caret-primary: #ef4444;
+    --bg-primary: #ef4444;
+    --bg-primary-hover: #dc2626;
+    --text-invert: #ffffff;
+    --shadow-primary: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
+    --shadow-primary-hover: 0 6px 20px 0 rgba(239, 68, 68, 0.5);
+}
+
+/* CSS Variable utility classes (used by bet pages) */
 .var-color-optionA {
 	color: var(--color-primary);
 }
@@ -390,12 +194,13 @@ body.evil-mode {
 	box-shadow: var(--shadow-secondary);
 }
 
+/* Evil mode dropdown overrides using vars */
 body.evil-mode .dropdown-menu {
 	border-color: var(--border-card);
 	background-color: var(--bg-card);
 }
 
 body.evil-mode .dropdown-menu a:hover {
-	background-color: var(--hover-bg);
-	color: var(--hover-text);
+    background-color: var(--hover-bg);
+    color: var(--hover-text);
 }
