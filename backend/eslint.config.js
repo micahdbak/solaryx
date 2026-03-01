@@ -14,7 +14,8 @@ module.exports = [
 			sourceType: "commonjs"
 		},
 		rules: {
-			"no-unused-vars": "warn"
+			"no-unused-vars": "warn",
+			"no-useless-escape": "off"
 		}
 	},
 	{
