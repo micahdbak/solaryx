@@ -251,12 +251,12 @@
 			{#if !data?.user}
 				<a
 					href="/login"
-					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-gray-300 bg-transparent hover:text-[#e0e4f0] hover:bg-white/10"
+					class="px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-semibold no-underline transition-all duration-700 text-xs sm:text-sm cursor-pointer whitespace-nowrap text-gray-300 bg-transparent hover:text-[#e0e4f0] hover:bg-white/10"
 					>LOGIN</a
 				>
 				<a
 					href="/signup"
-					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-[#e0e4f0] hover:-translate-y-px bg-blue-500 shadow-[0_4px_14px_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.39)]"
+					class="px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-semibold no-underline transition-all duration-700 text-xs sm:text-sm cursor-pointer whitespace-nowrap text-[#e0e4f0] hover:-translate-y-px bg-blue-500 shadow-[0_4px_14px_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.39)]"
 					>SIGN UP</a
 				>
 			{/if}
