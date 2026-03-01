@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const { verify_session } = require("./auth");
 const pool = require("./db");
 const { Market, ErrorResponse, StatusResponse } = require("./models");
+const { sendToCharity } = require("./solana");
 
 const router = express.Router();
 
@@ -136,6 +137,10 @@ router.get("/markets/:id", async (req, res) => {
 
 			if (Date.now() >= createdAt + timeLengthMs) {
 				const client = await pool.connect();
+				let winningShareId = null;
+				let totalSol = 0;
+
+				// Phase 1: select & commit winner (stops the retry loop)
 				try {
 					await client.query("BEGIN");
 
@@ -151,30 +156,19 @@ router.get("/markets/:id", async (req, res) => {
 						);
 
 						if (shares.length > 0) {
-							const totalSol = shares.reduce(
-								(acc, s) => acc + parseFloat(s.amount_sol),
-								0
-							);
+							totalSol = shares.reduce((acc, s) => acc + parseFloat(s.amount_sol), 0);
+
 							if (totalSol > 0) {
-								// 1. Shuffle shares randomly (Fisher-Yates)
 								for (let i = shares.length - 1; i > 0; i--) {
 									const j = crypto.randomInt(0, i + 1);
 									[shares[i], shares[j]] = [shares[j], shares[i]];
 								}
-
-								// 2. Cumulative roulette-wheel selection
-								const r =
-									(crypto.randomBytes(4).readUInt32LE(0) / 0x100000000) *
-									totalSol;
+								const r = (crypto.randomBytes(4).readUInt32LE(0) / 0x100000000) * totalSol;
 								let cumulative = 0;
-								let winningShareId = shares[shares.length - 1].id;
-
+								winningShareId = shares[shares.length - 1].id;
 								for (const share of shares) {
 									cumulative += parseFloat(share.amount_sol);
-									if (cumulative > r) {
-										winningShareId = share.id;
-										break;
-									}
+									if (cumulative > r) { winningShareId = share.id; break; }
 								}
 
 								await client.query(
@@ -185,14 +179,49 @@ router.get("/markets/:id", async (req, res) => {
 								marketRow.status = "COMPLETE";
 							}
 						}
+					} else if (lockRows[0]?.winning_share) {
+						// Another request already committed a winner between our outer check and the lock
+						winningShareId = lockRows[0].winning_share;
 					}
 
 					await client.query("COMMIT");
-				} catch (innerErr) {
+				} catch (phase1Err) {
 					await client.query("ROLLBACK");
-					console.error("Error setting winning share:", innerErr);
+					console.error("Market resolution error (phase 1):", phase1Err);
 				} finally {
 					client.release();
+				}
+
+				// Phase 2: on-chain payout (separate — failure won't re-randomise winner)
+				if (winningShareId && totalSol > 0 && !marketRow.payout_tx) {
+					try {
+						const { rows: charityRows } = await pool.query(
+							`SELECT c.id, c.name, c.wallet_address
+							 FROM shares s
+							 JOIN market_charity mc ON mc.id = s.market_charity_id
+							 JOIN charities c ON c.id = mc.charity_id
+							 WHERE s.id = $1`,
+							[winningShareId]
+						);
+
+						const charity = charityRows[0];
+						if (charity?.wallet_address) {
+							const signature = await sendToCharity(charity.wallet_address, totalSol);
+							await pool.query(
+								"UPDATE markets SET payout_tx = $1 WHERE id = $2",
+								[signature, marketRow.id]
+							);
+							await pool.query(
+								`INSERT INTO payouts (market_id, charity_id, amount_sol, transaction_signature) VALUES ($1, $2, $3, $4)`,
+								[marketRow.id, charity.id, totalSol, signature]
+							);
+							marketRow.payout_tx = signature;
+						} else {
+							console.warn(`Market resolution: charity "${charity?.name}" has no wallet_address`);
+						}
+					} catch (phase2Err) {
+						console.error("Market resolution error (phase 2 payout):", phase2Err);
+					}
 				}
 			}
 		}

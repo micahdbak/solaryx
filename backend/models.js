@@ -60,6 +60,7 @@ class Market {
 		this.type = row.type;
 		this.time_length_s = row.time_length_s;
 		this.winning_share = row.winning_share;
+		this.payout_tx = row.payout_tx ?? null;
 		this.created_at = row.created_at;
 		this.total_sol = row.total_sol;
 

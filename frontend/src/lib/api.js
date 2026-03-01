@@ -181,6 +181,7 @@ export function formatMarket(market, charitiesById) {
 		endsAt,
 		status: market.status,
 		winning_share: market.winning_share,
+		payout_tx: market.payout_tx ?? null,
 		charityTotals
 	};
 }
