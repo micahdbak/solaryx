@@ -54,7 +54,7 @@ CREATE TABLE markets (
     type            VARCHAR(10) DEFAULT 'JEKYLL' CHECK (type IN ('JEKYLL', 'HYDE')),
     time_length_s   DECIMAL NOT NULL CHECK (time_length_s > 0),
     wallet_address  VARCHAR(44),
-    winning_charity UUID,
+    winning_share   UUID,
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

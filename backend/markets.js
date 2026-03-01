@@ -125,7 +125,74 @@ router.get("/markets/:id", async (req, res) => {
 		if (result.rows.length === 0) {
 			return res.status(404).json(new ErrorResponse("Market not found"));
 		}
-		res.json(new Market(result.rows[0]));
+
+		const marketRow = result.rows[0];
+
+		if (!marketRow.winning_share) {
+			const createdAt = new Date(marketRow.created_at).getTime();
+			const timeLengthMs = parseFloat(marketRow.time_length_s) * 1000;
+
+			if (Date.now() >= createdAt + timeLengthMs) {
+				const client = await pool.connect();
+				try {
+					await client.query("BEGIN");
+
+					const { rows: lockRows } = await client.query(
+						"SELECT winning_share FROM markets WHERE id = $1 FOR UPDATE",
+						[marketRow.id]
+					);
+
+					if (lockRows.length > 0 && lockRows[0].winning_share === null) {
+						const { rows: shares } = await client.query(
+							"SELECT id, amount_sol FROM shares WHERE market_id = $1",
+							[marketRow.id]
+						);
+
+						if (shares.length > 0) {
+							const totalSol = shares.reduce((acc, s) => acc + parseFloat(s.amount_sol), 0);
+							if (totalSol > 0) {
+								const crypto = require("crypto");
+
+								// 1. Randomize the array of shares
+								shares.sort(() => {
+									const randomFraction = crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
+									return randomFraction - 0.5;
+								});
+
+								// Default fallback if probability misses all somehow (e.g. precision bounds)
+								let winningShareId = shares[shares.length - 1].id;
+
+								// 2. Iterate each, rolling the dice with probability = amount_sol / total_sol
+								for (const share of shares) {
+									const probability = parseFloat(share.amount_sol) / totalSol;
+									const randomFraction = crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
+
+									if (randomFraction <= probability) {
+										winningShareId = share.id;
+										break;
+									}
+								}
+
+								await client.query(
+									"UPDATE markets SET winning_share = $1 WHERE id = $2",
+									[winningShareId, marketRow.id]
+								);
+								marketRow.winning_share = winningShareId;
+							}
+						}
+					}
+
+					await client.query("COMMIT");
+				} catch (innerErr) {
+					await client.query("ROLLBACK");
+					console.error("Error setting winning share:", innerErr);
+				} finally {
+					client.release();
+				}
+			}
+		}
+
+		res.json(new Market(marketRow));
 	} catch (err) {
 		console.error("Error fetching market:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));

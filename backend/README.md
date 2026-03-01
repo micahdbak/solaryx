@@ -52,7 +52,7 @@ Aggregated pot data for a specific charity within a market.
 - `type` (string): `JEKYLL` or `HYDE`.
 - `time_length_s` (number): Duration of the market in seconds.
 - `wallet_address` (string): Solana wallet address for the market pot.
-- `winning_charity` (uuid, optional): Set when the market completes.
+- `winning_share` (uuid, optional): Set when the market completes.
 - `created_at` (timestamp)
 - `total_sol` (number): Total finalized SOL across all charities in this market.
 - `charity_totals` (Array of CharityTotal): Breakdown of SOL per charity.
