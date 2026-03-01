@@ -2,14 +2,18 @@
 	const lastUpdated = "February 28, 2026";
 </script>
 
-<div class="max-w-3xl mx-auto px-6 md:px-10 py-12 text-gray-300">
-	<h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Terms of Service</h1>
-	<p class="text-sm text-gray-500 mb-10">Last Updated: {lastUpdated}</p>
+<div class="max-w-3xl mx-auto px-6 md:px-10 py-12 text-[var(--text-muted)]">
+	<h1 class="text-4xl font-extrabold text-[var(--text-primary)] mb-2 tracking-tight">
+		Terms of Service
+	</h1>
+	<p class="text-sm text-[var(--text-muted)] mb-10">Last Updated: {lastUpdated}</p>
 
 	<div class="space-y-16 text-sm leading-relaxed">
 		<!-- 1 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				1. Acceptance of Terms
 			</h2>
 			<p>
@@ -27,13 +31,16 @@
 
 		<!-- 2 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				2. Eligibility
 			</h2>
 			<p>
-				You must be at least <strong class="text-white">18 years of age</strong> (or the age of
-				majority in your jurisdiction, whichever is greater) to use the Platform. By using Solaryx,
-				you represent and warrant that:
+				You must be at least <strong class="text-[var(--text-primary)]"
+					>18 years of age</strong
+				> (or the age of majority in your jurisdiction, whichever is greater) to use the Platform.
+				By using Solaryx, you represent and warrant that:
 			</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">
 				<li>You are of legal age in your jurisdiction;</li>
@@ -55,7 +62,9 @@
 
 		<!-- 3 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				3. Nature of the Platform — Charitable Prediction Markets
 			</h2>
 			<p>
@@ -67,7 +76,7 @@
 			<p class="mt-3">You acknowledge and agree that:</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">
 				<li>
-					Participation in markets constitutes a <strong class="text-white"
+					Participation in markets constitutes a <strong class="text-[#e0e4f0]"
 						>donation and wager</strong
 					>, not an investment;
 				</li>
@@ -89,7 +98,9 @@
 
 		<!-- 4 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				4. Cryptocurrency &amp; Digital Assets
 			</h2>
 			<p>
@@ -103,7 +114,9 @@
 					periods;
 				</li>
 				<li>
-					Blockchain transactions are <strong class="text-white">irreversible</strong> by nature;
+					Blockchain transactions are <strong class="text-[var(--text-primary)]"
+						>irreversible</strong
+					> by nature;
 				</li>
 				<li>
 					You are solely responsible for securely managing your wallet keys and
@@ -127,17 +140,21 @@
 
 		<!-- 5 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				5. No Refunds, No Withdrawals After Deposit
 			</h2>
-			<div class="bg-red-950/30 border border-red-900/50 rounded-lg px-5 py-4 mb-4">
-				<p class="text-red-300 font-semibold">
+			<div
+				class="bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 rounded-lg px-5 py-4 mb-4"
+			>
+				<p class="text-[var(--color-primary)] font-semibold">
 					⚠️ ALL DEPOSITS ARE FINAL AND NON-REFUNDABLE.
 				</p>
 			</div>
 			<p>
 				Once funds are deposited into any active market on Solaryx, they <strong
-					class="text-white">cannot be withdrawn, refunded, reversed, or recovered</strong
+					class="text-[#e0e4f0]">cannot be withdrawn, refunded, reversed, or recovered</strong
 				> under any circumstance, including but not limited to:
 			</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">
@@ -158,7 +175,9 @@
 
 		<!-- 6 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				6. Market Creation
 			</h2>
 			<p>
@@ -183,43 +202,48 @@
 
 		<!-- 7 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				7. Risks &amp; Disclaimers
 			</h2>
 			<p>You expressly acknowledge and accept the following risks by using the Platform:</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">
 				<li>
-					<strong class="text-white">Market Risk:</strong> Prediction market outcomes are uncertain.
-					You may lose the entire amount deposited.
+					<strong class="text-[var(--text-primary)]">Market Risk:</strong> Prediction market
+					outcomes are uncertain. You may lose the entire amount deposited.
 				</li>
 				<li>
-					<strong class="text-white">Regulatory Risk:</strong> Laws governing prediction markets
-					and cryptocurrency change frequently. Continued access to the Platform cannot be guaranteed
-					in all jurisdictions.
+					<strong class="text-[var(--text-primary)]">Regulatory Risk:</strong> Laws governing
+					prediction markets and cryptocurrency change frequently. Continued access to the Platform
+					cannot be guaranteed in all jurisdictions.
 				</li>
 				<li>
-					<strong class="text-white">Smart Contract Risk:</strong> Bugs or exploits in smart
-					contracts could result in loss of funds. Solaryx is not liable for such losses.
+					<strong class="text-[var(--text-primary)]">Smart Contract Risk:</strong> Bugs or exploits
+					in smart contracts could result in loss of funds. Solaryx is not liable for such losses.
 				</li>
 				<li>
-					<strong class="text-white">Counterparty Risk:</strong> Charitable organizations listed
-					on the Platform may cease operations or have their charitable status revoked.
+					<strong class="text-[var(--text-primary)]">Counterparty Risk:</strong> Charitable
+					organizations listed on the Platform may cease operations or have their charitable
+					status revoked.
 				</li>
 				<li>
-					<strong class="text-white">Liquidity Risk:</strong> Markets may have insufficient
-					liquidity at any time.
+					<strong class="text-[var(--text-primary)]">Liquidity Risk:</strong> Markets may have
+					insufficient liquidity at any time.
 				</li>
 				<li>
-					<strong class="text-white">Force Majeure:</strong> We are not liable for failures
-					caused by events outside our reasonable control, including natural disasters, regulatory
-					actions, or cyberattacks.
+					<strong class="text-[var(--text-primary)]">Force Majeure:</strong> We are not liable
+					for failures caused by events outside our reasonable control, including natural disasters,
+					regulatory actions, or cyberattacks.
 				</li>
 			</ul>
 		</section>
 
 		<!-- 8 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				8. Prohibited Conduct
 			</h2>
 			<p>You agree not to use the Platform to:</p>
@@ -249,7 +273,9 @@
 
 		<!-- 9 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				9. Privacy &amp; Data
 			</h2>
 			<p>
@@ -262,7 +288,9 @@
 
 		<!-- 10 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				10. Taxes
 			</h2>
 			<p>
@@ -276,7 +304,9 @@
 
 		<!-- 11 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				11. Limitation of Liability
 			</h2>
 			<p>
@@ -300,7 +330,9 @@
 
 		<!-- 12 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				12. Dispute Resolution &amp; Governing Law
 			</h2>
 			<p>
@@ -319,7 +351,9 @@
 
 		<!-- 13 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				13. Termination
 			</h2>
 			<p>
@@ -334,11 +368,13 @@
 
 		<!-- 14 -->
 		<section>
-			<h2 class="text-lg font-bold text-white mb-3 border-b border-gray-800 pb-2">
+			<h2
+				class="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-card)] pb-2"
+			>
 				14. Contact
 			</h2>
 		</section>
-		<div class="pt-8 text-center text-xs text-gray-600">
+		<div class="pt-8 text-center text-xs text-[var(--text-muted)]">
 			<p>
 				By using Solaryx, you acknowledge that you have read, understood, and agree to be
 				bound by these Terms of Service.

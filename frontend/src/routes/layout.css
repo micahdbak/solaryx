@@ -85,6 +85,14 @@ input[type="number"].no-spinners {
 
 	--stroke-divider: #e5e7eb;
 	--fill-secondary-light: rgba(14, 165, 233, 0.15);
+
+	/* Donate button (Good = green) */
+	--donate-bg: #1a3a2a;
+	--donate-bg-hover: #224d37;
+	--donate-text: #4ade80;
+	--donate-border: #2d6b4a;
+	--donate-shadow: 0 4px 14px 0 rgba(74, 222, 128, 0.15);
+	--donate-shadow-hover: 0 6px 20px 0 rgba(74, 222, 128, 0.25);
 }
 
 /* Hyde Mode CSS Variables */
@@ -127,6 +135,14 @@ body.hyde-mode {
 
 	--stroke-divider: #ef4444;
 	--fill-secondary-light: rgba(249, 115, 22, 0.15);
+
+	/* Donate button (Evil = red) */
+	--donate-bg: #3a1a1a;
+	--donate-bg-hover: #4d2222;
+	--donate-text: #ef4444;
+	--donate-border: #6b2d2d;
+	--donate-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.15);
+	--donate-shadow-hover: 0 6px 20px 0 rgba(239, 68, 68, 0.25);
 
 	/* Bet page overrides - Accents */
 	--text-israel: #ef4444;
@@ -268,4 +284,49 @@ body.hyde-mode .dropdown-menu {
 body.hyde-mode .dropdown-menu a:hover {
 	background-color: var(--hover-bg);
 	color: var(--hover-text);
+}
+
+/* Vibrate on hover animation */
+@keyframes vibrate {
+
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+
+	10% {
+		transform: translateX(-1px);
+	}
+
+	20% {
+		transform: translateX(1px);
+	}
+
+	30% {
+		transform: translateX(-1px);
+	}
+
+	40% {
+		transform: translateX(1px);
+	}
+
+	50% {
+		transform: translateX(-0.5px);
+	}
+
+	60% {
+		transform: translateX(0.5px);
+	}
+
+	70% {
+		transform: translateX(-0.5px);
+	}
+
+	80% {
+		transform: translateX(0.5px);
+	}
+}
+
+.hover-vibrate:hover {
+	animation: vibrate 0.4s ease-in-out;
 }

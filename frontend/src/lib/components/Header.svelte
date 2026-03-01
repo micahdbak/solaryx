@@ -9,7 +9,7 @@
 	} from "$lib/theme";
 	import { formatSol } from "$lib/utils";
 	import { page } from "$app/stores";
-	import { onMount } from "svelte";
+	import { onMount, tick } from "svelte";
 
 	let { data } = $props();
 	let isMenuOpen = $state(false);
@@ -20,7 +20,20 @@
 
 	const topics = ["Trending", "New", "Expiring Soon"];
 
+	// Sliding pill state
+	let topicContainerEl = $state(null);
+	let topicBtnEls = [];
+	let pillStyle = $state("");
+
+	function updatePill() {
+		const idx = topics.indexOf($activeTopicStore);
+		if (idx < 0 || !topicBtnEls[idx] || !topicContainerEl) return;
+		const btn = topicBtnEls[idx];
+		pillStyle = `width: ${btn.offsetWidth}px; transform: translateX(${btn.offsetLeft}px);`;
+	}
+
 	onMount(async () => {
+		tick().then(updatePill);
 		try {
 			const res = await fetch(
 				"https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd,cad,eur"
@@ -38,12 +51,9 @@
 		}
 	});
 
-	function handleLogoClick(e) {
-		if ($page.url.pathname === "/") {
-			e.preventDefault();
-			if ($themeLockedStore) return;
-			$isHydeStore = !$isHydeStore;
-		}
+	function handleThemeToggle(e) {
+		e.preventDefault();
+		$isHydeStore = !$isHydeStore;
 	}
 
 	function toggleCurrencyMenu(e) {
@@ -88,14 +98,10 @@
 	<nav class="flex justify-between items-center px-4 md:px-8 py-4 w-full">
 		<div class="flex items-center flex-1">
 			<div class="flex items-center gap-4 mr-4 md:mr-8">
-				<a
-					href="/"
-					onclick={handleLogoClick}
-					class="bg-transparent border-none flex items-center justify-center relative w-12 h-12 text-2xl font-extrabold text-white no-underline tracking-wide whitespace-nowrap hover:scale-105 transition-transform {$themeLockedStore &&
-					$page.url.pathname === '/'
-						? 'cursor-not-allowed opacity-80'
-						: ''}"
-					aria-label="Home"
+				<button
+					onclick={handleThemeToggle}
+					class="bg-transparent border-none flex items-center justify-center relative w-12 h-12 text-2xl font-extrabold text-[#e0e4f0] no-underline tracking-wide whitespace-nowrap hover:scale-105 transition-transform cursor-pointer"
+					aria-label="Toggle theme"
 				>
 					<!-- Angel Icon (visible when not hyde) -->
 					<svg
@@ -108,7 +114,7 @@
 						stroke-linejoin="round"
 						class="absolute transition-all duration-700 ease-in-out {$isHydeStore
 							? 'opacity-0 scale-50 rotate-90 text-red-500'
-							: 'opacity-100 scale-100 rotate-0 text-white'}"
+							: 'opacity-100 scale-100 rotate-0 text-[#e0e4f0]'}"
 						style="width: 32px; height: 32px;"
 					>
 						<path d="M12 4a3 1 0 1 1 0-2 3 1 0 1 1 0 2z" />
@@ -129,7 +135,7 @@
 						stroke-linejoin="round"
 						class="absolute transition-all duration-700 ease-in-out {$isHydeStore
 							? 'opacity-100 scale-100 rotate-0 text-red-500'
-							: 'opacity-0 scale-50 -rotate-90 text-white'}"
+							: 'opacity-0 scale-50 -rotate-90 text-[#e0e4f0]'}"
 						style="width: 32px; height: 32px;"
 					>
 						<path d="M9 8c-3-2-5-5-5-5s2 4 4 5z" />
@@ -138,11 +144,12 @@
 						<path d="M8 12l2 1" />
 						<path d="M16 12l-2 1" />
 					</svg>
-				</a>
-				<span
-					class="font-semibold text-xl hidden sm:block tracking-wide transition-colors duration-700 {$isHydeStore
+				</button>
+				<a
+					href="/"
+					class="font-semibold text-xl hidden sm:block tracking-wide transition-colors duration-700 no-underline {$isHydeStore
 						? 'text-red-500 font-bold'
-						: 'text-white'}">SOLARYX</span
+						: 'text-[#e0e4f0]'}">SOLARYX</a
 				>
 			</div>
 			{#if !["/login", "/signup", "/create", "/create-charity", "/settings", "/terms", "/profile", "/wallet", "/leaderboard"].includes($page.url.pathname)}
@@ -165,24 +172,40 @@
 					<input
 						type="text"
 						placeholder="Search..."
-						class="bg-transparent border-none text-white w-full outline-none text-[0.95rem] placeholder-gray-400"
+						class="bg-transparent border-none text-[#e0e4f0] w-full outline-none text-[0.95rem] placeholder-gray-400"
 						bind:value={$searchQueryStore}
 					/>
 				</div>
 			{/if}
 			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets"}
-				<div class="flex items-center gap-2 ml-2">
-					{#each topics as topic}
+				<div
+					bind:this={topicContainerEl}
+					class="topic-switcher relative flex items-center ml-2 rounded-full p-0.5 {$isHydeStore
+						? 'bg-red-950/30'
+						: 'bg-white/[0.06]'}"
+				>
+					<!-- Sliding pill indicator -->
+					<div
+						class="topic-pill absolute top-0.5 left-0 h-[calc(100%-4px)] rounded-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none {$isHydeStore
+							? 'bg-red-900/50 shadow-[0_0_12px_rgba(239,68,68,0.25)]'
+							: 'bg-white/[0.12] shadow-[0_0_12px_rgba(255,255,255,0.08)]'}"
+						style={pillStyle}
+					></div>
+					{#each topics as topic, i}
 						<button
-							onclick={() => ($activeTopicStore = topic)}
-							class="px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out {$activeTopicStore ===
+							bind:this={topicBtnEls[i]}
+							onclick={() => {
+								$activeTopicStore = topic;
+								tick().then(updatePill);
+							}}
+							class="relative z-10 px-3.5 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-colors duration-300 ease-in-out bg-transparent border-none cursor-pointer {$activeTopicStore ===
 							topic
 								? $isHydeStore
-									? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-									: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+									? 'text-red-100'
+									: 'text-[#e0e4f0]'
 								: $isHydeStore
-									? 'text-red-700 hover:text-red-400 hover:bg-red-900/20'
-									: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
+									? 'text-red-800 hover:text-red-300'
+									: 'text-gray-400 hover:text-gray-200'}"
 						>
 							{topic}
 						</button>
@@ -197,7 +220,7 @@
 					.url.pathname === '/leaderboard'
 					? $isHydeStore
 						? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-						: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+						: 'bg-white/10 text-[#e0e4f0] shadow-[0_0_10px_rgba(255,255,255,0.1)]'
 					: $isHydeStore
 						? 'text-red-700 hover:text-red-400 hover:bg-red-900/20'
 						: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
@@ -227,12 +250,12 @@
 			{#if !data?.user}
 				<a
 					href="/login"
-					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-gray-300 bg-transparent hover:text-white hover:bg-white/10"
+					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-gray-300 bg-transparent hover:text-[#e0e4f0] hover:bg-white/10"
 					>LOGIN</a
 				>
 				<a
 					href="/signup"
-					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-white hover:-translate-y-px {$isHydeStore
+					class="px-5 py-2 rounded-full font-semibold no-underline transition-all duration-700 text-sm cursor-pointer whitespace-nowrap text-[#e0e4f0] hover:-translate-y-px {$isHydeStore
 						? 'bg-red-600 shadow-[0_4px_14px_rgba(220,38,38,0.4)] hover:bg-red-800 hover:shadow-[0_6px_20px_rgba(220,38,38,0.6)]'
 						: 'bg-blue-500 shadow-[0_4px_14px_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.39)]'}"
 					>SIGN UP</a
@@ -247,7 +270,7 @@
 						onclick={toggleCurrencyMenu}
 						class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 hover:-translate-y-px cursor-pointer {$isHydeStore
 							? 'bg-red-950/30 border-red-900/50 text-red-300 hover:bg-red-900/40'
-							: 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white'}"
+							: 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-[#e0e4f0]'}"
 					>
 						{#if $selectedCurrencyStore === "SOL"}
 							<svg
@@ -305,36 +328,36 @@
 							: 'opacity-0 invisible scale-95'}"
 					>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors {$selectedCurrencyStore ===
 							'SOL'
-								? 'bg-gray-800/50 text-white font-bold'
+								? 'bg-gray-800/50 text-[#e0e4f0] font-bold'
 								: ''}"
 							onclick={() => setCurrency("SOL")}
 						>
 							SOL
 						</button>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors {$selectedCurrencyStore ===
 							'USD'
-								? 'bg-gray-800/50 text-white font-bold'
+								? 'bg-gray-800/50 text-[#e0e4f0] font-bold'
 								: ''}"
 							onclick={() => setCurrency("USD")}
 						>
 							USD
 						</button>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors {$selectedCurrencyStore ===
 							'CAD'
-								? 'bg-gray-800/50 text-white font-bold'
+								? 'bg-gray-800/50 text-[#e0e4f0] font-bold'
 								: ''}"
 							onclick={() => setCurrency("CAD")}
 						>
 							CAD
 						</button>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors {$selectedCurrencyStore ===
 							'EUR'
-								? 'bg-gray-800/50 text-white font-bold'
+								? 'bg-gray-800/50 text-[#e0e4f0] font-bold'
 								: ''}"
 							onclick={() => setCurrency("EUR")}
 						>
@@ -349,7 +372,7 @@
 				<div class="relative" bind:this={menuContainer}>
 					<button
 						onclick={toggleMenu}
-						class="flex items-center gap-1 border-none cursor-pointer p-2 text-gray-300 bg-transparent hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
+						class="flex items-center gap-1 border-none cursor-pointer p-2 text-gray-300 bg-transparent hover:text-[#e0e4f0] hover:bg-white/10 rounded-full transition-all duration-200"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -374,27 +397,27 @@
 					>
 						<a
 							href="/profile"
-							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors"
 							>Profile</a
 						>
 						<a
 							href="/wallet"
-							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors"
 							>Wallet</a
 						>
 						<a
 							href="/create"
-							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors"
 							>Create Market</a
 						>
 						<a
 							href="/create-charity"
-							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors"
 							>Create Charity</a
 						>
 						<a
 							href="/settings"
-							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-[#e0e4f0] transition-colors"
 							>Settings</a
 						>
 						<div class="border-t border-gray-800 my-1"></div>

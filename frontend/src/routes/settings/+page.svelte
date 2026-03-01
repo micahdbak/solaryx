@@ -104,15 +104,11 @@
 		{#each menuItems as item}
 			<button
 				onclick={() => (activeItem = activeItem === item.label ? null : item.label)}
-				class="w-full text-left bg-[#11141c] {$isHydeStore
-					? '!bg-[#200505] border-red-900/40 hover:border-red-700/60'
-					: 'border-gray-800 hover:border-gray-600'} border rounded-xl px-10 py-8 transition-all duration-200 cursor-pointer group"
+				class="w-full text-left bg-[var(--bg-card)] border border-[var(--border-card)] hover:border-[var(--text-muted)]/40 rounded-xl px-10 py-8 transition-all duration-200 cursor-pointer group reactive-hover"
 			>
 				<div class="flex items-center gap-6 m-3">
 					<div
-						class="flex-shrink-0 w-12 h-12 rounded-lg {$isHydeStore
-							? 'bg-red-950/40'
-							: 'bg-gray-800/80'} flex items-center justify-center transition-colors"
+						class="flex-shrink-0 w-12 h-12 rounded-lg bg-[var(--bg-muted)] flex items-center justify-center transition-colors"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +128,7 @@
 						</svg>
 					</div>
 					<div class="flex-1 min-w-0">
-						<div class="text-white font-semibold text-sm group-hover:text-gray-100">
+						<div class="text-[#e0e4f0] font-semibold text-sm group-hover:text-gray-100">
 							{item.label}
 						</div>
 						<div
@@ -175,9 +171,9 @@
 					: ''}"
 			>
 				<div class="flex justify-between items-center mb-6">
-					<h2 class="text-xl font-bold text-white">Account Settings</h2>
+					<h2 class="text-xl font-bold text-[#e0e4f0]">Account Settings</h2>
 					<button
-						class="text-gray-400 hover:text-white transition-colors"
+						class="text-gray-400 hover:text-[#e0e4f0] transition-colors"
 						onclick={() => {
 							activeItem = null;
 							successMsg = "";
@@ -217,16 +213,16 @@
 				{/if}
 
 				<div class="mb-4">
-					<label for="username" class="block text-sm font-medium text-gray-300 mb-1"
+					<label
+						for="username"
+						class="block text-sm font-medium text-[var(--text-muted)] mb-1"
 						>Username</label
 					>
 					<input
 						id="username"
 						type="text"
 						bind:value={newUsername}
-						class="w-full bg-[#11141c] border border-gray-700/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all {$isHydeStore
-							? 'focus:border-red-500/50 focus:ring-red-500/50'
-							: ''}"
+						class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg px-4 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]/50 focus:ring-1 focus:ring-[var(--color-primary)]/50 transition-all"
 					/>
 				</div>
 
@@ -234,16 +230,14 @@
 					<button
 						onclick={updateProfile}
 						disabled={saving || !user}
-						class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50 {$isHydeStore
-							? 'bg-red-600 hover:bg-red-700'
-							: ''}"
+						class="w-full bg-[var(--color-primary)] hover:brightness-110 text-[#e0e4f0] font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50"
 					>
 						{saving ? "Saving..." : "Save Username"}
 					</button>
 
 					<button
 						onclick={() => alert("Password change functionality is coming soon.")}
-						class="w-full bg-transparent border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white font-bold py-2.5 rounded-lg transition-colors"
+						class="w-full bg-transparent border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-[#e0e4f0] font-bold py-2.5 rounded-lg transition-colors"
 					>
 						Change Password
 					</button>
