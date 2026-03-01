@@ -87,7 +87,7 @@
 	<!-- Navbar -->
 	<nav class="flex justify-between items-center px-4 md:px-8 py-4 w-full">
 		<div class="flex items-center flex-1">
-			<div class="flex items-center gap-4 mr-4 md:mr-8">
+			<div class="flex items-center gap-1 mr-8 md:mr-12">
 				<a
 					href="/"
 					onclick={handleLogoClick}
@@ -97,53 +97,17 @@
 						: ''}"
 					aria-label="Home"
 				>
-					<!-- Angel Icon (visible when not hyde) -->
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						class="absolute transition-all duration-700 ease-in-out {$isHydeStore
-							? 'opacity-0 scale-50 rotate-90 text-red-500'
-							: 'opacity-100 scale-100 rotate-0 text-white'}"
-						style="width: 32px; height: 32px;"
-					>
-						<path d="M12 4a3 1 0 1 1 0-2 3 1 0 1 1 0 2z" />
-						<path d="M11 9.5c-2.5-3-6-3.5-8-2.5 1 2.5 3 4.5 6 4.5 1 0 2-.5 2-2z" />
-						<path d="M13 9.5c2.5-3 6-3.5 8-2.5-1 2.5-3 4.5-6 4.5-1 0-2-.5-2-2z" />
-						<path d="M12 9.5v8.5" />
-						<path d="M9 18h6" />
-					</svg>
-
-					<!-- Devil Icon (visible when hyde) -->
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						class="absolute transition-all duration-700 ease-in-out {$isHydeStore
-							? 'opacity-100 scale-100 rotate-0 text-red-500'
-							: 'opacity-0 scale-50 -rotate-90 text-white'}"
-						style="width: 32px; height: 32px;"
-					>
-						<path d="M9 8c-3-2-5-5-5-5s2 4 4 5z" />
-						<path d="M15 8c3-2 5-5 5-5s-2 4-4 5z" />
-						<path d="M12 20A8 8 0 1 0 12 4a8 8 0 0 0 0 16z" />
-						<path d="M8 12l2 1" />
-						<path d="M16 12l-2 1" />
-					</svg>
+					{#if $isHydeStore}
+						<img src="/hyde.png" alt="Icon" style="width: 40px; height: 40px;" />
+					{:else}
+						<img src="/jekyll.png" alt="Icon" style="width: 40px; height: 40px;" />
+					{/if}
 				</a>
 				<span
-					class="font-semibold text-xl hidden sm:block tracking-wide transition-colors duration-700 {$isHydeStore
-						? 'text-red-500 font-bold'
-						: 'text-white'}">SOLARYX</span
+					class="font-normal text-xl hidden sm:block tracking-wide transition-colors duration-700"
 				>
+					SOLARYX
+				</span>
 			</div>
 			{#if !["/login", "/signup", "/create", "/create-charity", "/settings", "/terms", "/profile", "/wallet", "/leaderboard"].includes($page.url.pathname)}
 				<div
