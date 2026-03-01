@@ -5,6 +5,7 @@ const charities = require("./charities");
 const markets = require("./markets");
 const shares = require("./shares");
 const users = require("./users");
+const leaderboard = require("./leaderboard");
 const { StatusResponse } = require("./models");
 
 const cookieParser = require("cookie-parser");
@@ -19,6 +20,7 @@ app.use(charities);
 app.use(shares);
 app.use(users);
 app.use(markets);
+app.use(leaderboard);
 
 app.get("/config", (_, res) => {
 	const { GLOBAL_POOL_WALLET } = require("./solana");

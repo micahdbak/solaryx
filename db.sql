@@ -33,7 +33,7 @@ CREATE TABLE users (
 CREATE TABLE profiles (
     user_id         UUID PRIMARY KEY REFERENCES users(id),
     username        VARCHAR(255) UNIQUE NOT NULL,
-    avatar_url      TEXT DEFAULT 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    avatar_url      TEXT,
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

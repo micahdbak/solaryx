@@ -135,10 +135,11 @@ router.post("/signup", async (req, res) => {
 
 		user = result.rows[0];
 
-		await client.query("INSERT INTO profiles(user_id, username) VALUES ($1, $2)", [
-			user.id,
-			username
-		]);
+		const avatar_url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
+		await client.query(
+			"INSERT INTO profiles(user_id, username, avatar_url) VALUES ($1, $2, $3)",
+			[user.id, username, avatar_url]
+		);
 
 		await client.query("COMMIT");
 	} catch (ex) {

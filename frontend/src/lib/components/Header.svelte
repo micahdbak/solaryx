@@ -170,13 +170,13 @@
 					/>
 				</div>
 			{/if}
-			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets"}
+			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets" || $page.url.pathname === "/leaderboard"}
 				<div class="flex items-center gap-2 ml-2">
 					{#each topics as topic}
 						<button
 							onclick={() => ($activeTopicStore = topic)}
 							class="px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out {$activeTopicStore ===
-							topic
+								topic && $page.url.pathname !== '/leaderboard'
 								? $isHydeStore
 									? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
 									: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
@@ -191,6 +191,39 @@
 			{/if}
 		</div>
 		<div class="flex items-center gap-4 pl-4">
+			<a
+				href="/leaderboard"
+				class="flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-sm transition-all duration-300 ease-in-out no-underline {$page
+					.url.pathname === '/leaderboard'
+					? $isHydeStore
+						? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+						: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+					: $isHydeStore
+						? 'text-red-700 hover:text-red-400 hover:bg-red-900/20'
+						: 'text-gray-300 hover:text-white hover:bg-white/10'}"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="lucide lucide-trophy"
+					><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path
+						d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"
+					/><path d="M4 22h16" /><path
+						d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"
+					/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path
+						d="M18 2H6v7a6 6 0 0 0 12 0V2Z"
+					/></svg
+				>
+				<span class="hidden sm:inline">Leaderboard</span>
+			</a>
+
 			{#if !data?.user}
 				<a
 					href="/login"
