@@ -71,6 +71,69 @@ A recorded bet/contribution from a user.
 - `transaction_status` (string): `WAITING` or `FINALIZED`.
 - `created_at` (timestamp)
 
+### `ProfileResponse`
+
+- `username` (string)
+- `avatar_url` (string)
+- `shares` (Array of `Share`)
+
+### `ProfileUpdateResponse`
+
+- `message` (string)
+- `profile` (Object with `username` and `avatar_url`)
+
+### `SearchUserResponse`
+
+- `user_id` (uuid)
+- `username` (string)
+- `avatar_url` (string)
+
+### `UsernameAvailableResponse`
+
+- `available` (boolean)
+
+### `BalanceResponse`
+
+- `balance` (number)
+
+### `Deposit`
+
+- `id` (uuid)
+- `user_id` (uuid)
+- `amount_sol` (number)
+- `transaction_signature` (string)
+- `status` (string)
+- `created_at` (timestamp)
+
+### `DepositResponse`
+
+- `message` (string)
+- `amount` (number)
+
+### `LeaderboardEntry`
+
+- `user_id` (uuid)
+- `username` (string)
+- `avatar_url` (string)
+- `total_donated` (number)
+
+### `WinEntry`
+
+- `share_id` (uuid)
+- `amount_sol` (number)
+- `created_at` (timestamp)
+- `username` (string)
+- `avatar_url` (string)
+- `market_title` (string)
+
+### `ConfigResponse`
+
+- `pool_wallet_address` (string)
+
+### `BlockhashResponse`
+
+- `blockhash` (string)
+
 ---
 
 ## Auth
@@ -111,13 +174,13 @@ Check if the current session is valid. **Requires auth.**
 
 Returns system configuration variables needed by the frontend.
 
-**Response:** `{ "pool_wallet_address": "string" }`
+**Response:** `ConfigResponse`
 
 ### `GET /solana/blockhash`
 
 Proxies a request to the Solana RPC to fetch the latest blockhash. Used by the frontend to construct transactions without exposing its own RPC API key to the browser.
 
-**Response:** `{ "blockhash": "string" }`
+**Response:** `BlockhashResponse`
 
 ---
 
@@ -211,3 +274,75 @@ Deducts `amount_sol` from the user's platform balance. Market must be `ACTIVE` a
 List all shares for a given market, ordered by creation date (ascending).
 
 **Response:** Array of `Share`
+
+---
+
+## Users & Wallet
+
+### `GET /profile/:id`
+
+Get a public user profile, including their recent shares.
+
+**Response:** `ProfileResponse`
+
+### `PUT /profile/:id`
+
+Update a user profile. **Requires auth. Must be logged-in user's ID.**
+
+**Body:** `{ "username"?: string, "avatar_url"?: string }`
+
+**Response:** `ProfileUpdateResponse`
+
+### `GET /search/users?q=...&limit=...`
+
+Search for users by username.
+
+**Response:** Array of `SearchUserResponse`
+
+### `GET /username-available?username=...`
+
+Check if a username is available.
+
+**Response:** `UsernameAvailableResponse`
+
+### `GET /wallet/balance`
+
+Get current user's SOL balance. **Requires auth.**
+
+**Response:** `BalanceResponse`
+
+### `POST /wallet/deposit`
+
+Deposit SOL into the user's wallet via an on-chain transaction signature. **Requires auth.**
+
+**Body:** `{ "transaction_signature": string }`
+
+**Response:** `DepositResponse`
+
+### `POST /wallet/coupon/:code`
+
+Redeem a coupon code for SOL. **Requires auth.**
+
+**Response:** `DepositResponse`
+
+### `GET /wallet/deposits`
+
+List all deposits for the current user. **Requires auth.**
+
+**Response:** Array of `Deposit`
+
+---
+
+## Leaderboard
+
+### `GET /leaderboard?timeframe=...`
+
+Get the leaderboard of top users by total donated. `timeframe` can be `today`, `weekly`, `monthly`, or `all`. (Defaults to `monthly`).
+
+**Response:** Array of `LeaderboardEntry`
+
+### `GET /leaderboard/wins`
+
+Get the biggest single donations (wins) of the month.
+
+**Response:** Array of `WinEntry`

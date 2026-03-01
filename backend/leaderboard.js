@@ -1,6 +1,6 @@
 const express = require("express");
 const pool = require("./db");
-const { ErrorResponse } = require("./models");
+const { ErrorResponse, LeaderboardEntry, WinEntry } = require("./models");
 
 const router = express.Router();
 
@@ -58,7 +58,7 @@ router.get("/leaderboard", async (req, res) => {
 			[intervalStr]
 		);
 
-		res.json(result.rows);
+		res.json(result.rows.map((r) => new LeaderboardEntry(r)));
 	} catch (err) {
 		console.error("Error fetching leaderboard:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));
@@ -86,7 +86,7 @@ router.get("/leaderboard/wins", async (req, res) => {
 			`
 		);
 
-		res.json(result.rows);
+		res.json(result.rows.map((r) => new WinEntry(r)));
 	} catch (err) {
 		console.error("Error fetching biggest wins:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));

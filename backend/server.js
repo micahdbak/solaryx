@@ -6,7 +6,7 @@ const markets = require("./markets");
 const shares = require("./shares");
 const users = require("./users");
 const leaderboard = require("./leaderboard");
-const { StatusResponse } = require("./models");
+const { StatusResponse, ConfigResponse, BlockhashResponse, ErrorResponse } = require("./models");
 
 const cookieParser = require("cookie-parser");
 
@@ -24,17 +24,17 @@ app.use(leaderboard);
 
 app.get("/config", (_, res) => {
 	const { GLOBAL_POOL_WALLET } = require("./solana");
-	res.json({ pool_wallet_address: GLOBAL_POOL_WALLET });
+	res.json(new ConfigResponse(GLOBAL_POOL_WALLET));
 });
 
 app.get("/solana/blockhash", async (_, res) => {
 	try {
 		const { connection } = require("./solana");
 		const { blockhash } = await connection.getLatestBlockhash();
-		res.json({ blockhash });
+		res.json(new BlockhashResponse(blockhash));
 	} catch (err) {
 		console.error("Error fetching blockhash:", err);
-		res.status(500).json({ error: "Failed to fetch blockhash" });
+		res.status(500).json(new ErrorResponse("Failed to fetch blockhash"));
 	}
 });
 

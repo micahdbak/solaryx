@@ -5,7 +5,8 @@
 		depositWallet,
 		fetchDeposits,
 		fetchConfig,
-		fetchBlockhash
+		fetchBlockhash,
+		redeemCoupon
 	} from "$lib/api";
 	import { themeLockedStore } from "$lib/theme";
 	import { formatSol } from "$lib/utils";
@@ -23,6 +24,9 @@
 
 	let depositAmount = $state("");
 	let isDepositing = $state(false);
+
+	let couponCode = $state("");
+	let isRedeeming = $state(false);
 
 	onMount(async () => {
 		$themeLockedStore = true; // Optional: keep it consistent if desired
@@ -128,6 +132,31 @@
 			alert("Deposit failed: " + (e.message || "Unknown error"));
 		} finally {
 			isDepositing = false;
+		}
+	}
+
+	async function handleRedeemCoupon() {
+		if (!couponCode) return;
+		try {
+			isRedeeming = true;
+			await redeemCoupon(couponCode);
+
+			// Refresh data
+			const [balRes, depRes] = await Promise.all([
+				fetchWalletBalance(),
+				fetchDeposits(),
+				invalidateAll()
+			]);
+			balance = balRes.balance;
+			deposits = depRes;
+
+			couponCode = "";
+			alert("Coupon redeemed successfully!");
+		} catch (e) {
+			console.error("Coupon redemption failed", e);
+			alert("Redemption failed: " + (e.message || "Unknown error"));
+		} finally {
+			isRedeeming = false;
 		}
 	}
 
@@ -378,6 +407,61 @@
 						to enable instant, zero-gas donations in markets.
 					</p>
 				</div>
+			</div>
+		</div>
+
+		<!-- Redeem Coupon -->
+		<div class="mt-8 bg-[#11141c] border border-gray-800 rounded-2xl p-6 shadow-xl w-full">
+			<h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+				<svg
+					class="w-5 h-5 text-gray-400"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					stroke-width="2"
+					><path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+					></path></svg
+				>
+				Redeem Coupon
+			</h2>
+
+			<div class="flex flex-col sm:flex-row gap-4 items-stretch">
+				<div class="relative flex-1 group">
+					<span
+						class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-white transition-colors"
+					>
+						<svg
+							class="w-4 h-4"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
+							></path></svg
+						>
+					</span>
+					<input
+						type="text"
+						placeholder="ABC123"
+						bind:value={couponCode}
+						class="w-full bg-black border border-gray-700 rounded-xl py-3 pl-11 pr-4 text-sm text-white font-mono tracking-widest focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all uppercase"
+						disabled={isRedeeming}
+					/>
+				</div>
+
+				<button
+					onclick={handleRedeemCoupon}
+					disabled={isRedeeming || !couponCode}
+					class="px-8 py-3 w-full sm:w-auto bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:text-gray-500 text-black font-extrabold text-sm rounded-xl shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.2)] active:scale-[0.98] disabled:shadow-none disabled:active:scale-100 transition-all cursor-pointer tracking-wide whitespace-nowrap"
+				>
+					{isRedeeming ? "Redeeming..." : "Redeem Coupon"}
+				</button>
 			</div>
 		</div>
 

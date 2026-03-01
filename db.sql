@@ -6,7 +6,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-
+DROP TABLE IF EXISTS coupons CASCADE;
 DROP TABLE IF EXISTS payouts CASCADE;
 DROP TABLE IF EXISTS deposits CASCADE;
 DROP TABLE IF EXISTS bets CASCADE;
@@ -85,6 +85,18 @@ CREATE TABLE shares (
     seen_result             BOOLEAN DEFAULT FALSE,
     created_at              TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE TABLE coupons (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code        VARCHAR(10) UNIQUE NOT NULL,
+    amount_sol  DECIMAL(20, 9) NOT NULL CHECK (amount_sol > 0),
+    max_uses    SMALLINT NOT NULL CHECK (max_uses > 0),
+    num_uses    SMALLINT NOT NULL DEFAULT 0
+);
+
+-- ==========================================================
+-- 2. FUNCTIONS CREATION
+-- ==========================================================
 
 CREATE OR REPLACE FUNCTION update_user_balance_on_deposit()
 RETURNS TRIGGER AS $$

@@ -64,6 +64,19 @@ export async function depositWallet(data) {
 	return res.json();
 }
 
+export async function redeemCoupon(code) {
+	const res = await fetch(`/api/wallet/coupon/${code}`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		credentials: "include"
+	});
+	if (!res.ok) {
+		const body = await res.json().catch(() => ({}));
+		throw new Error(body.error || "Failed to redeem coupon");
+	}
+	return res.json();
+}
+
 export async function fetchDeposits() {
 	const res = await fetch("/api/wallet/deposits", { credentials: "include" });
 	if (!res.ok) throw new Error("Failed to fetch deposits");

@@ -345,69 +345,67 @@
 			{/if}
 
 			<!-- Dropdown -->
-			<div class="relative" bind:this={menuContainer}>
-				<button
-					onclick={toggleMenu}
-					class="flex items-center gap-1 border-none cursor-pointer p-2 text-gray-300 bg-transparent hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="20"
-						height="20"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+			{#if data?.user}
+				<div class="relative" bind:this={menuContainer}>
+					<button
+						onclick={toggleMenu}
+						class="flex items-center gap-1 border-none cursor-pointer p-2 text-gray-300 bg-transparent hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
 					>
-						<line x1="3" y1="12" x2="21" y2="12"></line>
-						<line x1="3" y1="6" x2="21" y2="6"></line>
-						<line x1="3" y1="18" x2="21" y2="18"></line>
-					</svg>
-				</button>
-				<div
-					class="dropdown-menu absolute right-0 mt-3 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl transition-all duration-300 z-50 overflow-hidden transform origin-top-right {isMenuOpen
-						? 'opacity-100 visible scale-100'
-						: 'opacity-0 invisible scale-95'}"
-				>
-					{#if data?.user}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<line x1="3" y1="12" x2="21" y2="12"></line>
+							<line x1="3" y1="6" x2="21" y2="6"></line>
+							<line x1="3" y1="18" x2="21" y2="18"></line>
+						</svg>
+					</button>
+					<div
+						class="dropdown-menu absolute right-0 mt-3 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl transition-all duration-300 z-50 overflow-hidden transform origin-top-right {isMenuOpen
+							? 'opacity-100 visible scale-100'
+							: 'opacity-0 invisible scale-95'}"
+					>
 						<a
 							href="/profile"
 							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
 							>Profile</a
 						>
-					{/if}
-					<a
-						href="/wallet"
-						class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-						>Wallet</a
-					>
-					<a
-						href="/create"
-						class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-						>Create Market</a
-					>
-					<a
-						href="/create-charity"
-						class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-						>Create Charity</a
-					>
-					<a
-						href="/settings"
-						class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-						>Settings</a
-					>
-					{#if data?.user}
+						<a
+							href="/wallet"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							>Wallet</a
+						>
+						<a
+							href="/create"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							>Create Market</a
+						>
+						<a
+							href="/create-charity"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							>Create Charity</a
+						>
+						<a
+							href="/settings"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							>Settings</a
+						>
 						<div class="border-t border-gray-800 my-1"></div>
 						<a
 							href="/logout"
 							class="block px-4 py-3 text-sm text-red-500 hover:bg-red-900/30 transition-colors"
 							>Logout</a
 						>
-					{/if}
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</nav>
 </header>
