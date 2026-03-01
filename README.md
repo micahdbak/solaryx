@@ -1,14 +1,20 @@
-# Codename Sorbet
+# Solaryx
 
-Charity donation market platform built with SvelteKit, Express, PostgreSQL, and Solana.
+**Mountain Madness 2026 Hackathon: "Dr. Jekyll and Mr. Hyde"**
 
-## Architecture
+Solaryx is a Solana-based charity donation platform with a twist: the noble narrative of donating to charities is contrasted directly with the inherently addictive and negative effects of gambling: embodying a good doctor (Dr. Jekyll) by day, and an evil murderer (Mr. Hyde) by night.
+
+In Solaryx, users pit charitable organizations against one another in head-to-head markets. Participants purchase shares in a market to back their chosen recipient. When a market closes, a roulette wheel spins to decide which charity receives the *entire* pool of shares. A charity's probability of winning is directly proportional to the percentage of the market cap bought in their name.
+
+## Systems Overview
+
+To support this high-stakes charity market, Solaryx relies on a robust architecture spanning frontend, backend, database, and blockchain integrations:
 
 ```
-┌───────────┐     ┌──────────┐     ┌────────────┐
-│ SvelteKit │────▶│ Express  │────▶│ PostgreSQL │
-│ :5173     │/api │ :3000    │     │ sorbet     │
-└───────────┘     └────┬─────┘     └────────────┘
+┌───────────┐     ┌───────────┐     ┌────────────┐
+│ SvelteKit │────▶│  Express  │────▶│ PostgreSQL │
+│ :5173     │/api │  :3000    │     │ sorbet     │
+└───────────┘     └────┬──────┘     └────────────┘
                        │
                        ▼
                  ┌──────────┐
@@ -17,11 +23,11 @@ Charity donation market platform built with SvelteKit, Express, PostgreSQL, and 
                  └──────────┘
 ```
 
-- **Frontend**: SvelteKit + Tailwind CSS, adapter-node for production builds
-- **Backend**: Express.js REST API with JWT auth, cookie sessions
-- **Database**: PostgreSQL with `pgcrypto` for UUID generation
-- **Blockchain**: Solana (transaction verification via RPC)
-- **Reverse proxy**: nginx (production)
+- **Frontend (SvelteKit & Tailwind CSS)**: The client application presents the head-to-head charity markets, real-time market share visualizations, and the thrilling roulette wheel animations. It handles user authentication, profile management, wallet operations, and live market updates.
+- **Backend (Express.js REST API)**: Manages core business logic including JWT-based authentication, user balances, charity configuration, market lifecycles, and cryptographically resolving market winners (the "roulette spin").
+- **Database (PostgreSQL)**: Maintains the ledger of users, profiles, charities, active and completed markets (`JEKYLL` and `HYDE` types), shares (bets), deposits, coupons, and payouts in a highly relational schema.
+- **Blockchain (Solana)**: Solaryx integrates with the Solana blockchain via RPC. Users deposit SOL to play, and when a market concludes, an automated on-chain transaction distributes the massive aggregated prize pool straight to the winning charity's Solana wallet address.
+- **Reverse Proxy (Nginx)**: Used in production environments to route traffic correctly to the SvelteKit frontend and the Express backend API.
 
 ---
 
