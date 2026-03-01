@@ -738,7 +738,7 @@
 								{currentBet.payout_tx}
 							</p>
 							<a
-								href="https://explorer.solana.com/tx/{currentBet.payout_tx}?cluster=devnet"
+								href="https://explorer.solana.com/tx/{currentBet.payout_tx}"
 								target="_blank"
 								rel="noopener noreferrer"
 								class="flex items-center justify-center gap-2 w-full py-2.5 bg-green-900/30 hover:bg-green-900/50 border border-green-800/50 rounded-lg text-green-400 text-sm font-semibold transition-colors"
@@ -1100,7 +1100,7 @@
 								)}
 							</p>
 							<a
-								href="https://explorer.solana.com/tx/{currentBet.payout_tx}?cluster=devnet"
+								href="https://explorer.solana.com/tx/{currentBet.payout_tx}"
 								target="_blank"
 								rel="noopener noreferrer"
 								class="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 font-semibold transition-colors"
