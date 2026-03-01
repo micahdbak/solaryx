@@ -1,6 +1,7 @@
 <script>
 	import { isHydeStore, themeLockedStore, searchQueryStore, activeTopicStore } from "$lib/theme";
 	import { page } from "$app/stores";
+	import { walletState } from "$lib/wallet.svelte";
 
 	let { data } = $props();
 	let isMenuOpen = $state(false);
@@ -138,6 +139,24 @@
 			{/if}
 		</div>
 		<div class="flex items-center gap-4 pl-4">
+			{#if walletState.isConnected}
+				<div class="flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-full border border-gray-700">
+					<div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+					<span class="text-sm font-mono text-gray-300">
+						{walletState.address.slice(0, 4)}...{walletState.address.slice(-4)}
+					</span>
+				</div>
+			{:else}
+				<button
+					onclick={() => walletState.connect()}
+					disabled={walletState.isConnecting}
+					class="flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all duration-300 text-white hover:scale-105 {walletState.isConnecting ? 'opacity-70 cursor-wait' : ''} {$isHydeStore ? 'bg-red-900 border border-red-700 shadow-[0_0_10px_rgba(153,27,27,0.5)]' : 'bg-indigo-600 shadow-[0_0_10px_rgba(79,70,229,0.5)]'}"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+					{walletState.isConnecting ? "Connecting..." : "Connect Wallet"}
+				</button>
+			{/if}
+
 			{#if !data?.user}
 				<a
 					href="/login"

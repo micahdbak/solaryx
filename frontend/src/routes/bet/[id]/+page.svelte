@@ -2,12 +2,17 @@
 	import { onMount, onDestroy } from "svelte";
 	import { page } from "$app/stores";
 	import { isHydeStore, themeLockedStore } from "$lib/theme";
-	import { fetchMarket, fetchCharities, formatMarket, indexCharities } from "$lib/api";
+	import { fetchMarket, fetchCharities, formatMarket, indexCharities, createShare } from "$lib/api";
+	import { walletState } from "$lib/wallet.svelte";
+	import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 	let currentBet = $state(null);
 	let loading = $state(true);
 	let selectedCause = $state("");
 	let donationAmount = $state(0);
+	let isDonating = $state(false);
+	let donationError = $state(null);
+	let donationSuccess = $state(false);
 
 	onMount(async () => {
 		try {
@@ -41,6 +46,90 @@
 	onDestroy(() => {
 		$themeLockedStore = false;
 	});
+
+	async function handleDonate() {
+		donationError = null;
+		donationSuccess = false;
+
+		if (!walletState.isConnected) {
+			const connected = await walletState.connect();
+			if (!connected) {
+				donationError = "Please connect your Phantom wallet to donate.";
+				return;
+			}
+		}
+
+		if (!donationAmount || isNaN(donationAmount) || donationAmount <= 0) {
+			donationError = "Please enter a valid donation amount greater than 0.";
+			return;
+		}
+
+		if (!currentBet.wallet_address) {
+			donationError = "Market wallet address is missing.";
+			return;
+		}
+
+		let charityIdToSupport =
+			selectedCause === currentBet.optionA.name
+				? currentBet.optionA.market_charity_id
+				: currentBet.optionB.market_charity_id;
+
+		if (!charityIdToSupport) {
+			donationError = "Could not identify the selected cause.";
+			return;
+		}
+
+		try {
+			isDonating = true;
+			
+			const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+			const fromPubkey = new PublicKey(walletState.address);
+			const toPubkey = new PublicKey(currentBet.wallet_address);
+			const lamports = Math.floor(donationAmount * LAMPORTS_PER_SOL);
+
+			const transaction = new Transaction().add(
+				SystemProgram.transfer({
+					fromPubkey,
+					toPubkey,
+					lamports,
+				})
+			);
+
+			transaction.feePayer = fromPubkey;
+			const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+			transaction.recentBlockhash = blockhash;
+
+			const { signature } = await window.solana.signAndSendTransaction(transaction);
+
+			// Wait for the transaction to be confirmed on the Devnet
+			await connection.confirmTransaction({
+				signature,
+				blockhash,
+				lastValidBlockHeight
+			}, "confirmed");
+
+			await createShare({
+				market_id: currentBet.id,
+				market_charity_id: charityIdToSupport,
+				transaction_signature: signature
+			});
+
+			donationSuccess = true;
+			donationAmount = 0;
+
+			// Refresh market data
+			const rawMarket = await fetchMarket(currentBet.id);
+			const rawCharities = await fetchCharities();
+			const lookup = indexCharities(rawCharities);
+			currentBet = formatMarket(rawMarket, lookup);
+
+		} catch (err) {
+			console.error("Donation failed:", err);
+			donationError = err.message || "An error occurred during donation.";
+		} finally {
+			isDonating = false;
+		}
+	}
 </script>
 
 {#if loading}
@@ -276,11 +365,20 @@
 					</div>
 				</div>
 
-				<div class="mt-6">
+				<div class="mt-4">
+					{#if donationError}
+						<div class="text-sm font-bold text-red-500 mb-2 p-2 bg-red-500/10 rounded">{donationError}</div>
+					{/if}
+					{#if donationSuccess}
+						<div class="text-sm font-bold text-green-500 mb-2 p-2 bg-green-500/10 rounded">Donation successful! Thank you.</div>
+					{/if}
+					
 					<button
-						class="w-full py-4 bg-white hover:bg-gray-200 text-black font-extrabold text-lg rounded-xl shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.2)] active:scale-[0.98] transition-all cursor-pointer tracking-wide"
+						onclick={handleDonate}
+						disabled={isDonating}
+						class="w-full py-4 bg-white hover:bg-gray-200 text-black font-extrabold text-lg rounded-xl shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.2)] active:scale-[0.98] transition-all cursor-pointer tracking-wide {isDonating ? 'opacity-70 cursor-wait' : ''}"
 					>
-						Donate {donationAmount ? `${donationAmount} SOL` : "Now"}
+						{isDonating ? "Processing..." : `Donate ${donationAmount ? `${donationAmount} SOL` : "Now"}`}
 					</button>
 				</div>
 			</div>

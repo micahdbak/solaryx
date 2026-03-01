@@ -17,7 +17,16 @@ router.post("/shares", verify_session, async (req, res) => {
 	}
 
 	try {
-		const tx = await checkTransaction(transaction_signature);
+		// Fetch the market to get the developer wallet address
+		const marketRes = await pool.query("SELECT wallet_address FROM markets WHERE id = $1", [
+			market_id
+		]);
+		if (marketRes.rows.length === 0) {
+			return res.status(404).json({ error: "Market not found" });
+		}
+		const expectedWallet = marketRes.rows[0].wallet_address;
+
+		const tx = await checkTransaction(transaction_signature, expectedWallet);
 
 		const result = await pool.query(
 			`INSERT INTO shares (user_id, market_id, market_charity_id, amount_sol, transaction_signature, transaction_status)

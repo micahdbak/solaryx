@@ -107,7 +107,8 @@ export function formatMarket(market, charitiesById) {
 		vol: totalSol > 0 ? `${totalSol.toFixed(2)} SOL` : "0 SOL",
 		totalSol,
 		timeRemaining,
-		charityTotals
+		charityTotals,
+		wallet_address: market.wallet_address
 	};
 }
 
