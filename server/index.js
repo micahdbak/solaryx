@@ -1,8 +1,9 @@
-import { D as DevalueError, i as is_primitive, g as get_type, a as is_plain_object, e as enumerable_symbols, s as stringify_key, b as stringify_string, v as valid_array_indices, B as BROWSER, u as uneval } from './chunks/index2-CCZAVGyA.js';
-import { w as with_request_store, t as text_decoder, b as base64_decode, r as root, d as decode_pathname, n as normalize_path, a as disable_search, c as decode_params, v as validate_layout_server_exports, e as validate_layout_exports, f as validate_page_server_exports, g as validate_page_exports, h as text_encoder$1, i as resolve, m as make_trackable, j as get_relative_path, k as base64_encode } from './chunks/root-_rt12MkU.js';
-import { r as readable, w as writable } from './chunks/index-W5rMZ-EO.js';
+import { D as DevalueError, i as is_primitive, g as get_type, a as is_plain_object, e as enumerable_symbols, s as stringify_key, b as stringify_string, v as valid_array_indices, B as BROWSER, u as uneval } from './chunks/index2-CzTCGPOT.js';
+import { w as with_request_store, t as text_decoder, b as base64_decode, r as root, d as decode_pathname, n as normalize_path, a as disable_search, c as decode_params, v as validate_layout_server_exports, e as validate_layout_exports, f as validate_page_server_exports, g as validate_page_exports, h as text_encoder$1, i as resolve, m as make_trackable, j as get_relative_path, k as base64_encode } from './chunks/root-CoMgmpsk.js';
+import { r as readable, w as writable } from './chunks/index-C_O_tEO_.js';
 import './chunks/attributes-PglfaXXh.js';
 import './chunks/escaping-CqgfEcN3.js';
+import './chunks/context-DBa-_tdZ.js';
 
 /** @import { StandardSchemaV1 } from '@standard-schema/spec' */
 
@@ -1556,7 +1557,7 @@ const options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "130a0yc"
+  version_hash: "1gwwlkv"
 };
 async function get_hooks() {
   let handle;

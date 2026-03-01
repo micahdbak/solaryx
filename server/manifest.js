@@ -10,21 +10,22 @@ return {
 	assets: new Set(["robots.txt"]),
 	mimeTypes: {".txt":"text/plain"},
 	_: {
-		client: {start:"_app/immutable/entry/start.BdphMChM.js",app:"_app/immutable/entry/app.BHwpwCot.js",imports:["_app/immutable/entry/start.BdphMChM.js","_app/immutable/chunks/DEHRWUFx.js","_app/immutable/chunks/D8StqO6s.js","_app/immutable/chunks/Ce-W7byn.js","_app/immutable/chunks/Df_vWAA_.js","_app/immutable/entry/app.BHwpwCot.js","_app/immutable/chunks/D8StqO6s.js","_app/immutable/chunks/BXocVRlS.js","_app/immutable/chunks/Df_vWAA_.js","_app/immutable/chunks/DdazIBMK.js","_app/immutable/chunks/CpnOqmky.js","_app/immutable/chunks/C_S0mXsj.js","_app/immutable/chunks/Ce-W7byn.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.D4_S_Cs1.js",app:"_app/immutable/entry/app.CfUzwYFR.js",imports:["_app/immutable/entry/start.D4_S_Cs1.js","_app/immutable/chunks/D4_cn0Rs.js","_app/immutable/chunks/uDPRyAOF.js","_app/immutable/chunks/DUwCBbVm.js","_app/immutable/chunks/BGh1C5e_.js","_app/immutable/entry/app.CfUzwYFR.js","_app/immutable/chunks/uDPRyAOF.js","_app/immutable/chunks/C7eqeGV3.js","_app/immutable/chunks/BGh1C5e_.js","_app/immutable/chunks/BnIN0Tst.js","_app/immutable/chunks/BEUaE752.js","_app/immutable/chunks/ByiXqGWG.js","_app/immutable/chunks/DUwCBbVm.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
-			__memo(() => import('./chunks/0-BMDVjDWb.js')),
-			__memo(() => import('./chunks/1-BqWG4O5X.js')),
-			__memo(() => import('./chunks/2-D6uUcTWp.js')),
-			__memo(() => import('./chunks/3-YRjN_YAL.js')),
-			__memo(() => import('./chunks/4-Dz7LNl-L.js')),
-			__memo(() => import('./chunks/5-DaCXNQh9.js')),
-			__memo(() => import('./chunks/6-CVbR-fc3.js')),
-			__memo(() => import('./chunks/7-CohJa-p1.js')),
-			__memo(() => import('./chunks/8-DNzDRROY.js')),
-			__memo(() => import('./chunks/9-0-aARsyh.js')),
-			__memo(() => import('./chunks/10-DA5TcYo_.js')),
-			__memo(() => import('./chunks/11-CkaLz_ur.js')),
-			__memo(() => import('./chunks/12-CFXekUQT.js'))
+			__memo(() => import('./chunks/0-BoHobcFh.js')),
+			__memo(() => import('./chunks/1-Cc4VNZV1.js')),
+			__memo(() => import('./chunks/2-DRSfsx5w.js')),
+			__memo(() => import('./chunks/3-DipzVWNq.js')),
+			__memo(() => import('./chunks/4-QgWlPv0l.js')),
+			__memo(() => import('./chunks/5-Cl_L0RXP.js')),
+			__memo(() => import('./chunks/6-BsPNk4Mx.js')),
+			__memo(() => import('./chunks/7--FQQwu2d.js')),
+			__memo(() => import('./chunks/8-DZoiWG6J.js')),
+			__memo(() => import('./chunks/9-4Vp3ro6O.js')),
+			__memo(() => import('./chunks/10-n0199t1Z.js')),
+			__memo(() => import('./chunks/11-DO5F0eo3.js')),
+			__memo(() => import('./chunks/12-B0JPVAEK.js')),
+			__memo(() => import('./chunks/13-DE96dhAJ.js'))
 		],
 		remotes: {
 			
@@ -105,6 +106,13 @@ return {
 				pattern: /^\/terms\/?$/,
 				params: [],
 				page: { layouts: [0,], errors: [1,], leaf: 12 },
+				endpoint: null
+			},
+			{
+				id: "/wallet",
+				pattern: /^\/wallet\/?$/,
+				params: [],
+				page: { layouts: [0,], errors: [1,], leaf: 13 },
 				endpoint: null
 			}
 		],
