@@ -20,7 +20,7 @@ const getStartDateFromTimeframe = (timeframe) => {
 };
 
 // Get leaderboard of top users by total donated
-router.get("/api/leaderboard", async (req, res) => {
+router.get("/leaderboard", async (req, res) => {
 	const timeframe = req.query.timeframe || "monthly";
 	let intervalStr;
 	switch (timeframe) {
@@ -66,7 +66,7 @@ router.get("/api/leaderboard", async (req, res) => {
 });
 
 // Get biggest wins of the month
-router.get("/api/leaderboard/wins", async (req, res) => {
+router.get("/leaderboard/wins", async (req, res) => {
 	try {
 		const result = await pool.query(
 			`

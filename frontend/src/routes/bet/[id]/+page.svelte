@@ -84,7 +84,7 @@
 				market_charity_id: charityId,
 				amount_sol: donationAmount
 			});
-			shares = await fetchShares(currentBet.id);
+			await doRefresh();
 			donationAmount = "";
 		} catch (e) {
 			console.error("Donation failed:", e);
@@ -537,11 +537,43 @@
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-800/60 var-divide-card font-medium">
-						<tr>
-							<td colspan="4" class="py-6 text-center text-gray-600 text-xs"
-								>No donations yet</td
-							>
-						</tr>
+						{#if shares.length === 0}
+							<tr>
+								<td colspan="4" class="py-6 text-center text-gray-600 text-xs"
+									>No donations yet</td
+								>
+							</tr>
+						{:else}
+							{#each [...shares].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) as share, idx}
+								<tr class="hover:bg-gray-800/30 transition-colors">
+									<td class="py-3 px-4 text-gray-400">{shares.length - idx}</td>
+									<td class="py-3 px-4">
+										<a
+											href="/profile/{share.user_id}"
+											class="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-semibold"
+										>
+											{share.username || "Anonymous"}
+										</a>
+									</td>
+									<td class="py-3 px-4">
+										{#if share.market_charity_id === currentBet.optionA.market_charity_id}
+											<span class="var-color-optionA"
+												>{currentBet.optionA.name}</span
+											>
+										{:else if share.market_charity_id === currentBet.optionB.market_charity_id}
+											<span class="var-color-optionB"
+												>{currentBet.optionB.name}</span
+											>
+										{:else}
+											<span class="text-gray-400">Unknown</span>
+										{/if}
+									</td>
+									<td class="py-3 px-4 text-right font-bold text-gray-200">
+										{convertSol(Number(share.amount_sol))}
+									</td>
+								</tr>
+							{/each}
+						{/if}
 					</tbody>
 				</table>
 			</div>
