@@ -96,8 +96,9 @@ router.post("/signup", async (req, res) => {
 			[email, hash]
 		);
 
-		return res.status(200).json({ status: true, user: result.rows[0] });
-	} catch {
+		return res.status(200).json({ status: true });
+	} catch (ex) {
+		console.error(ex);
 		return res.status(400).json({ error: "Email already exists" });
 	}
 });
