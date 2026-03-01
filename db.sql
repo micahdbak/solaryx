@@ -85,3 +85,33 @@ CREATE TABLE shares (
     seen_result             BOOLEAN DEFAULT FALSE,
     created_at              TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE OR REPLACE FUNCTION update_user_balance_on_deposit()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE users
+    SET balance_sol = balance_sol + NEW.amount_sol
+    WHERE id = NEW.user_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER on_deposit_insert
+AFTER INSERT ON deposits
+FOR EACH ROW
+EXECUTE FUNCTION update_user_balance_on_deposit();
+
+CREATE OR REPLACE FUNCTION update_user_balance_on_share()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE users
+    SET balance_sol = balance_sol - NEW.amount_sol
+    WHERE id = NEW.user_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER on_share_insert
+AFTER INSERT ON shares
+FOR EACH ROW
+EXECUTE FUNCTION update_user_balance_on_share();

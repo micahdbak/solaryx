@@ -1,12 +1,14 @@
 <script>
 	import { onMount, onDestroy } from "svelte";
 	import { page } from "$app/stores";
+	import { invalidateAll } from "$app/navigation";
 	import {
 		isHydeStore,
 		themeLockedStore,
 		selectedCurrencyStore,
 		exchangeRatesStore
 	} from "$lib/theme";
+	import { formatSol } from "$lib/utils";
 	import {
 		fetchMarket,
 		fetchCharities,
@@ -62,7 +64,7 @@
 		if (curr === "USD") return `$${(sol * rates.usd).toFixed(2)} USD`;
 		if (curr === "CAD") return `$${(sol * rates.cad).toFixed(2)} CAD`;
 		if (curr === "EUR") return `€${(sol * rates.eur).toFixed(2)} EUR`;
-		return `${sol.toFixed(2)} SOL`;
+		return `${formatSol(sol)} SOL`;
 	}
 
 	async function handleDonate() {
@@ -119,6 +121,7 @@
 		let totalA = 0;
 		let totalB = 0;
 
+		// Calculate background totals up to cutoff
 		sharesData.forEach((s) => {
 			const t = new Date(s.created_at).getTime();
 			if (t <= cutoff) {
@@ -128,18 +131,27 @@
 			}
 		});
 
-		const points = [];
-		const startTime = cutoff;
-		const endTime = now;
-		const timeRange = Math.max(endTime - startTime, 1000);
+		const sharesInRange = sharesData.filter((s) => new Date(s.created_at).getTime() > cutoff);
 
+		let startTime, endTime;
+		if (sharesInRange.length === 0) {
+			startTime = cutoff;
+			endTime = now;
+		} else {
+			const times = sharesInRange.map((s) => new Date(s.created_at).getTime());
+			startTime = Math.min(...times);
+			endTime = Math.max(...times);
+		}
+
+		const timeRange = Math.max(endTime - startTime, 1000);
 		const initialSum = totalA + totalB;
 		const initialY = initialSum === 0 ? 100 : 100 - (totalA / initialSum) * 100;
-		points.push({ x: 0, y: initialY });
+		const points = [{ x: 0, y: initialY }];
 
-		sharesData.forEach((share) => {
-			const t = new Date(share.created_at).getTime();
-			if (t > cutoff) {
+		sharesInRange
+			.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+			.forEach((share) => {
+				const t = new Date(share.created_at).getTime();
 				const amount = Number(share.amount_sol) || 0;
 				if (share.market_charity_id === aId) totalA += amount;
 				if (share.market_charity_id === bId) totalB += amount;
@@ -148,10 +160,9 @@
 				const y = sum === 0 ? 100 : 100 - (totalA / sum) * 100;
 				const x = Math.max(0, Math.min(100, ((t - startTime) / timeRange) * 100));
 				points.push({ x, y });
-			}
-		});
+			});
 
-		// Ensure we draw the line to the very end edge (now)
+		// Ensure we draw the line to the very end edge (100%)
 		points.push({ x: 100, y: points[points.length - 1].y });
 
 		// Build the divider path using smooth Bézier curves
@@ -315,7 +326,8 @@
 			const [rawMarket, rawCharities, rawShares] = await Promise.all([
 				fetchMarket($page.params.id),
 				fetchCharities(),
-				fetchShares($page.params.id)
+				fetchShares($page.params.id),
+				invalidateAll()
 			]);
 			const lookup = indexCharities(rawCharities);
 			currentBet = formatMarket(rawMarket, lookup);
@@ -743,34 +755,35 @@
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
 							onclick={() =>
-								(donationAmount = parseFloat(
-									(Number(donationAmount || 0) + 0.1).toFixed(2)
+								(donationAmount = Number(
+									(Number(donationAmount || 0) + 0.1).toFixed(9)
 								))}>+0.1</button
 						>
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
 							onclick={() =>
-								(donationAmount = parseFloat(
-									(Number(donationAmount || 0) + 0.5).toFixed(2)
+								(donationAmount = Number(
+									(Number(donationAmount || 0) + 0.5).toFixed(9)
 								))}>+0.5</button
 						>
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
 							onclick={() =>
-								(donationAmount = parseFloat(
-									(Number(donationAmount || 0) + 1).toFixed(2)
+								(donationAmount = Number(
+									(Number(donationAmount || 0) + 1).toFixed(9)
 								))}>+1</button
 						>
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
 							onclick={() =>
-								(donationAmount = parseFloat(
-									(Number(donationAmount || 0) + 5).toFixed(2)
+								(donationAmount = Number(
+									(Number(donationAmount || 0) + 5).toFixed(9)
 								))}>+5</button
 						>
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() => (donationAmount = 100)}>Max</button
+							onclick={() => (donationAmount = authUser ? authUser.balance_sol : 0)}
+							>Max</button
 						>
 					</div>
 				</div>
@@ -814,8 +827,8 @@
 	<div
 		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md"
 	>
-		<h2 class="text-3xl md:text-5xl font-black text-white mb-12 tracking-wider">
-			SPINNING THE CAROLETTE
+		<h2 class="text-3xl md:text-5xl font-black text-white mb-12 tracking-wider uppercase">
+			Results
 		</h2>
 
 		<div class="relative w-72 h-72 md:w-96 md:h-96">
@@ -877,7 +890,7 @@
 						<div class="flex justify-between items-center mb-2">
 							<span class="text-gray-400 text-sm">Winning Bet:</span>
 							<span class="text-white font-bold"
-								>{Number(rouletteWinner.amount_sol).toFixed(2)} SOL</span
+								>{formatSol(rouletteWinner.amount_sol)} SOL</span
 							>
 						</div>
 						<div class="flex justify-between items-center">

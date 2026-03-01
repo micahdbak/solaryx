@@ -13,7 +13,7 @@
 				1. Acceptance of Terms
 			</h2>
 			<p>
-				By accessing or using Yahu ("the Platform", "we", "us", or "our"), you ("User",
+				By accessing or using Solaryx ("the Platform", "we", "us", or "our"), you ("User",
 				"you") agree to be legally bound by these Terms of Service ("Terms"), our Privacy
 				Policy, and all applicable laws and regulations. If you do not agree to these Terms
 				in their entirety, you must immediately discontinue use of the Platform.
@@ -32,7 +32,7 @@
 			</h2>
 			<p>
 				You must be at least <strong class="text-white">18 years of age</strong> (or the age of
-				majority in your jurisdiction, whichever is greater) to use the Platform. By using Yahu,
+				majority in your jurisdiction, whichever is greater) to use the Platform. By using Solaryx,
 				you represent and warrant that:
 			</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">
@@ -59,9 +59,10 @@
 				3. Nature of the Platform — Charitable Prediction Markets
 			</h2>
 			<p>
-				Yahu operates a charitable prediction market platform where users allocate funds to
-				competing charitable organizations in real-time markets. The outcome of each market
-				determines which charity receives the majority or totality of pooled donations.
+				Solaryx operates a charitable prediction market platform where users allocate funds
+				to competing charitable organizations in real-time markets. The outcome of each
+				market determines which charity receives the majority or totality of pooled
+				donations.
 			</p>
 			<p class="mt-3">You acknowledge and agree that:</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">
@@ -74,13 +75,13 @@
 					Outcomes are determined by market resolution criteria defined at market
 					creation;
 				</li>
-				<li>Yahu does not guarantee any specific outcome;</li>
+				<li>Solaryx does not guarantee any specific outcome;</li>
 				<li>
 					All donated funds are directed to charitable recipients according to market
 					results and are not returned to users;
 				</li>
 				<li>
-					Yahu may retain a platform fee of up to 5% of total market volume to fund
+					Solaryx may retain a platform fee of up to 5% of total market volume to fund
 					operations.
 				</li>
 			</ul>
@@ -109,7 +110,7 @@
 					credentials;
 				</li>
 				<li>
-					Yahu is not a licensed money transmitter, broker-dealer, or financial
+					Solaryx is not a licensed money transmitter, broker-dealer, or financial
 					institution;
 				</li>
 				<li>Gas fees and network transaction costs are your sole responsibility;</li>
@@ -135,7 +136,7 @@
 				</p>
 			</div>
 			<p>
-				Once funds are deposited into any active market on Yahu, they <strong
+				Once funds are deposited into any active market on Solaryx, they <strong
 					class="text-white">cannot be withdrawn, refunded, reversed, or recovered</strong
 				> under any circumstance, including but not limited to:
 			</p>
@@ -173,10 +174,10 @@
 				</li>
 			</ul>
 			<p class="mt-3">
-				Yahu reserves the right to remove, suspend, or void any market that violates these
-				guidelines or applicable law, with or without notice, at its sole discretion. Funds
-				in voided markets will be distributed according to our discretionary resolution
-				process.
+				Solaryx reserves the right to remove, suspend, or void any market that violates
+				these guidelines or applicable law, with or without notice, at its sole discretion.
+				Funds in voided markets will be distributed according to our discretionary
+				resolution process.
 			</p>
 		</section>
 
@@ -198,7 +199,7 @@
 				</li>
 				<li>
 					<strong class="text-white">Smart Contract Risk:</strong> Bugs or exploits in smart
-					contracts could result in loss of funds. Yahu is not liable for such losses.
+					contracts could result in loss of funds. Solaryx is not liable for such losses.
 				</li>
 				<li>
 					<strong class="text-white">Counterparty Risk:</strong> Charitable organizations listed
@@ -268,8 +269,8 @@
 				You are solely responsible for determining and fulfilling any tax obligations
 				arising from your participation on the Platform, including but not limited to
 				obligations related to charitable contributions, capital gains, or cryptocurrency
-				transactions. Yahu does not provide tax advice. We recommend consulting a qualified
-				tax professional regarding your specific situation.
+				transactions. Solaryx does not provide tax advice. We recommend consulting a
+				qualified tax professional regarding your specific situation.
 			</p>
 		</section>
 
@@ -279,7 +280,7 @@
 				11. Limitation of Liability
 			</h2>
 			<p>
-				TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, YAHU, ITS OFFICERS, DIRECTORS,
+				TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, SOLARYX, ITS OFFICERS, DIRECTORS,
 				EMPLOYEES, AND AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
 				CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION LOSS OF PROFITS,
 				DATA, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM:
@@ -339,11 +340,11 @@
 		</section>
 		<div class="pt-8 text-center text-xs text-gray-600">
 			<p>
-				By using Yahu, you acknowledge that you have read, understood, and agree to be bound
-				by these Terms of Service.
+				By using Solaryx, you acknowledge that you have read, understood, and agree to be
+				bound by these Terms of Service.
 			</p>
 			<p class="mt-2">
-				© {new Date().getFullYear()} Yahu. All rights reserved.
+				© {new Date().getFullYear()} Solaryx. All rights reserved.
 			</p>
 		</div>
 	</div>

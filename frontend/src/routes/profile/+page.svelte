@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from "svelte";
 	import { isHydeStore } from "$lib/theme";
+	import { formatSol } from "$lib/utils";
 	import { fetchMarkets, fetchCharities, formatMarket, indexCharities } from "$lib/api";
 
 	let profile = $state(null);
@@ -239,7 +240,7 @@
 				>
 					<div>
 						<div class="text-[1.1rem] font-bold text-gray-200">
-							{totalDonation.toFixed(2)} SOL
+							{formatSol(totalDonation)} SOL
 						</div>
 						<div class="text-[0.75rem] text-gray-500 font-semibold mt-0.5">
 							Total Donation
@@ -250,7 +251,7 @@
 					></div>
 					<div>
 						<div class="text-[1.1rem] font-bold text-gray-200">
-							{topDonation.toFixed(2)} SOL
+							{formatSol(topDonation)} SOL
 						</div>
 						<div class="text-[0.75rem] text-gray-500 font-semibold mt-0.5">
 							Top Donation
@@ -294,7 +295,7 @@
 						<div
 							class="text-[2rem] font-bold text-white tracking-tight leading-none mb-1"
 						>
-							{totalDonation.toFixed(2)} SOL
+							{formatSol(totalDonation)} SOL
 						</div>
 						<div class="text-[0.75rem] text-gray-500 font-medium">Over All Time</div>
 					</div>

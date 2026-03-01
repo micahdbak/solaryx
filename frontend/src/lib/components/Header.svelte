@@ -1,5 +1,4 @@
 <script>
-	import favicon from "$lib/assets/favicon.svg";
 	import {
 		isHydeStore,
 		themeLockedStore,
@@ -8,6 +7,7 @@
 		selectedCurrencyStore,
 		exchangeRatesStore
 	} from "$lib/theme";
+	import { formatSol } from "$lib/utils";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
@@ -266,7 +266,7 @@
 									fill="currentColor"
 								/></svg
 							>
-							<span>{(data.user.balance_sol ?? 0).toFixed(2)} SOL</span>
+							<span>{formatSol(data.user.balance_sol)} SOL</span>
 						{:else if $selectedCurrencyStore === "USD"}
 							<span
 								>${((data.user.balance_sol ?? 0) * $exchangeRatesStore.usd).toFixed(

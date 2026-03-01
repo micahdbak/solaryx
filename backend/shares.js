@@ -47,17 +47,6 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 			return res.status(400).json(new ErrorResponse("Market is no longer active"));
 		}
 
-		// Deduct user balance securely
-		const balanceResult = await client.query(
-			"UPDATE users SET balance_sol = balance_sol - $1 WHERE id = $2 AND balance_sol >= $1 RETURNING balance_sol",
-			[finalAmount, user_id]
-		);
-
-		if (balanceResult.rows.length === 0) {
-			await client.query("ROLLBACK");
-			return res.status(400).json(new ErrorResponse("Insufficient balance"));
-		}
-
 		const result = await client.query(
 			`INSERT INTO shares (user_id, market_id, market_charity_id, amount_sol)
 			 VALUES ($1, $2, $3, $4)
@@ -69,6 +58,10 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 		res.status(201).json(new Share(result.rows[0]));
 	} catch (err) {
 		await client.query("ROLLBACK");
+		if (err.code === "23514") {
+			// balance_sol >= 0 check constraint
+			return res.status(400).json(new ErrorResponse("Insufficient balance"));
+		}
 		console.error("Error creating share:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));
 	} finally {

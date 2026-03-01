@@ -13,6 +13,10 @@ INSERT INTO profiles (user_id, username, avatar_url)
 VALUES ('b37a40d9-63f0-4b04-81e8-b759e0fa3d6d', 'TESTUSER', 'https://api.dicebear.com/7.x/identicon/svg?seed=CryptoWhale')
 ON CONFLICT DO NOTHING;
 
+INSERT INTO deposits (user_id, amount_sol, transaction_signature)
+VALUES ('b37a40d9-63f0-4b04-81e8-b759e0fa3d6d', 100.0, 'dummy_seed_deposit_signature')
+ON CONFLICT DO NOTHING;
+
 -- ==========================================================
 -- 2. CHARITIES
 -- ==========================================================

@@ -8,6 +8,8 @@
 		fetchBlockhash
 	} from "$lib/api";
 	import { themeLockedStore } from "$lib/theme";
+	import { formatSol } from "$lib/utils";
+	import { invalidateAll } from "$app/navigation";
 	import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 	let balance = $state(0);
@@ -111,7 +113,11 @@
 			await depositWallet({ transaction_signature: signature });
 
 			// Refresh data
-			const [balRes, depRes] = await Promise.all([fetchWalletBalance(), fetchDeposits()]);
+			const [balRes, depRes] = await Promise.all([
+				fetchWalletBalance(),
+				fetchDeposits(),
+				invalidateAll()
+			]);
 			balance = balRes.balance;
 			deposits = depRes;
 			depositAmount = "";
@@ -183,7 +189,7 @@
 						<div
 							class="text-4xl font-extrabold text-white tracking-tight flex items-end gap-2"
 						>
-							{balance.toFixed(2)}
+							{formatSol(balance)}
 							<span class="text-xl text-gray-500 font-bold mb-1">SOL</span>
 						</div>
 						<p class="text-xs text-gray-500 mt-2 font-medium">
@@ -427,7 +433,7 @@
 												fill="currentColor"
 											/></svg
 										>
-										{Number(dep.amount_sol).toFixed(2)}
+										{formatSol(dep.amount_sol)}
 									</td>
 									<td class="py-4 px-4 text-gray-400 font-mono text-xs">
 										{#if dep.transaction_signature}

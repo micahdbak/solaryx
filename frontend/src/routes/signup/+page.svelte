@@ -120,7 +120,7 @@
 		<!-- Welcome Header -->
 		<div class="text-center mb-8">
 			<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">
-				Yahu Welcomes You
+				Solaryx Welcomes You
 			</h1>
 		</div>
 

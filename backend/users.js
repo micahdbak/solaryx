@@ -176,12 +176,6 @@ router.post("/wallet/deposit", verify_session, async (req, res) => {
 				[req.user.id, tx.amount, transaction_signature]
 			);
 
-			// Increment user balance
-			await client.query("UPDATE users SET balance_sol = balance_sol + $1 WHERE id = $2", [
-				tx.amount,
-				req.user.id
-			]);
-
 			await client.query("COMMIT");
 
 			res.json({ message: "Deposit successful", amount: tx.amount });

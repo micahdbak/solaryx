@@ -1,3 +1,5 @@
+import { formatSol } from "./utils";
+
 // ─── Raw API helpers ────────────────────────────────────────────
 
 export async function fetchConfig() {
@@ -159,7 +161,7 @@ export function formatMarket(market, charitiesById) {
 		chance,
 		optionA: { name: aName, market_charity_id: a?.market_charity_id ?? "", charity: aCharity },
 		optionB: { name: bName, market_charity_id: b?.market_charity_id ?? "", charity: bCharity },
-		vol: totalSol > 0 ? `${totalSol.toFixed(2)} SOL` : "0 SOL",
+		vol: totalSol > 0 ? `${formatSol(totalSol)} SOL` : "0 SOL",
 		totalSol,
 		timeRemaining,
 		createdAt,

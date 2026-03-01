@@ -1,6 +1,5 @@
 <script>
 	import "./layout.css";
-	import favicon from "$lib/assets/favicon.svg";
 	import { isHydeStore } from "$lib/theme";
 	import Header from "$lib/components/Header.svelte";
 
@@ -37,7 +36,10 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<title>Solaryx</title>
+	<link rel="icon" href="/favicon.ico" />
+</svelte:head>
 
 <!-- Burst Overlay -->
 {#if burstType === "hyde"}
