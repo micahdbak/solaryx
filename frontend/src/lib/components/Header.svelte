@@ -1,11 +1,6 @@
 <script>
 	import favicon from "$lib/assets/favicon.svg";
-	import {
-		isHydeStore,
-		themeLockedStore,
-		searchQueryStore,
-		activeTopicStore,
-	} from "$lib/theme";
+	import { isHydeStore, themeLockedStore, searchQueryStore, activeTopicStore } from "$lib/theme";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
@@ -23,7 +18,7 @@
 	onMount(async () => {
 		try {
 			const res = await fetch(
-				"https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd,cad,eur",
+				"https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd,cad,eur"
 			);
 			const ratesData = await res.json();
 			if (ratesData.solana) {
@@ -110,12 +105,8 @@
 						style="width: 32px; height: 32px;"
 					>
 						<path d="M12 4a3 1 0 1 1 0-2 3 1 0 1 1 0 2z" />
-						<path
-							d="M11 9.5c-2.5-3-6-3.5-8-2.5 1 2.5 3 4.5 6 4.5 1 0 2-.5 2-2z"
-						/>
-						<path
-							d="M13 9.5c2.5-3 6-3.5 8-2.5-1 2.5-3 4.5-6 4.5-1 0-2-.5-2-2z"
-						/>
+						<path d="M11 9.5c-2.5-3-6-3.5-8-2.5 1 2.5 3 4.5 6 4.5 1 0 2-.5 2-2z" />
+						<path d="M13 9.5c2.5-3 6-3.5 8-2.5-1 2.5-3 4.5-6 4.5-1 0-2-.5-2-2z" />
 						<path d="M12 9.5v8.5" />
 						<path d="M9 18h6" />
 					</svg>
@@ -249,29 +240,18 @@
 									fill="currentColor"
 								/></svg
 							>
-							<span
-								>{(data.user.balance_sol ?? 0).toFixed(2)} SOL</span
-							>
+							<span>{(data.user.balance_sol ?? 0).toFixed(2)} SOL</span>
 						{:else if selectedCurrency === "USD"}
 							<span
-								>${(
-									(data.user.balance_sol ?? 0) *
-									exchangeRates.usd
-								).toFixed(2)} USD</span
+								>${((data.user.balance_sol ?? 0) * exchangeRates.usd).toFixed(2)} USD</span
 							>
 						{:else if selectedCurrency === "CAD"}
 							<span
-								>${(
-									(data.user.balance_sol ?? 0) *
-									exchangeRates.cad
-								).toFixed(2)} CAD</span
+								>${((data.user.balance_sol ?? 0) * exchangeRates.cad).toFixed(2)} CAD</span
 							>
 						{:else if selectedCurrency === "EUR"}
 							<span
-								>€{(
-									(data.user.balance_sol ?? 0) *
-									exchangeRates.eur
-								).toFixed(2)} EUR</span
+								>€{((data.user.balance_sol ?? 0) * exchangeRates.eur).toFixed(2)} EUR</span
 							>
 						{/if}
 						<svg
