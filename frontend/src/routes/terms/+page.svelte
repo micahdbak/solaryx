@@ -154,7 +154,8 @@
 			</div>
 			<p>
 				Once funds are deposited into any active market on Solaryx, they <strong
-					class="text-[#e0e4f0]">cannot be withdrawn, refunded, reversed, or recovered</strong
+					class="text-[#e0e4f0]"
+					>cannot be withdrawn, refunded, reversed, or recovered</strong
 				> under any circumstance, including but not limited to:
 			</p>
 			<ul class="list-disc ml-6 mt-3 space-y-1">

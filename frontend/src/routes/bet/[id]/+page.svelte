@@ -2,12 +2,7 @@
 	import { onMount, onDestroy } from "svelte";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-	import {
-		isHydeStore,
-		themeLockedStore,
-		selectedCurrencyStore,
-		exchangeRatesStore
-	} from "$lib/theme";
+	import { isHydeStore, selectedCurrencyStore, exchangeRatesStore } from "$lib/theme";
 	import { formatSol } from "$lib/utils";
 	import {
 		fetchMarket,

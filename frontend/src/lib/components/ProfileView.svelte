@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from "svelte";
-	import { isHydeStore } from "$lib/theme";
 	import { formatSol } from "$lib/utils";
 	import { fetchMarkets, fetchCharities, formatMarket, indexCharities } from "$lib/api";
 	import MarketCard from "$lib/components/MarketCard.svelte";

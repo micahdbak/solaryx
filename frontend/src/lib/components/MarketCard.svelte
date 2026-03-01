@@ -1,6 +1,4 @@
 <script>
-	import { isHydeStore } from "$lib/theme";
-
 	let { cause, buttonLabel = "Donate to Vote", showCompleteOverlay = false } = $props();
 </script>
 

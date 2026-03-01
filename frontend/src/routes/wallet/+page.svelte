@@ -343,7 +343,8 @@
 
 				<div class="space-y-4 mb-6 relative group flex-1">
 					<div class="flex justify-between items-center text-sm font-medium">
-						<span class="text-gray-400 group-focus-within:text-[#e0e4f0] transition-colors"
+						<span
+							class="text-gray-400 group-focus-within:text-[#e0e4f0] transition-colors"
 							>Amount (SOL)</span
 						>
 					</div>

@@ -100,29 +100,21 @@
 			<div class="flex items-center gap-1 mr-8 md:mr-12">
 				<button
 					onclick={handleThemeToggle}
-					class="bg-transparent border-none flex items-center justify-center relative w-12 h-12 text-2xl font-extrabold text-[#e0e4f0] no-underline tracking-wide whitespace-nowrap hover:scale-105 transition-transform cursor-pointer"
+					class="bg-transparent border-none flex items-center justify-center w-12 h-12 text-2xl text-[#e0e4f0] no-underline tracking-wide whitespace-nowrap hover:scale-105 transition-transform cursor-pointer"
 					aria-label="Toggle theme"
-				>
-				<div
-					href="/"
-					class="bg-transparent border-none flex items-center justify-center relative w-12 h-12 text-2xl font-extrabold text-white no-underline tracking-wide whitespace-nowrap hover:scale-105 transition-transform {$themeLockedStore &&
-					$page.url.pathname === '/'
-						? 'cursor-not-allowed opacity-80'
-						: ''}"
-					aria-label="Home"
 				>
 					{#if $isHydeStore}
 						<img src="/hyde.png" alt="Icon" style="width: 40px; height: 40px;" />
 					{:else}
 						<img src="/jekyll.png" alt="Icon" style="width: 40px; height: 40px;" />
 					{/if}
-				</div>
-				<span
+				</button>
+				<a
+					href="/"
 					class="font-normal text-xl hidden sm:block tracking-wide transition-colors duration-700"
 				>
 					SOLARYX
-				</span>
-        </button>
+				</a>
 			</div>
 			{#if !["/login", "/signup", "/create", "/create-charity", "/settings", "/terms", "/profile", "/wallet", "/leaderboard"].includes($page.url.pathname)}
 				<div

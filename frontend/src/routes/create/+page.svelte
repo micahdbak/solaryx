@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from "svelte";
-	import { isHydeStore } from "$lib/theme";
 	import { fetchCharities, createMarket } from "$lib/api";
 
 	let title = $state("");
