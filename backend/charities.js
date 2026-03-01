@@ -1,9 +1,10 @@
 const express = require("express");
+const { verify_session } = require("./auth");
 const pool = require("./db");
 const router = express.Router();
 
 // Create a charity
-router.post("/charities", async (req, res) => {
+router.post("/charities", verify_session, async (req, res) => {
 	const { name, description, logo_url, solana_wallet_address, type } = req.body;
 	try {
 		const result = await pool.query(

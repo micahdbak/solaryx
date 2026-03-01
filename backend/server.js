@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const auth = require("./auth");
-const charities = require("./charties");
+const charities = require("./charities");
 
 const cookieParser = require("cookie-parser");
 
