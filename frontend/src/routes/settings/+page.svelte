@@ -40,6 +40,63 @@
 	];
 
 	let activeItem = $state(null);
+
+	import { onMount } from "svelte";
+
+	let user = $state(null);
+	let newUsername = $state("");
+	let saving = $state(false);
+	let successMsg = $state("");
+	let errorMsg = $state("");
+
+	onMount(async () => {
+		try {
+			const authRes = await fetch("/api/auth/status");
+			const authData = await authRes.json();
+			if (authData.status) {
+				user = authData.user;
+				newUsername = user.username;
+			} else {
+				// If not logged in, redirect to login
+				window.location.href = "/login";
+			}
+		} catch (e) {
+			console.error("Failed to load user state:", e);
+		}
+	});
+
+	async function updateProfile() {
+		if (!user) return;
+		if (!newUsername.trim()) {
+			errorMsg = "Username cannot be empty";
+			return;
+		}
+
+		saving = true;
+		successMsg = "";
+		errorMsg = "";
+
+		try {
+			const res = await fetch(`/api/profile/${user.id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username: newUsername })
+			});
+
+			const data = await res.json();
+			if (res.ok) {
+				successMsg = "Profile updated successfully!";
+				user.username = data.profile.username;
+			} else {
+				errorMsg = data.error || "Failed to update profile";
+			}
+		} catch (err) {
+			console.error("Error updating profile", err);
+			errorMsg = "An error occurred while updating.";
+		} finally {
+			saving = false;
+		}
+	}
 </script>
 
 <div class="max-w-3xl mx-auto px-6 md:px-10 py-12">
@@ -106,4 +163,92 @@
 			</button>
 		{/each}
 	</div>
+
+	<!-- Account Modal -->
+	{#if activeItem === "Account"}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+		>
+			<div
+				class="bg-[#1e212b] border border-gray-800/60 shadow-xl rounded-xl w-full max-w-md p-6 {$isHydeStore
+					? 'bg-[#200505] border-red-900/40'
+					: ''}"
+			>
+				<div class="flex justify-between items-center mb-6">
+					<h2 class="text-xl font-bold text-white">Account Settings</h2>
+					<button
+						class="text-gray-400 hover:text-white transition-colors"
+						onclick={() => {
+							activeItem = null;
+							successMsg = "";
+							errorMsg = "";
+						}}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M18 6 6 18" /><path d="m6 6 12 12" />
+						</svg>
+					</button>
+				</div>
+
+				{#if successMsg}
+					<div
+						class="mb-4 p-3 bg-green-500/20 border border-green-500/30 text-green-400 rounded-lg text-sm"
+					>
+						{successMsg}
+					</div>
+				{/if}
+
+				{#if errorMsg}
+					<div
+						class="mb-4 p-3 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-sm"
+					>
+						{errorMsg}
+					</div>
+				{/if}
+
+				<div class="mb-4">
+					<label for="username" class="block text-sm font-medium text-gray-300 mb-1"
+						>Username</label
+					>
+					<input
+						id="username"
+						type="text"
+						bind:value={newUsername}
+						class="w-full bg-[#11141c] border border-gray-700/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all {$isHydeStore
+							? 'focus:border-red-500/50 focus:ring-red-500/50'
+							: ''}"
+					/>
+				</div>
+
+				<div class="flex flex-col gap-3 mt-8">
+					<button
+						onclick={updateProfile}
+						disabled={saving || !user}
+						class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50 {$isHydeStore
+							? 'bg-red-600 hover:bg-red-700'
+							: ''}"
+					>
+						{saving ? "Saving..." : "Save Username"}
+					</button>
+
+					<button
+						onclick={() => alert("Password change functionality is coming soon.")}
+						class="w-full bg-transparent border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white font-bold py-2.5 rounded-lg transition-colors"
+					>
+						Change Password
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>

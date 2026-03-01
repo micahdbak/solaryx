@@ -359,6 +359,13 @@
 						? 'opacity-100 visible scale-100'
 						: 'opacity-0 invisible scale-95'}"
 				>
+					{#if data?.user}
+						<a
+							href="/profile"
+							class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+							>Profile</a
+						>
+					{/if}
 					<a
 						href="/wallet"
 						class="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
