@@ -1,18 +1,14 @@
 const { Connection, LAMPORTS_PER_SOL } = require("@solana/web3.js");
 
-// Use devnet for testing
-const network = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
+const network = process.env.SOLANA_RPC_URL;
+if (!network) {
+	throw new Error("SOLANA_RPC_URL environment variable is required");
+}
 const connection = new Connection(network, "confirmed");
 
-// Expected receiver
-const GLOBAL_POOL_WALLET =
-	process.env.DEV_WALLET_ADDRESS || "GqpKUJUhKJCvLTLwtfdetfQGDkAtkcCVimnvHRUZe8WG";
-
-function createWallet() {
-	return {
-		publicKey: "DUMMY_PUBLIC_KEY_" + Date.now(),
-		secretKey: "DUMMY_SECRET_KEY_" + Date.now()
-	};
+const GLOBAL_POOL_WALLET = process.env.POOL_WALLET_ADDRESS;
+if (!GLOBAL_POOL_WALLET) {
+	throw new Error("POOL_WALLET_ADDRESS environment variable is required");
 }
 
 /**
@@ -80,4 +76,4 @@ async function checkTransaction(signature) {
 	}
 }
 
-module.exports = { createWallet, checkTransaction };
+module.exports = { checkTransaction, GLOBAL_POOL_WALLET };

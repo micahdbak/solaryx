@@ -4,11 +4,9 @@
 	import { themeLockedStore } from "$lib/theme";
 	import { Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
-	// Use Devnet for testing
-	const network = "https://api.devnet.solana.com";
+	const network = import.meta.env.VITE_SOLANA_RPC_URL;
 	const connection = new Connection(network, "confirmed");
-	// This connects to the default platform wallet defined in env (or hardcoded for frontend tests)
-	const platformWalletStr = "GqpKUJUhKJCvLTLwtfdetfQGDkAtkcCVimnvHRUZe8WG"; // Fallback to System Program ID if not set
+	const platformWalletStr = import.meta.env.VITE_POOL_WALLET_ADDRESS;
 	const platformWalletPubKey = new PublicKey(platformWalletStr);
 
 	let balance = $state(0);

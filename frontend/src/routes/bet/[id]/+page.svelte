@@ -25,6 +25,11 @@
 	async function handleDonate() {
 		if (!donationAmount || donationAmount <= 0) return;
 
+		if (currentBet.endsAt < Date.now()) {
+			alert("This market has ended. Donations are no longer accepted.");
+			return;
+		}
+
 		if (donationAmount > userBalance) {
 			alert("Insufficient balance. Please deposit funds in your Wallet.");
 			return;
@@ -565,7 +570,7 @@
 						>
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() => (donationAmount = 100)}>Max</button
+							onclick={() => (donationAmount = userBalance)}>Max</button
 						>
 					</div>
 				</div>

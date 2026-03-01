@@ -1,7 +1,7 @@
 const express = require("express");
+const crypto = require("crypto");
 const { verify_session } = require("./auth");
 const pool = require("./db");
-const { createWallet } = require("./solana");
 const { Market, ErrorResponse } = require("./models");
 
 const router = express.Router();
@@ -22,12 +22,11 @@ router.post("/markets", verify_session, async (req, res) => {
 	try {
 		await client.query("BEGIN");
 
-		const wallet = createWallet();
 		const marketResult = await client.query(
-			`INSERT INTO markets (title, description, image_url, type, status, time_length_s, wallet_address)
-			 VALUES ($1, $2, $3, $4, 'ACTIVE', 3600, $5)
+			`INSERT INTO markets (title, description, image_url, type, status, time_length_s)
+			 VALUES ($1, $2, $3, $4, 'ACTIVE', 3600)
 			 RETURNING *`,
-			[title, description || null, image_url || null, type, wallet.publicKey]
+			[title, description || null, image_url || null, type]
 		);
 		const market = marketResult.rows[0];
 
@@ -154,35 +153,33 @@ router.get("/markets/:id", async (req, res) => {
 								0
 							);
 							if (totalSol > 0) {
-								const crypto = require("crypto");
+								// 1. Shuffle shares randomly (Fisher-Yates)
+								for (let i = shares.length - 1; i > 0; i--) {
+									const j = crypto.randomInt(0, i + 1);
+									[shares[i], shares[j]] = [shares[j], shares[i]];
+								}
 
-								// 1. Randomize the array of shares
-								shares.sort(() => {
-									const randomFraction =
-										crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
-									return randomFraction - 0.5;
-								});
-
-								// Default fallback if probability misses all somehow (e.g. precision bounds)
+								// 2. Cumulative roulette-wheel selection
+								const r =
+									(crypto.randomBytes(4).readUInt32LE(0) / 0x100000000) *
+									totalSol;
+								let cumulative = 0;
 								let winningShareId = shares[shares.length - 1].id;
 
-								// 2. Iterate each, rolling the dice with probability = amount_sol / total_sol
 								for (const share of shares) {
-									const probability = parseFloat(share.amount_sol) / totalSol;
-									const randomFraction =
-										crypto.randomBytes(4).readUInt32LE(0) / 0xffffffff;
-
-									if (randomFraction <= probability) {
+									cumulative += parseFloat(share.amount_sol);
+									if (cumulative > r) {
 										winningShareId = share.id;
 										break;
 									}
 								}
 
 								await client.query(
-									"UPDATE markets SET winning_share = $1 WHERE id = $2",
+									"UPDATE markets SET winning_share = $1, status = 'COMPLETE' WHERE id = $2",
 									[winningShareId, marketRow.id]
 								);
 								marketRow.winning_share = winningShareId;
+								marketRow.status = "COMPLETE";
 							}
 						}
 					}

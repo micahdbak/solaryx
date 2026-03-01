@@ -5,7 +5,16 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User, StatusResponse, LoginResponse, ErrorResponse } = require("./models");
 
-const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key-123";
+const crypto = require("crypto");
+const JWT_SECRET =
+	process.env.JWT_SECRET ||
+	(() => {
+		const generated = crypto.randomBytes(64).toString("hex");
+		console.warn(
+			"WARNING: JWT_SECRET not set. Generated a random secret for this session. Sessions will NOT persist across restarts."
+		);
+		return generated;
+	})();
 // const API_URL = process.env.API_URL || "http://localhost:5173/api";
 
 const router = express.Router();

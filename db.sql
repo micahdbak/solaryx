@@ -22,12 +22,12 @@ DROP TABLE IF EXISTS shares CASCADE;
 -- ==========================================================
 
 CREATE TABLE users (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email           VARCHAR(255) UNIQUE NOT NULL,
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email               VARCHAR(255) UNIQUE NOT NULL,
     is_email_verified   BOOLEAN DEFAULT 'f',
-    password_hash   VARCHAR(255) NOT NULL,
-    balance_sol     DECIMAL(20, 9) DEFAULT 0 CHECK (balance_sol >= 0),
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    password_hash       VARCHAR(255) NOT NULL,
+    balance_sol         DECIMAL(20, 9) DEFAULT 0 CHECK (balance_sol >= 0),
+    created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE profiles (
@@ -55,7 +55,6 @@ CREATE TABLE markets (
     status          VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'COMPLETE')),
     type            VARCHAR(10) DEFAULT 'JEKYLL' CHECK (type IN ('JEKYLL', 'HYDE')),
     time_length_s   DECIMAL NOT NULL CHECK (time_length_s > 0),
-    wallet_address  VARCHAR(44),
     winning_share   UUID,
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

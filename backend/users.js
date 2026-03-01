@@ -158,7 +158,7 @@ router.post("/wallet/deposit", verify_session, async (req, res) => {
 			return res.status(400).json({ error: "Deposit already processed" });
 		}
 
-		// Verify on blockchain (stubbed in solana.js)
+		// Verify on blockchain
 		const { checkTransaction } = require("./solana");
 		const tx = await checkTransaction(transaction_signature);
 
@@ -166,25 +166,32 @@ router.post("/wallet/deposit", verify_session, async (req, res) => {
 			return res.status(400).json({ error: "Transaction not finalized" });
 		}
 
-		await pool.query("BEGIN");
+		const client = await pool.connect();
+		try {
+			await client.query("BEGIN");
 
-		// Record the deposit
-		await pool.query(
-			"INSERT INTO deposits (user_id, amount_sol, transaction_signature) VALUES ($1, $2, $3)",
-			[req.user.id, tx.amount, transaction_signature]
-		);
+			// Record the deposit
+			await client.query(
+				"INSERT INTO deposits (user_id, amount_sol, transaction_signature) VALUES ($1, $2, $3)",
+				[req.user.id, tx.amount, transaction_signature]
+			);
 
-		// Increment user balance
-		await pool.query("UPDATE users SET balance_sol = balance_sol + $1 WHERE id = $2", [
-			tx.amount,
-			req.user.id
-		]);
+			// Increment user balance
+			await client.query("UPDATE users SET balance_sol = balance_sol + $1 WHERE id = $2", [
+				tx.amount,
+				req.user.id
+			]);
 
-		await pool.query("COMMIT");
+			await client.query("COMMIT");
 
-		res.json({ message: "Deposit successful", amount: tx.amount });
+			res.json({ message: "Deposit successful", amount: tx.amount });
+		} catch (innerErr) {
+			await client.query("ROLLBACK");
+			throw innerErr;
+		} finally {
+			client.release();
+		}
 	} catch (err) {
-		await pool.query("ROLLBACK");
 		console.error("Deposit error:", err);
 		res.status(500).json({ error: "Internal server error" });
 	}

@@ -53,7 +53,6 @@ Aggregated pot data for a specific charity within a market.
 - `status` (string): `ACTIVE` or `COMPLETE`.
 - `type` (string): `JEKYLL` or `HYDE`.
 - `time_length_s` (number): Duration of the market in seconds.
-- `wallet_address` (string): Solana wallet address for the market pot.
 - `winning_share` (uuid, optional): Set when the market completes.
 - `created_at` (timestamp)
 - `total_sol` (number): Total finalized SOL across all charities in this market.
@@ -148,7 +147,7 @@ Create a market with linked charities. **Requires auth.**
 }
 ```
 
-Backend sets `status` to `ACTIVE`, `time_length_s` to `3600`, and generates a `wallet_address`.
+Backend sets `status` to `ACTIVE` and `time_length_s` to `3600`.
 
 **Response:** `Market`
 
@@ -183,11 +182,11 @@ Record a share (bet) against a market charity. **Requires auth.**
 ```json
 {
 	"market_charity_id": "uuid",
-	"transaction_signature": "string"
+	"amount_sol": number
 }
 ```
 
-Backend checks the transaction via Solana helpers to determine `amount_sol` and `transaction_status` (`WAITING` or `FINALIZED`).
+Deducts `amount_sol` from the user's platform balance. Market must be `ACTIVE` and not expired.
 
 **Response:** `Share`
 

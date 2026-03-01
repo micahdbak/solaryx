@@ -59,7 +59,6 @@ class Market {
 		this.status = row.status;
 		this.type = row.type;
 		this.time_length_s = row.time_length_s;
-		this.wallet_address = row.wallet_address;
 		this.winning_share = row.winning_share;
 		this.created_at = row.created_at;
 		this.total_sol = row.total_sol;
