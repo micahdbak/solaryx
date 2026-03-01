@@ -97,16 +97,14 @@ Get a single market by ID with aggregated share data.
 
 ## Shares
 
-### `POST /shares`
+### `POST /markets/:id/shares`
 
-Record a share (bet) against a market charity.
+Record a share (bet) against a market charity. **Requires auth.**
 
 **Body:**
 
 ```json
 {
-	"user_id": "uuid",
-	"market_id": "uuid",
 	"market_charity_id": "uuid",
 	"transaction_signature": "string"
 }
@@ -115,3 +113,9 @@ Record a share (bet) against a market charity.
 Backend checks the transaction via Solana helpers to determine `amount_sol` and `transaction_status` (`WAITING` or `FINALIZED`).
 
 **Response:** The created share object.
+
+### `GET /markets/:id/shares`
+
+List all shares for a given market, ordered by creation date (ascending).
+
+**Response:** Array of share objects.

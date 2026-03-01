@@ -6,13 +6,14 @@ const { checkTransaction } = require("./solana");
 const router = express.Router();
 
 // Create a share
-router.post("/shares", verify_session, async (req, res) => {
-	const { market_id, market_charity_id, transaction_signature } = req.body;
+router.post("/markets/:id/shares", verify_session, async (req, res) => {
+	const market_id = req.params.id;
+	const { market_charity_id, transaction_signature } = req.body;
 	const user_id = req.user.id;
 
-	if (!market_id || !market_charity_id || !transaction_signature) {
+	if (!market_charity_id || !transaction_signature) {
 		return res.status(400).json({
-			error: "market_id, market_charity_id, and transaction_signature are required"
+			error: "market_charity_id and transaction_signature are required"
 		});
 	}
 
@@ -35,6 +36,22 @@ router.post("/shares", verify_session, async (req, res) => {
 		res.status(201).json(result.rows[0]);
 	} catch (err) {
 		console.error("Error creating share:", err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Get all shares for a market
+router.get("/markets/:id/shares", async (req, res) => {
+	const market_id = req.params.id;
+
+	try {
+		const result = await pool.query(
+			`SELECT * FROM shares WHERE market_id = $1 ORDER BY created_at ASC`,
+			[market_id]
+		);
+		res.json(result.rows);
+	} catch (err) {
+		console.error("Error fetching shares:", err);
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
