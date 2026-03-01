@@ -2,13 +2,13 @@ const express = require("express");
 const crypto = require("crypto");
 const { verify_session } = require("./auth");
 const pool = require("./db");
-const { Market, ErrorResponse } = require("./models");
+const { Market, ErrorResponse, StatusResponse } = require("./models");
 
 const router = express.Router();
 
 // Create a market
 router.post("/markets", verify_session, async (req, res) => {
-	const { title, description, image_url, type, charity_ids } = req.body;
+	const { title, description, image_url, type, charity_ids, duration } = req.body;
 
 	if (!title || !type) {
 		return res.status(400).json(new ErrorResponse("title and type are required"));
@@ -18,15 +18,22 @@ router.post("/markets", verify_session, async (req, res) => {
 		return res.status(400).json(new ErrorResponse("type must be JEKYLL or HYDE"));
 	}
 
+	// Support flexible durations
+	let time_length_s = Number(duration);
+	if (isNaN(time_length_s) || time_length_s <= 0) {
+		const durationMap = { "1m": 60, "1h": 3600, "1d": 86400, "1w": 604800 };
+		time_length_s = durationMap[String(duration)] || 86400;
+	}
+
 	const client = await pool.connect();
 	try {
 		await client.query("BEGIN");
 
 		const marketResult = await client.query(
 			`INSERT INTO markets (title, description, image_url, type, status, time_length_s)
-			 VALUES ($1, $2, $3, $4, 'ACTIVE', 3600)
+			 VALUES ($1, $2, $3, $4, 'ACTIVE', $5)
 			 RETURNING *`,
-			[title, description || null, image_url || null, type]
+			[title, description || null, image_url || null, type, time_length_s]
 		);
 		const market = marketResult.rows[0];
 
@@ -61,7 +68,6 @@ router.get("/markets", async (req, res) => {
 			 LEFT JOIN (
 			     SELECT market_id, SUM(amount_sol) AS total_sol
 			     FROM shares
-			     WHERE transaction_status = 'FINALIZED'
 			     GROUP BY market_id
 			 ) s ON s.market_id = m.id
 			 LEFT JOIN LATERAL (
@@ -74,7 +80,6 @@ router.get("/markets", async (req, res) => {
 			     LEFT JOIN (
 			         SELECT market_charity_id, SUM(amount_sol) AS total_sol
 			         FROM shares
-			         WHERE transaction_status = 'FINALIZED'
 			         GROUP BY market_charity_id
 			     ) cs ON cs.market_charity_id = mc.id
 			     WHERE mc.market_id = m.id
@@ -100,7 +105,6 @@ router.get("/markets/:id", async (req, res) => {
 			 LEFT JOIN (
 			     SELECT market_id, SUM(amount_sol) AS total_sol
 			     FROM shares
-			     WHERE transaction_status = 'FINALIZED'
 			     GROUP BY market_id
 			 ) s ON s.market_id = m.id
 			 LEFT JOIN LATERAL (
@@ -113,7 +117,6 @@ router.get("/markets/:id", async (req, res) => {
 			     LEFT JOIN (
 			         SELECT market_charity_id, SUM(amount_sol) AS total_sol
 			         FROM shares
-			         WHERE transaction_status = 'FINALIZED'
 			         GROUP BY market_charity_id
 			     ) cs ON cs.market_charity_id = mc.id
 			     WHERE mc.market_id = m.id
@@ -212,7 +215,6 @@ router.get("/my-bets", verify_session, async (req, res) => {
 			 LEFT JOIN (
 			     SELECT market_id, SUM(amount_sol) AS total_sol
 			     FROM shares
-			     WHERE transaction_status = 'FINALIZED'
 			     GROUP BY market_id
 			 ) s ON s.market_id = m.id
 			 LEFT JOIN LATERAL (
@@ -225,7 +227,6 @@ router.get("/my-bets", verify_session, async (req, res) => {
 			     LEFT JOIN (
 			         SELECT market_charity_id, SUM(amount_sol) AS total_sol
 			         FROM shares
-			         WHERE transaction_status = 'FINALIZED'
 			         GROUP BY market_charity_id
 			     ) cs ON cs.market_charity_id = mc.id
 			     WHERE mc.market_id = m.id
@@ -240,6 +241,22 @@ router.get("/my-bets", verify_session, async (req, res) => {
 		res.json(result.rows.map((row) => new Market(row)));
 	} catch (err) {
 		console.error("Error fetching my bets:", err);
+		res.status(500).json(new ErrorResponse("Internal server error"));
+	}
+});
+
+// Mark all of a user's shares in a market as seen
+router.post("/markets/:id/seen", verify_session, async (req, res) => {
+	const market_id = req.params.id;
+	const user_id = req.user.id;
+	try {
+		await pool.query(
+			`UPDATE shares SET seen_result = TRUE WHERE market_id = $1 AND user_id = $2`,
+			[market_id, user_id]
+		);
+		res.json(new StatusResponse(true));
+	} catch (err) {
+		console.error("Error marking market shares as seen:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });

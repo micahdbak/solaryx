@@ -1,6 +1,13 @@
 <script>
 	import favicon from "$lib/assets/favicon.svg";
-	import { isHydeStore, themeLockedStore, searchQueryStore, activeTopicStore } from "$lib/theme";
+	import {
+		isHydeStore,
+		themeLockedStore,
+		searchQueryStore,
+		activeTopicStore,
+		selectedCurrencyStore,
+		exchangeRatesStore
+	} from "$lib/theme";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
@@ -10,10 +17,8 @@
 
 	let isCurrencyMenuOpen = $state(false);
 	let currencyMenuContainer = $state(null);
-	let selectedCurrency = $state("SOL");
-	let exchangeRates = $state({ usd: 0, cad: 0, eur: 0 });
 
-	const topics = ["Trending", "Breaking", "New", "Expiring Soon"];
+	const topics = ["Trending", "New", "Expiring Soon"];
 
 	onMount(async () => {
 		try {
@@ -22,9 +27,11 @@
 			);
 			const ratesData = await res.json();
 			if (ratesData.solana) {
-				exchangeRates.usd = ratesData.solana.usd;
-				exchangeRates.cad = ratesData.solana.cad;
-				exchangeRates.eur = ratesData.solana.eur;
+				$exchangeRatesStore = {
+					usd: ratesData.solana.usd,
+					cad: ratesData.solana.cad,
+					eur: ratesData.solana.eur
+				};
 			}
 		} catch (err) {
 			console.error("Failed to fetch exchange rates:", err);
@@ -47,7 +54,7 @@
 	}
 
 	function setCurrency(curr) {
-		selectedCurrency = curr;
+		$selectedCurrencyStore = curr;
 		isCurrencyMenuOpen = false;
 	}
 
@@ -138,7 +145,7 @@
 						: 'text-white'}">SOLARYX</span
 				>
 			</div>
-			{#if $page.url.pathname !== "/login" && $page.url.pathname !== "/signup" && $page.url.pathname !== "/create" && $page.url.pathname !== "/create-charity" && $page.url.pathname !== "/settings" && $page.url.pathname !== "/terms"}
+			{#if $page.url.pathname !== "/login" && $page.url.pathname !== "/signup" && $page.url.pathname !== "/create" && $page.url.pathname !== "/create-charity" && $page.url.pathname !== "/settings" && $page.url.pathname !== "/terms" && $page.url.pathname !== "/profile"}
 				<div
 					class="flex items-center bg-white/5 border border-white/10 rounded-full py-2.5 px-5 w-full max-w-[450px] transition-all duration-300 focus-within:bg-white/[0.08] focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
 				>
@@ -201,20 +208,6 @@
 
 			<!-- Authenticated User Links -->
 			{#if data?.user}
-				<a
-					href="/my-bets"
-					class="px-4 py-1.5 rounded-full font-bold text-sm transition-all duration-300 {$page
-						.url.pathname === '/my-bets'
-						? $isHydeStore
-							? 'bg-red-900/40 text-red-100 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-							: 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]'
-						: $isHydeStore
-							? 'text-red-700 hover:text-red-400 hover:bg-red-900/20'
-							: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
-				>
-					My Bets
-				</a>
-
 				<!-- Wallet Balance Pill -->
 				<div class="relative" bind:this={currencyMenuContainer}>
 					<button
@@ -223,7 +216,7 @@
 							? 'bg-red-950/30 border-red-900/50 text-red-300 hover:bg-red-900/40'
 							: 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white'}"
 					>
-						{#if selectedCurrency === "SOL"}
+						{#if $selectedCurrencyStore === "SOL"}
 							<svg
 								class="w-3.5 h-3.5"
 								viewBox="0 0 397 311"
@@ -241,17 +234,23 @@
 								/></svg
 							>
 							<span>{(data.user.balance_sol ?? 0).toFixed(2)} SOL</span>
-						{:else if selectedCurrency === "USD"}
+						{:else if $selectedCurrencyStore === "USD"}
 							<span
-								>${((data.user.balance_sol ?? 0) * exchangeRates.usd).toFixed(2)} USD</span
+								>${((data.user.balance_sol ?? 0) * $exchangeRatesStore.usd).toFixed(
+									2
+								)} USD</span
 							>
-						{:else if selectedCurrency === "CAD"}
+						{:else if $selectedCurrencyStore === "CAD"}
 							<span
-								>${((data.user.balance_sol ?? 0) * exchangeRates.cad).toFixed(2)} CAD</span
+								>${((data.user.balance_sol ?? 0) * $exchangeRatesStore.cad).toFixed(
+									2
+								)} CAD</span
 							>
-						{:else if selectedCurrency === "EUR"}
+						{:else if $selectedCurrencyStore === "EUR"}
 							<span
-								>€{((data.user.balance_sol ?? 0) * exchangeRates.eur).toFixed(2)} EUR</span
+								>€{((data.user.balance_sol ?? 0) * $exchangeRatesStore.eur).toFixed(
+									2
+								)} EUR</span
 							>
 						{/if}
 						<svg
@@ -273,7 +272,7 @@
 							: 'opacity-0 invisible scale-95'}"
 					>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {selectedCurrency ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
 							'SOL'
 								? 'bg-gray-800/50 text-white font-bold'
 								: ''}"
@@ -282,7 +281,7 @@
 							SOL
 						</button>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {selectedCurrency ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
 							'USD'
 								? 'bg-gray-800/50 text-white font-bold'
 								: ''}"
@@ -291,7 +290,7 @@
 							USD
 						</button>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {selectedCurrency ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
 							'CAD'
 								? 'bg-gray-800/50 text-white font-bold'
 								: ''}"
@@ -300,7 +299,7 @@
 							CAD
 						</button>
 						<button
-							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {selectedCurrency ===
+							class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {$selectedCurrencyStore ===
 							'EUR'
 								? 'bg-gray-800/50 text-white font-bold'
 								: ''}"

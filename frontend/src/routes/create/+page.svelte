@@ -6,6 +6,8 @@
 	let title = $state("");
 	let description = $state("");
 	let type = $state("jekyll");
+	let durationValue = $state(1);
+	let durationUnit = $state("d");
 	let charityA = $state("");
 	let charityB = $state("");
 	let error = $state("");
@@ -41,13 +43,22 @@
 			return;
 		}
 
+		if (!durationValue || durationValue <= 0) {
+			error = "Duration must be a positive number";
+			return;
+		}
+
 		submitting = true;
 		try {
+			const unitToSeconds = { m: 60, h: 3600, d: 86400, w: 604800 };
+			const durationSeconds = durationValue * unitToSeconds[durationUnit];
+
 			const charity_ids = [charityA, charityB].filter(Boolean);
 			const market = await createMarket({
 				title: title.trim(),
 				description: description.trim() || undefined,
 				type: type === "hyde" ? "HYDE" : "JEKYLL",
+				duration: durationSeconds,
 				charity_ids
 			});
 			// Redirect to the newly created market
@@ -127,6 +138,35 @@
 				>
 					Hyde
 				</button>
+			</div>
+		</div>
+
+		<!-- Time -->
+		<div class="space-y-2">
+			<label for="market-duration" class="block text-sm font-semibold text-gray-300"
+				>Time length</label
+			>
+			<div class="flex gap-3">
+				<input
+					id="market-duration"
+					type="number"
+					min="1"
+					class="w-1/2 rounded-lg px-4 py-3 text-white placeholder-gray-500 outline-none transition-colors {$isHydeStore
+						? 'bg-[#150000] border border-red-900/50 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+						: 'bg-black border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}"
+					bind:value={durationValue}
+				/>
+				<select
+					class="w-1/2 rounded-lg px-4 py-3 text-white outline-none transition-colors cursor-pointer {$isHydeStore
+						? 'bg-[#150000] border border-red-900/50 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+						: 'bg-black border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}"
+					bind:value={durationUnit}
+				>
+					<option value="m">Minute(s)</option>
+					<option value="h">Hour(s)</option>
+					<option value="d">Day(s)</option>
+					<option value="w">Week(s)</option>
+				</select>
 			</div>
 		</div>
 

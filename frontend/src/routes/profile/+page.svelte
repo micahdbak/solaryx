@@ -67,13 +67,21 @@
 	);
 
 	// 3. Tab filter for the list below the chart (Active/Closed)
-	let displayShares = $derived(
-		timeFilteredShares.filter((s) => {
-			if (activeTab === "ACTIVE") return s.transaction_status === "WAITING";
-			if (activeTab === "CLOSED") return s.transaction_status === "FINALIZED";
+	let displayMarkets = $derived.by(() => {
+		const marketIds = [...new Set(timeFilteredShares.map((s) => s.market_id))];
+		const userMarkets = markets.filter((m) => marketIds.includes(m.id));
+
+		return userMarkets.filter((m) => {
+			if (activeTab === "ACTIVE") return m.status === "ACTIVE";
+			if (activeTab === "CLOSED") {
+				if (m.status !== "COMPLETE") return false;
+				const marketShares = timeFilteredShares.filter((s) => s.market_id === m.id);
+				const hasUnseen = marketShares.some((s) => s.seen_result === false);
+				return hasUnseen;
+			}
 			return true;
-		})
-	);
+		});
+	});
 
 	// 4. Generate SVG Path Data for Chart
 	let graphData = $derived.by(() => {
@@ -85,11 +93,17 @@
 
 		if (chartShares.length === 0) {
 			// Flat line at zero
-			return { path: "M0,90 L400,90", area: "M0,90 L400,90 L400,100 L0,100 Z" };
+			return {
+				path: "M0,90 L400,90",
+				area: "M0,90 L400,90 L400,100 L0,100 Z"
+			};
 		}
 		if (chartShares.length === 1) {
 			// Flat line at their one donation
-			return { path: "M0,50 L400,50", area: "M0,50 L400,50 L400,100 L0,100 Z" };
+			return {
+				path: "M0,50 L400,50",
+				area: "M0,50 L400,50 L400,100 L0,100 Z"
+			};
 		}
 
 		let runningTotal = 0;
@@ -246,7 +260,9 @@
 						class="w-px h-8 bg-gray-800/80 {$isHydeStore ? 'bg-red-900/50' : ''}"
 					></div>
 					<div>
-						<div class="text-[1.1rem] font-bold text-gray-200">{shares.length}</div>
+						<div class="text-[1.1rem] font-bold text-gray-200">
+							{shares.length}
+						</div>
 						<div class="text-[0.75rem] text-gray-500 font-semibold mt-0.5">
 							Total Shares
 						</div>
@@ -393,103 +409,147 @@
 			</div>
 		</div>
 
-		<!-- Table Headers -->
-		<div
-			class="grid grid-cols-[3fr_1fr_1fr_1fr] md:grid-cols-[4fr_1fr_1fr_1fr_40px] px-4 py-2 text-[0.7rem] font-bold text-gray-500 uppercase tracking-wider mb-2"
-		>
-			<div>Market</div>
-			<div class="text-right">Selected</div>
-			<div class="text-right">Amount</div>
-			<div class="text-right">Status</div>
-			<div class="hidden md:block"></div>
-		</div>
-
-		<!-- Transactions/Shares List -->
-		<div class="flex flex-col gap-2">
-			{#each displayShares as share}
-				{@const market = markets.find((m) => m.id === share.market_id)}
-				<a
-					href={market ? `/bet/${market.id}` : "#"}
-					class="bg-[#1e212b] rounded-lg p-4 flex items-center border border-gray-800/50 hover:bg-[#252833] hover:border-gray-700 transition-all cursor-pointer group no-underline {$isHydeStore
-						? 'bg-red-950/10 border-red-950/50 hover:bg-red-950/20'
-						: ''}"
-				>
-					<!-- Column 1: Market Info -->
-					<div class="w-[30%] flex-1 flex items-center gap-4">
-						{#if market}
-							<img
-								src={market.image}
-								alt=""
-								class="w-10 h-10 rounded-full object-cover bg-black/20 shrink-0 border border-gray-700/50"
-							/>
+		<!-- Market Cards Grid -->
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+			{#each displayMarkets as cause}
+				<div class="relative group">
+					<!-- COMPLETE Overlay for Closed Markets -->
+					{#if activeTab === "CLOSED"}
+						<a
+							href="/bet/{cause.id}"
+							class="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-xl border-2 border-gray-500/50 hover:bg-black/30 transition-all cursor-pointer no-underline"
+						>
 							<div
-								class="text-[0.9rem] font-bold text-gray-200 group-hover:text-white transition-colors line-clamp-2 md:pr-4"
+								class="bg-gray-700 text-gray-200 font-black text-xl px-6 py-2 rounded-lg shadow-[0_0_20px_rgba(156,163,175,0.4)] transform hover:scale-105 transition-transform tracking-widest"
 							>
-								{market.title}
+								COMPLETE
 							</div>
-						{:else}
-							<div class="w-10 h-10 rounded-full bg-gray-800 shrink-0"></div>
-							<div class="text-[0.95rem] font-bold text-gray-400">
-								Loading market...
-							</div>
-						{/if}
-					</div>
+						</a>
+					{/if}
 
-					<!-- Column 2: Selected Option (Simplified mockup for now because mapping share->charity name is complex) -->
-					<div class="w-[15%] text-right font-bold text-[0.85rem]">
-						<span class="text-gray-300">Donation</span>
-					</div>
-
-					<!-- Column 3: Amount -->
-					<div class="w-[15%] text-right">
-						<div class="font-bold text-white text-[0.95rem]">{share.amount_sol}</div>
-						<div class="text-[0.7rem] text-gray-500 font-semibold mt-0.5">SOL</div>
-					</div>
-
-					<!-- Column 4: Status / Value -->
-					<div class="w-[15%] text-right pr-2 md:pr-0">
-						<div
-							class="font-bold text-[0.95rem] {share.transaction_status ===
-							'FINALIZED'
-								? 'text-green-500'
-								: 'text-blue-400'}"
-						>
-							{share.transaction_status === "FINALIZED" ? "Completed" : "Pending"}
-						</div>
-					</div>
-
-					<!-- Link Icon -->
-					<div
-						class="hidden md:flex w-[40px] items-center justify-end text-gray-600 group-hover:text-white transition-colors"
+					<a
+						href="/bet/{cause.id}"
+						class="bg-[#11141c] hover:bg-[#1a1e28] border border-gray-700/50 hover:border-gray-600/50 transition-all rounded-xl p-4 flex flex-col group block no-underline shadow-lg {$isHydeStore
+							? 'border-red-900/50 hover:border-red-800/80 bg-red-950/20 hover:bg-red-950/40'
+							: ''}"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path
-								d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-							/><path
-								d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-							/></svg
+						<!-- Title & Header -->
+						<div class="flex justify-between items-start mb-5 h-[50px]">
+							<div class="flex gap-3">
+								<img
+									src={cause.image}
+									alt="icon"
+									class="w-7 h-7 rounded-full mt-0.5 bg-black/20"
+								/>
+								<h3
+									class="text-[0.90rem] font-semibold text-gray-200 leading-tight group-hover:text-white transition-colors line-clamp-3"
+								>
+									{cause.title}
+								</h3>
+							</div>
+						</div>
+
+						<div class="flex-1 flex flex-col justify-end">
+							<!-- Option Rows (Progress Bars) -->
+							<div class="flex flex-col gap-2 mb-4">
+								<div
+									class="relative overflow-hidden rounded bg-black/40 h-8 flex items-center border border-gray-800/50 {$isHydeStore
+										? 'border-red-950/50'
+										: ''}"
+								>
+									<div
+										class="absolute inset-y-0 left-0 var-bg-optionA-medium"
+										style="width: {cause.chance}%;"
+									></div>
+									<div
+										class="relative w-full flex justify-between items-center px-3"
+									>
+										<span
+											class="text-sm font-bold var-color-optionA z-10 truncate max-w-[70%]"
+											>{cause.optionA.name}</span
+										>
+										<span class="text-white text-sm font-black z-10"
+											>{cause.chance}%</span
+										>
+									</div>
+								</div>
+								<div
+									class="relative overflow-hidden rounded bg-black/40 h-8 flex items-center border border-gray-800/50 {$isHydeStore
+										? 'border-red-950/50'
+										: ''}"
+								>
+									<div
+										class="absolute inset-y-0 left-0 var-bg-optionB-medium"
+										style="width: {cause.totalSol === 0
+											? 0
+											: 100 - cause.chance}%;"
+									></div>
+									<div
+										class="relative w-full flex justify-between items-center px-3"
+									>
+										<span
+											class="text-sm font-bold var-color-optionB z-10 truncate max-w-[70%]"
+											>{cause.optionB.name}</span
+										>
+										<span class="text-white text-sm font-black z-10"
+											>{cause.totalSol === 0 ? 0 : 100 - cause.chance}%</span
+										>
+									</div>
+								</div>
+							</div>
+
+							<!-- Single Button -->
+							<div class="mb-3">
+								<div
+									class="w-full py-2.5 rounded font-bold text-sm transition-colors text-center text-white/90 bg-white/10 group-hover:bg-white/20 {$isHydeStore
+										? 'group-hover:bg-red-500/30 text-red-100'
+										: 'group-hover:bg-blue-500/30'}"
+								>
+									Donate to Vote
+								</div>
+							</div>
+						</div>
+
+						<!-- Footer -->
+						<div
+							class="flex items-center justify-between text-[0.65rem] text-gray-400 border-t border-gray-700/50 pt-2.5 mt-1 font-semibold"
 						>
-					</div>
-				</a>
+							<div class="flex gap-2 items-center flex-wrap">
+								<span class="text-gray-500 flex items-center gap-1">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="12"
+										height="12"
+										viewBox="0 0 24 24"
+										fill="none"
+										class="var-color-optionA"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><circle cx="12" cy="12" r="10"></circle><polyline
+											points="12 6 12 12 16 14"
+										></polyline></svg
+									>
+									{cause.timeRemaining}
+								</span>
+							</div>
+							<div class="flex gap-3">
+								<span class="text-gray-500 text-[0.6rem]">{cause.vol}</span>
+							</div>
+						</div>
+					</a>
+				</div>
 			{/each}
 
-			{#if displayShares.length === 0}
+			{#if displayMarkets.length === 0}
 				<div
-					class="text-center py-16 bg-[#1e212b]/50 rounded-lg border border-dashed border-gray-800 {$isHydeStore
+					class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-16 bg-[#1e212b]/50 rounded-lg border border-dashed border-gray-800 {$isHydeStore
 						? 'border-red-950/50'
 						: ''}"
 				>
 					<p class="text-gray-500 font-medium">
-						No {activeTab.toLowerCase()} donations yet.
+						No {activeTab.toLowerCase()} markets found.
 					</p>
 				</div>
 			{/if}

@@ -81,9 +81,10 @@ class Share {
 		this.market_id = row.market_id;
 		this.market_charity_id = row.market_charity_id;
 		this.amount_sol = row.amount_sol;
-		this.transaction_signature = row.transaction_signature;
-		this.transaction_status = row.transaction_status;
+		this.seen_result = row.seen_result;
 		this.created_at = row.created_at;
+		this.username = row.username;
+		this.avatar_url = row.avatar_url;
 	}
 }
 

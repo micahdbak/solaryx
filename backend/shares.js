@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("./db");
 const { verify_session } = require("./auth");
-const { Share, ErrorResponse } = require("./models");
+const { Share, ErrorResponse, StatusResponse } = require("./models");
 
 const router = express.Router();
 
@@ -82,12 +82,28 @@ router.get("/markets/:id/shares", async (req, res) => {
 
 	try {
 		const result = await pool.query(
-			`SELECT * FROM shares WHERE market_id = $1 ORDER BY created_at ASC`,
+			`SELECT s.*, p.username, p.avatar_url 
+			 FROM shares s 
+			 LEFT JOIN profiles p ON s.user_id = p.user_id 
+			 WHERE s.market_id = $1 
+			 ORDER BY s.created_at ASC`,
 			[market_id]
 		);
 		res.json(result.rows.map((row) => new Share(row)));
 	} catch (err) {
 		console.error("Error fetching shares:", err);
+		res.status(500).json(new ErrorResponse("Internal server error"));
+	}
+});
+
+// Mark a share as seen in the roulette
+router.post("/shares/:id/seen", async (req, res) => {
+	const share_id = req.params.id;
+	try {
+		await pool.query(`UPDATE shares SET seen_result = TRUE WHERE id = $1`, [share_id]);
+		res.json(new StatusResponse(true));
+	} catch (err) {
+		console.error("Error marking share as seen:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });

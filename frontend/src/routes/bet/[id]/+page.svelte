@@ -1,16 +1,19 @@
 <script>
 	import { onMount, onDestroy } from "svelte";
 	import { page } from "$app/stores";
-	import { isHydeStore, themeLockedStore } from "$lib/theme";
+	import {
+		isHydeStore,
+		themeLockedStore,
+		selectedCurrencyStore,
+		exchangeRatesStore
+	} from "$lib/theme";
 	import {
 		fetchMarket,
 		fetchCharities,
 		formatMarket,
 		indexCharities,
 		fetchShares,
-		createShare,
-		fetchWalletBalance,
-		depositWallet
+		createShare
 	} from "$lib/api";
 
 	let currentBet = $state(null);
@@ -19,19 +22,54 @@
 	let selectedCause = $state("");
 	let donationAmount = $state("");
 	let donating = $state(false);
-	let userBalance = $state(0);
-	let depositing = $state(false);
+	let refreshing = $state(false);
+	let refreshInterval;
+	let tickInterval;
+	let liveTimeRemaining = $state("");
+
+	function computeTimeRemaining() {
+		if (!currentBet) return;
+		const remaining = currentBet.endsAt - Date.now();
+		if (remaining <= 0) {
+			liveTimeRemaining = "Ended";
+			return;
+		}
+		const h = Math.floor(remaining / 3600000);
+		const m = Math.floor((remaining % 3600000) / 60000);
+		const s = Math.floor((remaining % 60000) / 1000);
+		if (h > 0) {
+			liveTimeRemaining = `${h}h ${m}m ${s}s`;
+		} else if (m > 0) {
+			liveTimeRemaining = `${m}m ${s}s`;
+		} else {
+			liveTimeRemaining = `${s}s`;
+		}
+	}
+
+	function getCurrencySymbol(curr) {
+		if (curr === "USD" || curr === "CAD") return "$";
+		if (curr === "EUR") return "€";
+		return "";
+	}
+
+	function getCurrencyLabel() {
+		return $selectedCurrencyStore;
+	}
+
+	function convertSol(sol) {
+		const curr = $selectedCurrencyStore;
+		const rates = $exchangeRatesStore;
+		if (curr === "USD") return `$${(sol * rates.usd).toFixed(2)} USD`;
+		if (curr === "CAD") return `$${(sol * rates.cad).toFixed(2)} CAD`;
+		if (curr === "EUR") return `€${(sol * rates.eur).toFixed(2)} EUR`;
+		return `${sol.toFixed(2)} SOL`;
+	}
 
 	async function handleDonate() {
 		if (!donationAmount || donationAmount <= 0) return;
 
 		if (currentBet.endsAt < Date.now()) {
 			alert("This market has ended. Donations are no longer accepted.");
-			return;
-		}
-
-		if (donationAmount > userBalance) {
-			alert("Insufficient balance. Please deposit funds in your Wallet.");
 			return;
 		}
 
@@ -47,8 +85,7 @@
 				amount_sol: donationAmount
 			});
 			shares = await fetchShares(currentBet.id);
-			userBalance -= donationAmount;
-			donationAmount = 0;
+			donationAmount = "";
 		} catch (e) {
 			console.error("Donation failed:", e);
 			alert(e.message || "Donation failed");
@@ -62,7 +99,6 @@
 
 	function getChartPaths(sharesData, selectedTimeframe) {
 		if (!currentBet || sharesData.length === 0) {
-			// Default flat bottom line if no data (0%)
 			return {
 				top: "M0,0 L100,0 L100,100 L0,100 Z",
 				divider: "M0,100 L100,100"
@@ -95,9 +131,8 @@
 		const points = [];
 		const startTime = cutoff;
 		const endTime = now;
-		const timeRange = Math.max(endTime - startTime, 1000); // Avoid division by zero
+		const timeRange = Math.max(endTime - startTime, 1000);
 
-		// Initial starting point at cutoff time
 		const initialSum = totalA + totalB;
 		const initialY = initialSum === 0 ? 100 : 100 - (totalA / initialSum) * 100;
 		points.push({ x: 0, y: initialY });
@@ -112,7 +147,6 @@
 				const sum = totalA + totalB;
 				const y = sum === 0 ? 100 : 100 - (totalA / sum) * 100;
 				const x = Math.max(0, Math.min(100, ((t - startTime) / timeRange) * 100));
-
 				points.push({ x, y });
 			}
 		});
@@ -120,22 +154,107 @@
 		// Ensure we draw the line to the very end edge (now)
 		points.push({ x: 100, y: points[points.length - 1].y });
 
-		// Build the divider path `M x,y L x,y ...`
-		const dividerPath = points
-			.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
-			.join(" ");
+		// Build the divider path using smooth Bézier curves
+		let dividerPath = "";
+		for (let i = 0; i < points.length; i++) {
+			if (i === 0) {
+				dividerPath += `M${points[i].x.toFixed(1)},${points[i].y.toFixed(1)}`;
+			} else {
+				const prev = points[i - 1];
+				const curr = points[i];
+				const cpx = (prev.x + curr.x) / 2;
+				dividerPath += ` C${cpx.toFixed(1)},${prev.y.toFixed(1)} ${cpx.toFixed(1)},${curr.y.toFixed(1)} ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
+			}
+		}
 
-		// To fill the TOP section (Option B), draw down from top left to the line, follow line, up to top right, back to top left.
-		const topPoints = points.map((p) => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-		const topPath = `M0,0 ${topPoints} L100,0 Z`;
+		// Top fill follows the smooth curve then closes up
+		let topPath = `M0,0 `;
+		for (let i = 0; i < points.length; i++) {
+			if (i === 0) {
+				topPath += `L${points[i].x.toFixed(1)},${points[i].y.toFixed(1)}`;
+			} else {
+				const prev = points[i - 1];
+				const curr = points[i];
+				const cpx = (prev.x + curr.x) / 2;
+				topPath += ` C${cpx.toFixed(1)},${prev.y.toFixed(1)} ${cpx.toFixed(1)},${curr.y.toFixed(1)} ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
+			}
+		}
+		topPath += ` L100,0 Z`;
 
-		return {
-			top: topPath,
-			divider: dividerPath
-		};
+		return { top: topPath, divider: dividerPath };
 	}
 
 	let chartPaths = $derived(getChartPaths(shares, timeframe));
+
+	// ── Roulette state ──
+	let showRoulette = $state(false);
+	let rouletteSpinning = $state(false);
+	let rouletteWinner = $state(null);
+	let rouletteRotation = $state(0);
+	let authUser = $state(null);
+
+	let rouletteSlices = $derived.by(() => {
+		if (shares.length === 0) return [];
+
+		const total = shares.reduce((sum, s) => sum + Number(s.amount_sol), 0);
+		if (total === 0) return [];
+
+		let currentAngle = 0;
+		return shares.map((s) => {
+			const fraction = Number(s.amount_sol) / total;
+			const angleStr = fraction * 360;
+			const startAngle = currentAngle;
+			const endAngle = currentAngle + angleStr;
+			currentAngle += angleStr;
+
+			const isOptionA = s.market_charity_id === currentBet.optionA.market_charity_id;
+			let color;
+
+			if (currentBet.isHyde) {
+				// Hyde: Red vs Dark Red
+				color = isOptionA ? "#ef4444" : "#991b1b";
+			} else {
+				// Jekyll: Blue vs Green
+				color = isOptionA ? "#3b82f6" : "#10b981";
+			}
+
+			return { ...s, fraction, startAngle, endAngle, color };
+		});
+	});
+
+	async function triggerRoulette() {
+		if (showRoulette) return;
+		showRoulette = true;
+
+		if (authUser) {
+			try {
+				await fetch(`/api/markets/${currentBet.id}/seen`, {
+					method: "POST"
+				});
+			} catch (e) {
+				console.error("Failed to mark as seen:", e);
+			}
+		}
+
+		setTimeout(() => {
+			if (!currentBet.winning_share) return;
+			const winnerSlice = rouletteSlices.find((s) => s.id === currentBet.winning_share);
+			if (!winnerSlice) return;
+
+			const sliceCenter =
+				winnerSlice.startAngle + (winnerSlice.endAngle - winnerSlice.startAngle) / 2;
+			const spins = 360 * 5;
+			const targetRotation = spins + (360 - sliceCenter);
+
+			rouletteRotation = targetRotation;
+			rouletteSpinning = true;
+
+			setTimeout(() => {
+				rouletteSpinning = false;
+				rouletteWinner = winnerSlice;
+			}, 5500);
+		}, 100);
+	}
 
 	function getAxisLabels(selectedTimeframe) {
 		const now = new Date();
@@ -173,7 +292,6 @@
 				);
 			}
 		} else {
-			// All
 			if (!currentBet) return ["", "", "", "Now"];
 			const start = currentBet.createdAt;
 			const range = now.getTime() - start;
@@ -192,7 +310,7 @@
 
 	let axisLabels = $derived(getAxisLabels(timeframe));
 
-	onMount(async () => {
+	async function doRefresh() {
 		try {
 			const [rawMarket, rawCharities, rawShares] = await Promise.all([
 				fetchMarket($page.params.id),
@@ -201,14 +319,47 @@
 			]);
 			const lookup = indexCharities(rawCharities);
 			currentBet = formatMarket(rawMarket, lookup);
+			shares = rawShares;
+			refreshing = true;
 
+			if (
+				currentBet.status === "COMPLETE" &&
+				!showRoulette &&
+				!sessionStorage.getItem("seen_" + currentBet.id)
+			) {
+				triggerRoulette();
+				sessionStorage.setItem("seen_" + currentBet.id, "true");
+			}
+
+			setTimeout(() => {
+				refreshing = false;
+			}, 500);
+		} catch (e) {
+			console.error("Refresh failed:", e);
+		}
+	}
+
+	onMount(async () => {
+		try {
+			const [rawMarket, rawCharities, rawShares, authRes] = await Promise.all([
+				fetchMarket($page.params.id),
+				fetchCharities(),
+				fetchShares($page.params.id),
+				fetch("/api/auth/status")
+			]);
+			const lookup = indexCharities(rawCharities);
+			currentBet = formatMarket(rawMarket, lookup);
 			shares = rawShares;
 
-			try {
-				const balRes = await fetchWalletBalance();
-				userBalance = balRes.balance;
-			} catch (e) {
-				// User might not be logged in or other error
+			const authData = await authRes.json();
+			if (authData.status) authUser = authData.user;
+
+			if (currentBet.status === "COMPLETE") {
+				const myUnseen = shares.filter((s) => s.user_id === authUser?.id && !s.seen_result);
+				if (myUnseen.length > 0 || !sessionStorage.getItem("seen_" + currentBet.id)) {
+					triggerRoulette();
+					sessionStorage.setItem("seen_" + currentBet.id, "true");
+				}
 			}
 
 			if (currentBet.isHyde) {
@@ -223,6 +374,10 @@
 		} finally {
 			loading = false;
 		}
+
+		refreshInterval = setInterval(doRefresh, 5000);
+		computeTimeRemaining();
+		tickInterval = setInterval(computeTimeRemaining, 1000);
 	});
 
 	$effect(() => {
@@ -233,6 +388,8 @@
 
 	onDestroy(() => {
 		$themeLockedStore = false;
+		if (refreshInterval) clearInterval(refreshInterval);
+		if (tickInterval) clearInterval(tickInterval);
 	});
 </script>
 
@@ -261,10 +418,14 @@
 						<div class="flex items-baseline gap-4">
 							<span
 								class="text-base md:text-lg font-bold var-color-optionA var-text-israel"
+								class:shake={refreshing}
 							>
 								{currentBet.chance}% {currentBet.optionA.name}
 							</span>
-							<span class="text-base md:text-lg font-bold var-text-palestine">
+							<span
+								class="text-base md:text-lg font-bold var-text-palestine"
+								class:shake={refreshing}
+							>
 								{currentBet.totalSol === 0 ? 0 : 100 - currentBet.chance}% {currentBet
 									.optionB.name}
 							</span>
@@ -466,7 +627,7 @@
 								points="12 6 12 12 16 14"
 							/></svg
 						>
-						{currentBet.timeRemaining}
+						{liveTimeRemaining}
 					</div>
 				</div>
 
@@ -475,7 +636,7 @@
 					<button
 						class="py-4 flex flex-col items-center justify-center rounded-xl border-2 font-bold cursor-pointer transition-colors
                     {selectedCause === currentBet.optionA.name
-							? 'border-current shadow-[0_0_10px_currentColor]'
+							? 'border-current'
 							: 'border-gray-700 bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-gray-200'}"
 						onclick={() => (selectedCause = currentBet.optionA.name)}
 					>
@@ -484,7 +645,7 @@
 					<button
 						class="py-4 flex flex-col items-center justify-center rounded-xl border-2 font-bold cursor-pointer transition-colors
                     {selectedCause === currentBet.optionB.name
-							? 'border-current shadow-[0_0_10px_currentColor]'
+							? 'border-current'
 							: 'border-gray-700 bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-gray-200'}"
 						onclick={() => (selectedCause = currentBet.optionB.name)}
 					>
@@ -497,45 +658,52 @@
 					<div class="flex justify-between items-center text-sm font-medium">
 						<span
 							class="text-gray-400 var-text-muted group-focus-within:text-white transition-colors"
-							>Donation Amount (SOL)</span
+							>Donation Amount ({getCurrencyLabel()})</span
 						>
-						<div class="flex items-center gap-3">
-							<span class="text-gray-500 var-text-muted transition-colors"
-								>Balance: {userBalance.toFixed(2)} SOL</span
-							>
-							<a
-								href="/wallet"
-								class="px-2 py-0.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded text-xs font-bold transition-colors cursor-pointer no-underline leading-none flex items-center justify-center"
-								>Top Up</a
-							>
-						</div>
+						<span
+							class="text-gray-500 var-text-muted hover:text-white cursor-pointer transition-colors"
+							onclick={() => (donationAmount = 0)}>Balance: {convertSol(0)}</span
+						>
 					</div>
 					<div class="relative">
 						<span
 							class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-white transition-colors"
 						>
-							<svg
-								class="w-5 h-5"
-								viewBox="0 0 397 311"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
-									fill="currentColor"
-								/><path
-									d="M64.6 3.8C67 1.4 70.3 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
-									fill="currentColor"
-								/><path
-									d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
-									fill="currentColor"
-								/></svg
-							>
+							{#if $selectedCurrencyStore === "SOL"}
+								<svg
+									class="w-5 h-5"
+									viewBox="0 0 397 311"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+									><path
+										d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
+										fill="currentColor"
+									/><path
+										d="M64.6 3.8C67 1.4 70.3 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
+										fill="currentColor"
+									/><path
+										d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
+										fill="currentColor"
+									/></svg
+								>
+							{:else}
+								<span class="text-xl font-bold"
+									>{getCurrencySymbol($selectedCurrencyStore)}</span
+								>
+							{/if}
 						</span>
 						<input
-							type="number"
+							type="text"
+							inputmode="decimal"
 							min="0"
 							placeholder="0"
 							bind:value={donationAmount}
+							oninput={(e) => {
+								e.target.value = e.target.value
+									.replace(/[^0-9.]/g, "")
+									.replace(/(\..*)\./g, "$1");
+								donationAmount = e.target.value;
+							}}
 							class="w-full bg-black border border-gray-700 rounded-xl py-4 pl-10 pr-4 text-right text-2xl font-bold text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all no-spinners"
 						/>
 					</div>
@@ -570,7 +738,7 @@
 						>
 						<button
 							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
-							onclick={() => (donationAmount = userBalance)}>Max</button
+							onclick={() => (donationAmount = 100)}>Max</button
 						>
 					</div>
 				</div>
@@ -583,7 +751,7 @@
 					>
 						{donating
 							? "Donating..."
-							: `Donate ${donationAmount ? `${donationAmount} SOL` : "Now"}`}
+							: `Donate ${donationAmount ? `${getCurrencySymbol($selectedCurrencyStore)}${donationAmount} ${getCurrencyLabel()}` : "Now"}`}
 					</button>
 				</div>
 			</div>
@@ -593,7 +761,9 @@
 				class="bg-[#11141c] transition-colors duration-700 border border-gray-800 rounded-xl px-5 py-4 flex items-center justify-between"
 			>
 				<span class="text-sm text-gray-400 font-semibold">Total Pot</span>
-				<span class="text-lg font-extrabold text-white">{currentBet.vol}</span>
+				<span class="text-lg font-extrabold text-white" class:shake={refreshing}
+					>{convertSol(currentBet.totalSol)}</span
+				>
 			</div>
 
 			<!-- Terms -->
@@ -606,3 +776,123 @@
 		</div>
 	</section>
 {/if}
+
+<!-- ROULETTE OVERLAY -->
+{#if showRoulette}
+	<div
+		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md"
+	>
+		<h2 class="text-3xl md:text-5xl font-black text-white mb-12 tracking-wider">
+			SPINNING THE CAROLETTE
+		</h2>
+
+		<div class="relative w-72 h-72 md:w-96 md:h-96">
+			<!-- Center Pointer -->
+			<div
+				class="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-12 bg-white flex items-end justify-center rounded-t-lg shadow-[0_0_20px_white]"
+			>
+				<div
+					class="w-0 h-0 border-l-[16px] border-r-[16px] border-t-[24px] border-l-transparent border-r-transparent border-t-white -mb-6"
+				></div>
+			</div>
+
+			<svg
+				viewBox="-100 -100 200 200"
+				class="w-full h-full transform transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+				style="transform: rotate({rouletteRotation}deg); transition-duration: 5s;"
+			>
+				<circle cx="0" cy="0" r="95" fill="#111" stroke="#333" stroke-width="2" />
+				{#each rouletteSlices as slice}
+					<path
+						d="M0,0 L{Math.cos((slice.startAngle - 90) * (Math.PI / 180)) *
+							95},{Math.sin((slice.startAngle - 90) * (Math.PI / 180)) *
+							95} A95,95 0 {slice.endAngle - slice.startAngle > 180
+							? 1
+							: 0},1 {Math.cos((slice.endAngle - 90) * (Math.PI / 180)) *
+							95},{Math.sin((slice.endAngle - 90) * (Math.PI / 180)) * 95} Z"
+						fill={slice.color}
+						stroke="#000"
+						stroke-width="1"
+					/>
+				{/each}
+				<!-- Inner black hole -->
+				<circle cx="0" cy="0" r="15" fill="#000" />
+			</svg>
+		</div>
+
+		{#if rouletteWinner && !rouletteSpinning}
+			<div
+				class="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-500"
+			>
+				<div
+					class="bg-gray-900 border-2 border-green-500 rounded-2xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(34,197,94,0.4)]"
+				>
+					<h3 class="text-green-500 font-bold tracking-widest text-sm uppercase mb-4">
+						Winner Selected
+					</h3>
+					{#if rouletteWinner.avatar_url}
+						<img
+							src={rouletteWinner.avatar_url}
+							alt="Winner"
+							class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-white shadow-lg"
+						/>
+					{/if}
+					<div class="text-3xl font-black text-white mb-2">
+						{rouletteWinner.username || "Anonymous"}
+					</div>
+
+					<div class="bg-black/50 rounded-lg p-4 mt-6">
+						<div class="flex justify-between items-center mb-2">
+							<span class="text-gray-400 text-sm">Winning Bet:</span>
+							<span class="text-white font-bold"
+								>{Number(rouletteWinner.amount_sol).toFixed(2)} SOL</span
+							>
+						</div>
+						<div class="flex justify-between items-center">
+							<span class="text-gray-400 text-sm">Donated to:</span>
+							<span class="text-white font-bold max-w-[150px] truncate text-right">
+								{rouletteWinner.market_charity_id ===
+								currentBet.optionA.market_charity_id
+									? currentBet.optionA.name
+									: currentBet.optionB.name}
+							</span>
+						</div>
+					</div>
+
+					<button
+						class="mt-8 w-full py-3 bg-white text-black font-bold uppercase tracking-wider rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+						onclick={() => {
+							showRoulette = false;
+						}}
+					>
+						View Results
+					</button>
+				</div>
+			</div>
+		{/if}
+	</div>
+{/if}
+
+<style>
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		20% {
+			transform: translateX(-2px);
+		}
+		40% {
+			transform: translateX(2px);
+		}
+		60% {
+			transform: translateX(-1px);
+		}
+		80% {
+			transform: translateX(1px);
+		}
+	}
+	:global(.shake) {
+		animation: shake 0.35s ease-in-out;
+	}
+</style>

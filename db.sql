@@ -82,7 +82,6 @@ CREATE TABLE shares (
     market_id               UUID REFERENCES markets(id),
     market_charity_id       UUID REFERENCES market_charity(id),
     amount_sol              DECIMAL(20, 9) NOT NULL CHECK (amount_sol > 0),
-    transaction_signature   VARCHAR(88) UNIQUE,
-    transaction_status      VARCHAR(10) DEFAULT 'FINALIZED' CHECK (transaction_status IN ('WAITING', 'FINALIZED')),
+    seen_result             BOOLEAN DEFAULT FALSE,
     created_at              TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

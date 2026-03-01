@@ -1,10 +1,22 @@
 <script>
-	import { onMount } from "svelte";
+	import { onMount, onDestroy } from "svelte";
 	import { isHydeStore, searchQueryStore, activeTopicStore } from "$lib/theme";
 	import { fetchMarkets, fetchCharities, formatMarket, indexCharities } from "$lib/api";
 
 	let markets = $state([]);
 	let loading = $state(true);
+	let tickInterval;
+
+	function computeLiveTime(endsAt) {
+		const remaining = endsAt - Date.now();
+		if (remaining <= 0) return "Ended";
+		const h = Math.floor(remaining / 3600000);
+		const m = Math.floor((remaining % 3600000) / 60000);
+		const s = Math.floor((remaining % 60000) / 1000);
+		if (h > 0) return `${h}h ${m}m ${s}s`;
+		if (m > 0) return `${m}m ${s}s`;
+		return `${s}s`;
+	}
 
 	onMount(async () => {
 		try {
@@ -19,6 +31,17 @@
 		} finally {
 			loading = false;
 		}
+
+		tickInterval = setInterval(() => {
+			markets = markets.map((m) => ({
+				...m,
+				timeRemaining: computeLiveTime(m.endsAt)
+			}));
+		}, 1000);
+	});
+
+	onDestroy(() => {
+		if (tickInterval) clearInterval(tickInterval);
 	});
 
 	let displayBets = $derived(

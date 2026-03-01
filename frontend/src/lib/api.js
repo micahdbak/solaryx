@@ -164,6 +164,8 @@ export function formatMarket(market, charitiesById) {
 		timeRemaining,
 		createdAt,
 		endsAt,
+		status: market.status,
+		winning_share: market.winning_share,
 		charityTotals
 	};
 }
