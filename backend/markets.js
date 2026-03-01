@@ -131,4 +131,47 @@ router.get("/markets/:id", async (req, res) => {
 	}
 });
 
+// Get markets the logged-in user has participated in
+router.get("/my-bets", verify_session, async (req, res) => {
+	try {
+		const result = await pool.query(
+			`SELECT m.*,
+			        COALESCE(s.total_sol, 0) AS total_sol,
+			        COALESCE(mc_agg.charities, '[]') AS charity_totals
+			 FROM markets m
+			 LEFT JOIN (
+			     SELECT market_id, SUM(amount_sol) AS total_sol
+			     FROM shares
+			     WHERE transaction_status = 'FINALIZED'
+			     GROUP BY market_id
+			 ) s ON s.market_id = m.id
+			 LEFT JOIN LATERAL (
+			     SELECT json_agg(json_build_object(
+			         'market_charity_id', mc.id,
+			         'charity_id', mc.charity_id,
+			         'total_sol', COALESCE(cs.total_sol, 0)
+			     )) AS charities
+			     FROM market_charity mc
+			     LEFT JOIN (
+			         SELECT market_charity_id, SUM(amount_sol) AS total_sol
+			         FROM shares
+			         WHERE transaction_status = 'FINALIZED'
+			         GROUP BY market_charity_id
+			     ) cs ON cs.market_charity_id = mc.id
+			     WHERE mc.market_id = m.id
+			 ) mc_agg ON true
+			 WHERE EXISTS (
+			     SELECT 1 FROM shares sh
+			     WHERE sh.market_id = m.id AND sh.user_id = $1
+			 )
+			 ORDER BY m.created_at DESC`,
+			[req.user.id]
+		);
+		res.json(result.rows);
+	} catch (err) {
+		console.error("Error fetching my bets:", err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
 module.exports = router;

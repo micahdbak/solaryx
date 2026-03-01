@@ -6,7 +6,7 @@
         activeTopicStore,
     } from "$lib/theme";
     import {
-        fetchMarkets,
+        fetchMyBets,
         fetchCharities,
         formatMarket,
         indexCharities,
@@ -14,17 +14,19 @@
 
     let markets = $state([]);
     let loading = $state(true);
+    let errorMsg = $state(null);
 
     onMount(async () => {
         try {
             const [rawMarkets, rawCharities] = await Promise.all([
-                fetchMarkets(),
+                fetchMyBets(),
                 fetchCharities(),
             ]);
             const lookup = indexCharities(rawCharities);
             markets = rawMarkets.map((m) => formatMarket(m, lookup));
         } catch (e) {
-            console.error("Failed to load markets:", e);
+            console.error("Failed to load my bets:", e);
+            errorMsg = "Please log in to view your bets.";
         } finally {
             loading = false;
         }
@@ -39,12 +41,6 @@
                     const query = $searchQueryStore.toLowerCase();
                     const matchesTitle = b.title.toLowerCase().includes(query);
                     if (!matchesTitle) return false;
-                }
-
-                if (b.endsAt < Date.now()) return false;
-
-                if ($activeTopicStore === "Expiring Soon") {
-                    // already filtered out ended ones above
                 }
 
                 return true;
@@ -62,21 +58,37 @@
                 if ($activeTopicStore === "Expiring Soon") {
                     return a.endsAt - b.endsAt;
                 }
-                return 0;
+                return b.createdAt - a.createdAt;
             }),
     );
 </script>
 
 <div class="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
-    <div></div>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white">My Bets</h1>
+        <p class="text-gray-400 text-sm mt-1">
+            Markets you have participated in.
+        </p>
+    </div>
 
     {#if loading}
         <div class="flex items-center justify-center py-20">
-            <p class="text-gray-400 text-sm">Loading markets...</p>
+            <p class="text-gray-400 text-sm">Loading your bets...</p>
+        </div>
+    {:else if errorMsg}
+        <div class="flex flex-col items-center justify-center py-20">
+            <p class="text-red-400 text-sm mb-4">{errorMsg}</p>
+            <a
+                href="/login"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
+                >Log In</a
+            >
         </div>
     {:else if displayBets.length === 0}
         <div class="flex items-center justify-center py-20">
-            <p class="text-gray-500 text-sm">No markets found.</p>
+            <p class="text-gray-500 text-sm">
+                You haven't placed any bets here yet.
+            </p>
         </div>
     {:else}
         <div
@@ -165,7 +177,7 @@
                                     ? 'group-hover:bg-red-500/30 text-red-100'
                                     : 'group-hover:bg-blue-500/30'}"
                             >
-                                Donate to Vote
+                                View Market
                             </div>
                         </div>
                     </div>

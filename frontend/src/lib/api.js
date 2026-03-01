@@ -6,6 +6,12 @@ export async function fetchMarkets() {
 	return res.json();
 }
 
+export async function fetchMyBets() {
+	const res = await fetch("/api/my-bets", { credentials: "include" });
+	if (!res.ok) throw new Error("Failed to fetch my bets");
+	return res.json();
+}
+
 export async function fetchMarket(id) {
 	const res = await fetch(`/api/markets/${id}`);
 	if (!res.ok) throw new Error("Failed to fetch market");
@@ -18,10 +24,17 @@ export async function fetchCharities() {
 	return res.json();
 }
 
+export async function fetchShares(marketId) {
+	const res = await fetch(`/api/markets/${marketId}/shares`);
+	if (!res.ok) throw new Error("Failed to fetch shares");
+	return res.json();
+}
+
 export async function createMarket(data) {
 	const res = await fetch("/api/markets", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
+		credentials: "include",
 		body: JSON.stringify(data)
 	});
 	if (!res.ok) {
@@ -31,10 +44,11 @@ export async function createMarket(data) {
 	return res.json();
 }
 
-export async function createShare(data) {
-	const res = await fetch("/api/shares", {
+export async function createShare(marketId, data) {
+	const res = await fetch(`/api/markets/${marketId}/shares`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
+		credentials: "include",
 		body: JSON.stringify(data)
 	});
 	if (!res.ok) {
@@ -72,13 +86,16 @@ export function formatMarket(market, charitiesById) {
 	const a = charityTotals[0];
 	const b = charityTotals[1];
 
-	const aName = a ? (charitiesById[a.charity_id]?.name ?? "Option A") : "Option A";
-	const bName = b ? (charitiesById[b.charity_id]?.name ?? "Option B") : "Option B";
+	const aCharity = a ? charitiesById[a.charity_id] : null;
+	const bCharity = b ? charitiesById[b.charity_id] : null;
+
+	const aName = aCharity?.name ?? "Option A";
+	const bName = bCharity?.name ?? "Option B";
 
 	const aSol = a ? Number(a.total_sol) || 0 : 0;
 	const bSol = b ? Number(b.total_sol) || 0 : 0;
 	const sumSol = aSol + bSol;
-	const chance = sumSol > 0 ? Math.round((aSol / sumSol) * 100) : 50;
+	const chance = sumSol > 0 ? Math.round((aSol / sumSol) * 100) : 0;
 
 	// Time remaining from created_at + time_length_s
 	const createdAt = new Date(market.created_at).getTime();
@@ -102,11 +119,13 @@ export function formatMarket(market, charitiesById) {
 		description: market.description || "",
 		image: market.image_url || `https://api.dicebear.com/7.x/identicon/svg?seed=${market.id}`,
 		chance,
-		optionA: { name: aName, market_charity_id: a?.market_charity_id ?? "" },
-		optionB: { name: bName, market_charity_id: b?.market_charity_id ?? "" },
+		optionA: { name: aName, market_charity_id: a?.market_charity_id ?? "", charity: aCharity },
+		optionB: { name: bName, market_charity_id: b?.market_charity_id ?? "", charity: bCharity },
 		vol: totalSol > 0 ? `${totalSol.toFixed(2)} SOL` : "0 SOL",
 		totalSol,
 		timeRemaining,
+		createdAt,
+		endsAt,
 		charityTotals
 	};
 }

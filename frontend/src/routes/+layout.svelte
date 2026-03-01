@@ -6,16 +6,45 @@
 
 	let { children, data } = $props();
 
+	let burstType = $state(null); // 'hyde' | 'normal' | null
+	let _prevHyde = false;
+
 	// Effect to observe store changes and apply to body
 	$effect(() => {
 		if (typeof document !== "undefined") {
-			document.body.classList.toggle("hyde-mode", $isHydeStore);
-			document.body.style.backgroundColor = $isHydeStore ? "#1a0000" : "#0b0f19";
+			const isHydeNow = $isHydeStore;
+			document.body.classList.toggle("hyde-mode", isHydeNow);
+
+			if (isHydeNow !== _prevHyde) {
+				// Transitioning from normal -> hyde
+				if (isHydeNow) {
+					burstType = "hyde";
+					setTimeout(() => {
+						burstType = null;
+					}, 1250);
+				}
+				// Transitioning from hyde -> normal
+				else {
+					burstType = "normal";
+					setTimeout(() => {
+						burstType = null;
+					}, 1550);
+				}
+			}
+
+			_prevHyde = isHydeNow;
 		}
 	});
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
+
+<!-- Burst Overlay -->
+{#if burstType === "hyde"}
+	<div class="hyde-burst-overlay pointer-events-none"></div>
+{:else if burstType === "normal"}
+	<div class="normal-burst-overlay pointer-events-none"></div>
+{/if}
 
 <Header {data} />
 <main class="min-h-screen">

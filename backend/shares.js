@@ -8,7 +8,7 @@ const router = express.Router();
 // Create a share
 router.post("/markets/:id/shares", verify_session, async (req, res) => {
 	const market_id = req.params.id;
-	const { market_charity_id, transaction_signature } = req.body;
+	const { market_charity_id, transaction_signature, amount_sol } = req.body;
 	const user_id = req.user.id;
 
 	if (!market_charity_id || !transaction_signature) {
@@ -19,6 +19,7 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 
 	try {
 		const tx = await checkTransaction(transaction_signature);
+		const finalAmount = amount_sol ? parseFloat(amount_sol) : tx.amount;
 
 		const result = await pool.query(
 			`INSERT INTO shares (user_id, market_id, market_charity_id, amount_sol, transaction_signature, transaction_status)
@@ -28,7 +29,7 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 				user_id,
 				market_id,
 				market_charity_id,
-				tx.amount,
+				finalAmount,
 				transaction_signature,
 				tx.status === "finalized" ? "FINALIZED" : "WAITING"
 			]
