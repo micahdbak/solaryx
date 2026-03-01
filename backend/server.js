@@ -4,6 +4,7 @@ const auth = require("./auth");
 const charities = require("./charities");
 const markets = require("./markets");
 const shares = require("./shares");
+const users = require("./users");
 
 const cookieParser = require("cookie-parser");
 
@@ -15,6 +16,7 @@ app.use(cookieParser());
 app.use("/auth", auth);
 app.use(charities);
 app.use(shares);
+app.use(users);
 app.use(markets);
 
 app.get("/", (_, res) => {
