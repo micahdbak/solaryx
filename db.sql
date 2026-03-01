@@ -8,6 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 
 DROP TABLE IF EXISTS payouts CASCADE;
+DROP TABLE IF EXISTS deposits CASCADE;
 DROP TABLE IF EXISTS bets CASCADE;
 DROP TABLE IF EXISTS market_charity CASCADE;
 DROP TABLE IF EXISTS markets CASCADE;
@@ -21,11 +22,12 @@ DROP TABLE IF EXISTS shares CASCADE;
 -- ==========================================================
 
 CREATE TABLE users (
-    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email               VARCHAR(255) UNIQUE NOT NULL,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email           VARCHAR(255) UNIQUE NOT NULL,
     is_email_verified   BOOLEAN DEFAULT 'f',
-    password_hash       VARCHAR(255) NOT NULL,
-    created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    password_hash   VARCHAR(255) NOT NULL,
+    balance_sol     DECIMAL(20, 9) DEFAULT 0 CHECK (balance_sol >= 0),
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE profiles (
@@ -66,13 +68,22 @@ CREATE TABLE market_charity (
     UNIQUE(market_id, charity_id)
 );
 
+CREATE TABLE deposits (
+    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id                 UUID REFERENCES users(id),
+    amount_sol              DECIMAL(20, 9) NOT NULL CHECK (amount_sol > 0),
+    transaction_signature   VARCHAR(88) UNIQUE NOT NULL,
+    status                  VARCHAR(20) DEFAULT 'CONFIRMED',
+    created_at              TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 CREATE TABLE shares (
     id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id                 UUID REFERENCES users(id),
     market_id               UUID REFERENCES markets(id),
     market_charity_id       UUID REFERENCES market_charity(id),
     amount_sol              DECIMAL(20, 9) NOT NULL CHECK (amount_sol > 0),
-    transaction_signature   VARCHAR(88) UNIQUE NOT NULL,
-    transaction_status      VARCHAR(10) DEFAULT 'WAITING' CHECK (transaction_status IN ('WAITING', 'FINALIZED')),
+    transaction_signature   VARCHAR(88) UNIQUE,
+    transaction_status      VARCHAR(10) DEFAULT 'FINALIZED' CHECK (transaction_status IN ('WAITING', 'FINALIZED')),
     created_at              TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

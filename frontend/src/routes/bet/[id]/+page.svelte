@@ -9,6 +9,8 @@
         indexCharities,
         fetchShares,
         createShare,
+        fetchWalletBalance,
+        depositWallet
     } from "$lib/api";
 
     let currentBet = $state(null);
@@ -17,9 +19,16 @@
     let selectedCause = $state("");
     let donationAmount = $state("");
     let donating = $state(false);
+    let userBalance = $state(0);
+    let depositing = $state(false);
 
     async function handleDonate() {
         if (!donationAmount || donationAmount <= 0) return;
+        
+        if (donationAmount > userBalance) {
+            alert("Insufficient balance. Please deposit funds in your Wallet.");
+            return;
+        }
 
         const charityId =
             selectedCause === currentBet.optionA.name
@@ -30,13 +39,14 @@
             donating = true;
             await createShare(currentBet.id, {
                 market_charity_id: charityId,
-                transaction_signature: "dummy_tx_" + Date.now(),
                 amount_sol: donationAmount,
             });
             shares = await fetchShares(currentBet.id);
+            userBalance -= donationAmount;
             donationAmount = 0;
         } catch (e) {
             console.error("Donation failed:", e);
+            alert(e.message || "Donation failed");
         } finally {
             donating = false;
         }
@@ -203,6 +213,13 @@
             currentBet = formatMarket(rawMarket, lookup);
 
             shares = rawShares;
+
+            try {
+                const balRes = await fetchWalletBalance();
+                userBalance = balRes.balance;
+            } catch(e) {
+                // User might not be logged in or other error
+            }
 
             if (currentBet.isHyde) {
                 $isHydeStore = true;
@@ -521,11 +538,12 @@
                             class="text-gray-400 var-text-muted group-focus-within:text-white transition-colors"
                             >Donation Amount (SOL)</span
                         >
-                        <span
-                            class="text-gray-500 var-text-muted hover:text-white cursor-pointer transition-colors"
-                            onclick={() => (donationAmount = 0)}
-                            >Balance: 0 SOL</span
-                        >
+                        <div class="flex items-center gap-3">
+                            <span class="text-gray-500 var-text-muted transition-colors"
+                                >Balance: {userBalance.toFixed(2)} SOL</span
+                            >
+                            <a href="/wallet" class="px-2 py-0.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded text-xs font-bold transition-colors cursor-pointer no-underline leading-none flex items-center justify-center">Top Up</a>
+                        </div>
                     </div>
                     <div class="relative">
                         <span

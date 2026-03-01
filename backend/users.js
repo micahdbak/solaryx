@@ -127,4 +127,81 @@ router.get("/username-available", async (req, res) => {
 	}
 });
 
+// Get current user's wallet balance
+router.get("/wallet/balance", verify_session, async (req, res) => {
+	try {
+		const result = await pool.query("SELECT balance_sol FROM users WHERE id = $1", [
+			req.user.id
+		]);
+		if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
+		res.json({ balance: parseFloat(result.rows[0].balance_sol) });
+	} catch (err) {
+		console.error("Error fetching balance:", err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Deposit SOL into wallet via on-chain transaction
+router.post("/wallet/deposit", verify_session, async (req, res) => {
+	const { transaction_signature } = req.body;
+	if (!transaction_signature) {
+		return res.status(400).json({ error: "Missing transaction_signature" });
+	}
+
+	try {
+		// Idempotency check: guard against replay attacks
+		const existingDeposit = await pool.query(
+			"SELECT id FROM deposits WHERE transaction_signature = $1",
+			[transaction_signature]
+		);
+		if (existingDeposit.rows.length > 0) {
+			return res.status(400).json({ error: "Deposit already processed" });
+		}
+
+		// Verify on blockchain (stubbed in solana.js)
+		const { checkTransaction } = require("./solana");
+		const tx = await checkTransaction(transaction_signature);
+
+		if (!tx || tx.status !== "finalized") {
+			return res.status(400).json({ error: "Transaction not finalized" });
+		}
+
+		await pool.query("BEGIN");
+
+		// Record the deposit
+		await pool.query(
+			"INSERT INTO deposits (user_id, amount_sol, transaction_signature) VALUES ($1, $2, $3)",
+			[req.user.id, tx.amount, transaction_signature]
+		);
+
+		// Increment user balance
+		await pool.query("UPDATE users SET balance_sol = balance_sol + $1 WHERE id = $2", [
+			tx.amount,
+			req.user.id
+		]);
+
+		await pool.query("COMMIT");
+
+		res.json({ message: "Deposit successful", amount: tx.amount });
+	} catch (err) {
+		await pool.query("ROLLBACK");
+		console.error("Deposit error:", err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+// Get user's deposit history
+router.get("/wallet/deposits", verify_session, async (req, res) => {
+	try {
+		const result = await pool.query(
+			"SELECT * FROM deposits WHERE user_id = $1 ORDER BY created_at DESC",
+			[req.user.id]
+		);
+		res.json(result.rows);
+	} catch (err) {
+		console.error("Error fetching deposits:", err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
 module.exports = router;

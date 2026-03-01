@@ -73,7 +73,11 @@ async function verify_session(req, res, next) {
 		return res.status(401).json(new ErrorResponse("Unauthorized"));
 	}
 
-	req.user = { id: user.id, email: user.email };
+	req.user = {
+		id: user.id,
+		email: user.email,
+		balance_sol: user.balance_sol ? parseFloat(user.balance_sol) : 0
+	};
 	next();
 }
 
@@ -216,7 +220,14 @@ router.post("/login", async (req, res) => {
 			maxAge: 24 * 60 * 60 * 1000 // 24 hours
 		});
 
-		res.json(new LoginResponse("User logged in successfully", new User(user)));
+		res.json({
+			message: "User logged in successfully",
+			user: {
+				id: user.id,
+				email: user.email,
+				balance_sol: user.balance_sol ? parseFloat(user.balance_sol) : 0
+			}
+		});
 	} catch (err) {
 		console.error("Login error:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));

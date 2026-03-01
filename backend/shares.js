@@ -9,34 +9,45 @@ const router = express.Router();
 // Create a share
 router.post("/markets/:id/shares", verify_session, async (req, res) => {
 	const market_id = req.params.id;
-	const { market_charity_id, transaction_signature, amount_sol } = req.body;
+	const { market_charity_id, amount_sol } = req.body;
 	const user_id = req.user.id;
 
-	if (!market_charity_id || !transaction_signature) {
-		return res
-			.status(400)
-			.json(new ErrorResponse("market_charity_id and transaction_signature are required"));
+	if (!market_charity_id || !amount_sol) {
+		return res.status(400).json({
+			error: "market_charity_id and amount_sol are required"
+		});
 	}
 
 	try {
-		const tx = await checkTransaction(transaction_signature);
-		const finalAmount = amount_sol ? parseFloat(amount_sol) : tx.amount;
+		const finalAmount = parseFloat(amount_sol);
+		if (isNaN(finalAmount) || finalAmount <= 0) {
+			return res.status(400).json({ error: "Invalid amount" });
+		}
+
+		await pool.query("BEGIN");
+
+		// Deduct user balance securely
+		const balanceResult = await pool.query(
+			"UPDATE users SET balance_sol = balance_sol - $1 WHERE id = $2 AND balance_sol >= $1 RETURNING balance_sol",
+			[finalAmount, user_id]
+		);
+
+		if (balanceResult.rows.length === 0) {
+			await pool.query("ROLLBACK");
+			return res.status(400).json({ error: "Insufficient balance" });
+		}
 
 		const result = await pool.query(
-			`INSERT INTO shares (user_id, market_id, market_charity_id, amount_sol, transaction_signature, transaction_status)
-			 VALUES ($1, $2, $3, $4, $5, $6)
+			`INSERT INTO shares (user_id, market_id, market_charity_id, amount_sol)
+			 VALUES ($1, $2, $3, $4)
 			 RETURNING *`,
-			[
-				user_id,
-				market_id,
-				market_charity_id,
-				finalAmount,
-				transaction_signature,
-				tx.status === "finalized" ? "FINALIZED" : "WAITING"
-			]
+			[user_id, market_id, market_charity_id, finalAmount]
 		);
-		res.status(201).json(new Share(result.rows[0]));
+
+		await pool.query("COMMIT");
+		res.status(201).json(result.rows[0]);
 	} catch (err) {
+		await pool.query("ROLLBACK");
 		console.error("Error creating share:", err);
 		res.status(500).json(new ErrorResponse("Internal server error"));
 	}

@@ -30,6 +30,32 @@ export async function fetchShares(marketId) {
 	return res.json();
 }
 
+export async function fetchWalletBalance() {
+	const res = await fetch("/api/wallet/balance", { credentials: "include" });
+	if (!res.ok) throw new Error("Failed to fetch wallet balance");
+	return res.json();
+}
+
+export async function depositWallet(data) {
+	const res = await fetch("/api/wallet/deposit", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		credentials: "include",
+		body: JSON.stringify(data)
+	});
+	if (!res.ok) {
+		const body = await res.json().catch(() => ({}));
+		throw new Error(body.error || "Failed to deposit");
+	}
+	return res.json();
+}
+
+export async function fetchDeposits() {
+	const res = await fetch("/api/wallet/deposits", { credentials: "include" });
+	if (!res.ok) throw new Error("Failed to fetch deposits");
+	return res.json();
+}
+
 export async function createMarket(data) {
 	const res = await fetch("/api/markets", {
 		method: "POST",
