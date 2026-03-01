@@ -1,5 +1,77 @@
 # Backend API
 
+## Response Models
+
+All API responses return JSON objects structured according to the following models. All field names are in `snake_case`.
+
+### `ErrorResponse`
+
+- `error` (string): Description of the error. Returned for all `4xx` and `5xx` errors.
+
+### `StatusResponse`
+
+- `status` (boolean): `true` if successful.
+- `user` (User, optional): Included on `/auth/status` if logged in.
+
+### `User`
+
+- `id` (uuid): The user's internal ID.
+- `email` (string): The user's email address.
+- `is_email_verified` (boolean): `true` if email is verified.
+
+### `LoginResponse`
+
+- `message` (string): Success message.
+- `user` (User): The logged-in user.
+
+### `Charity`
+
+- `id` (uuid): The charity's internal ID.
+- `name` (string): Name of the charity.
+- `description` (string, optional)
+- `link` (string, optional): URL to the charity's website.
+- `logo_url` (string, optional): URL to a logo image.
+- `wallet_address` (string, optional): Solana wallet address.
+- `created_at` (timestamp)
+
+### `CharityTotal`
+
+Aggregated pot data for a specific charity within a market.
+
+- `market_charity_id` (uuid)
+- `charity_id` (uuid)
+- `total_sol` (number): Total amount of `FINALIZED` SOL.
+
+### `Market`
+
+- `id` (uuid): The market's internal ID.
+- `title` (string)
+- `description` (string, optional)
+- `image_url` (string, optional)
+- `status` (string): `ACTIVE` or `COMPLETE`.
+- `type` (string): `JEKYLL` or `HYDE`.
+- `time_length_s` (number): Duration of the market in seconds.
+- `wallet_address` (string): Solana wallet address for the market pot.
+- `winning_charity` (uuid, optional): Set when the market completes.
+- `created_at` (timestamp)
+- `total_sol` (number): Total finalized SOL across all charities in this market.
+- `charity_totals` (Array of CharityTotal): Breakdown of SOL per charity.
+
+### `Share`
+
+A recorded bet/contribution from a user.
+
+- `id` (uuid)
+- `user_id` (uuid)
+- `market_id` (uuid)
+- `market_charity_id` (uuid): The specific charity the user backed in this market.
+- `amount_sol` (number)
+- `transaction_signature` (string): Solana tx signature.
+- `transaction_status` (string): `WAITING` or `FINALIZED`.
+- `created_at` (timestamp)
+
+---
+
 ## Auth
 
 ### `POST /auth/signup`
@@ -8,7 +80,7 @@ Create a new user account.
 
 **Body:** `{ "email": string, "password": string }`
 
-**Response:** `{ "status": true, "user": { "id": uuid, "email": string } }`
+**Response:** `StatusResponse`
 
 ### `POST /auth/login`
 
@@ -16,19 +88,19 @@ Log in and receive a session cookie.
 
 **Body:** `{ "email": string, "password": string }`
 
-**Response:** `{ "message": "User logged in successfully", "user": { "id": uuid, "email": string } }` — sets `token` cookie.
+**Response:** `LoginResponse` — sets `token` cookie.
 
 ### `POST /auth/logout`
 
 Clear the session cookie.
 
-**Response:** `{ "message": "User logged out" }`
+**Response:** `StatusResponse`
 
 ### `GET /auth/status`
 
 Check if the current session is valid. **Requires auth.**
 
-**Response:** `{ "status": true, "user": { "id", "email" } }`
+**Response:** `StatusResponse` (with `user` field)
 
 ---
 
@@ -40,19 +112,19 @@ Create a charity. **Requires auth.**
 
 **Body:** `{ "name": string, "description"?: string, "link"?: string, "logo_url"?: string, "wallet_address"?: string }`
 
-**Response:** The created charity object.
+**Response:** `Charity`
 
 ### `GET /charities`
 
 List all charities.
 
-**Response:** Array of charity objects, ordered by `created_at` descending.
+**Response:** Array of `Charity`, ordered by `created_at` descending.
 
 ### `GET /charities/:id`
 
 Get a single charity by ID.
 
-**Response:** A charity object, or `404` if not found.
+**Response:** `Charity`
 
 ---
 
@@ -76,22 +148,19 @@ Create a market with linked charities. **Requires auth.**
 
 Backend sets `status` to `ACTIVE`, `time_length_s` to `3600`, and generates a `wallet_address`.
 
-**Response:** The created market object.
+**Response:** `Market`
 
 ### `GET /markets`
 
 List all markets with aggregated share data.
 
-**Response:** Array of market objects, each including:
-
-- `total_sol` — total finalized SOL in the pot
-- `charity_totals` — array of `{ market_charity_id, charity_id, total_sol }` per linked charity
+**Response:** Array of `Market`
 
 ### `GET /markets/:id`
 
 Get a single market by ID with aggregated share data.
 
-**Response:** A market object (same shape as above), or `404` if not found.
+**Response:** `Market`
 
 ---
 
@@ -112,10 +181,10 @@ Record a share (bet) against a market charity. **Requires auth.**
 
 Backend checks the transaction via Solana helpers to determine `amount_sol` and `transaction_status` (`WAITING` or `FINALIZED`).
 
-**Response:** The created share object.
+**Response:** `Share`
 
 ### `GET /markets/:id/shares`
 
 List all shares for a given market, ordered by creation date (ascending).
 
-**Response:** Array of share objects.
+**Response:** Array of `Share`

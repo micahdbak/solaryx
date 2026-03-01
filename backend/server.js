@@ -5,6 +5,7 @@ const charities = require("./charities");
 const markets = require("./markets");
 const shares = require("./shares");
 const users = require("./users");
+const { StatusResponse } = require("./models");
 
 const cookieParser = require("cookie-parser");
 
@@ -20,11 +21,7 @@ app.use(users);
 app.use(markets);
 
 app.get("/", (_, res) => {
-	res.json({ status: true });
-});
-
-app.get("/test", (_, res) => {
-	res.json("hello");
+	res.json(new StatusResponse(true));
 });
 
 if (require.main === module) {

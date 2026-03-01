@@ -2,6 +2,7 @@ const express = require("express");
 const { verify_session } = require("./auth");
 const pool = require("./db");
 const { createWallet } = require("./solana");
+const { Market, ErrorResponse } = require("./models");
 
 const router = express.Router();
 
@@ -10,11 +11,11 @@ router.post("/markets", verify_session, async (req, res) => {
 	const { title, description, image_url, type, charity_ids } = req.body;
 
 	if (!title || !type) {
-		return res.status(400).json({ error: "title and type are required" });
+		return res.status(400).json(new ErrorResponse("title and type are required"));
 	}
 
 	if (!["JEKYLL", "HYDE"].includes(type)) {
-		return res.status(400).json({ error: "type must be JEKYLL or HYDE" });
+		return res.status(400).json(new ErrorResponse("type must be JEKYLL or HYDE"));
 	}
 
 	const client = await pool.connect();
@@ -40,11 +41,11 @@ router.post("/markets", verify_session, async (req, res) => {
 		}
 
 		await client.query("COMMIT");
-		res.status(201).json(market);
+		res.status(201).json(new Market(market));
 	} catch (err) {
 		await client.query("ROLLBACK");
 		console.error("Error creating market:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	} finally {
 		client.release();
 	}
@@ -81,10 +82,10 @@ router.get("/markets", async (req, res) => {
 			 ) mc_agg ON true
 			 ORDER BY m.created_at DESC`
 		);
-		res.json(result.rows);
+		res.json(result.rows.map((row) => new Market(row)));
 	} catch (err) {
 		console.error("Error fetching markets:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });
 
@@ -122,12 +123,12 @@ router.get("/markets/:id", async (req, res) => {
 			[id]
 		);
 		if (result.rows.length === 0) {
-			return res.status(404).json({ error: "Market not found" });
+			return res.status(404).json(new ErrorResponse("Market not found"));
 		}
-		res.json(result.rows[0]);
+		res.json(new Market(result.rows[0]));
 	} catch (err) {
 		console.error("Error fetching market:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });
 

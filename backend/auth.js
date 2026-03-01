@@ -1,9 +1,12 @@
 const express = require("express");
 const pool = require("./db");
+// const send_email = require("./ses");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { User, StatusResponse, LoginResponse, ErrorResponse } = require("./models");
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key-123";
+// const API_URL = process.env.API_URL || "http://localhost:5173/api";
 
 const router = express.Router();
 
@@ -61,13 +64,13 @@ async function verify_session_token(token) {
 async function verify_session(req, res, next) {
 	const token = req.cookies.token;
 	if (!token) {
-		return res.status(401).json({ error: "Unauthorized" });
+		return res.status(401).json(new ErrorResponse("Unauthorized"));
 	}
 
 	const user = await verify_session_token(token);
 
 	if (!user) {
-		return res.status(401).json({ error: "Unauthorized" });
+		return res.status(401).json(new ErrorResponse("Unauthorized"));
 	}
 
 	req.user = { id: user.id, email: user.email };
@@ -86,7 +89,7 @@ router.post("/signup", async (req, res) => {
 	}
 
 	if (!is_valid_password(password)) {
-		return res.status(400).json({ error: "Invalid password" });
+		return res.status(400).json(new ErrorResponse("Invalid password"));
 	}
 
 	// Double-check username is not taken before hashing
@@ -100,14 +103,22 @@ router.post("/signup", async (req, res) => {
 	const hash = await hash_password(password);
 	const client = await pool.connect();
 
+	let user;
+
 	try {
 		await client.query("BEGIN");
 
+		// future: "INSERT INTO users(email, password_hash) VALUES ($1, $2) RETURNING id, email",
 		const result = await client.query(
-			"INSERT INTO users(email, password_hash) VALUES ($1, $2) RETURNING id, email",
+			"INSERT INTO users(email, is_email_verified, password_hash) VALUES ($1, 't', $2) RETURNING id, email",
 			[email, hash]
 		);
-		const user = result.rows[0];
+
+		if (result.rows.length === 0) {
+			return res.status(401).json(new ErrorResponse("Unauthorized"));
+		}
+
+		user = result.rows[0];
 
 		await client.query("INSERT INTO profiles(user_id, username) VALUES ($1, $2)", [
 			user.id,
@@ -115,32 +126,83 @@ router.post("/signup", async (req, res) => {
 		]);
 
 		await client.query("COMMIT");
-		return res.status(200).json({ status: true });
 	} catch (ex) {
 		await client.query("ROLLBACK");
 		console.error(ex);
 		return res.status(400).json({ error: "Email or username already exists" });
-	} finally {
-		client.release();
 	}
+
+	client.release();
+
+	// try {
+	// 	const verify_url = API_URL + "/auth/verify_email/" + user.id;
+	// 	const emailResult = await send_email(
+	// 		email,
+	// 		"Verify your email",
+	// 		`Verify your email for solaryx.app at ${verify_url}.`,
+	// 		`<h1>Verify your email</h1>\n<p>Verify your email for <b>solaryx.app</b> at <a href="${verify_url}">${verify_url}</a></p>.`
+	// 	);
+	//
+	// 	if (!emailResult) {
+	// 		throw new Error("Email service failed to send");
+	// 	}
+	// } catch (ex) {
+	// 	console.error("Verification email failed:", ex);
+	// 	try {
+	// 		// Delete profile first to satisfy foreign key constraint, then user
+	// 		await pool.query("DELETE FROM profiles WHERE user_id = $1", [user.id]);
+	// 		await pool.query("DELETE FROM users WHERE id = $1", [user.id]);
+	// 	} catch (cleanupEx) {
+	// 		console.error("Failed to clean up user after email error:", cleanupEx);
+	// 	}
+	// 	return res
+	// 		.status(500)
+	// 		.json(new ErrorResponse("Failed to send verification email. Please try again."));
+	// }
+
+	// issue token and set in cookie
+	const token = jwt.sign({ email: user.email, id: user.id }, JWT_SECRET, {
+		expiresIn: "24h"
+	});
+	res.cookie("token", token, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "prod",
+		sameSite: "strict",
+		maxAge: 24 * 60 * 60 * 1000 // 24 hours
+	});
+
+	return res.json(new LoginResponse("User signed up successfully", new User(user)));
+});
+
+router.get("/verify_email/:id", async (req, res) => {
+	const user_id = req.params.id;
+
+	try {
+		await pool.query("UPDATE users SET is_email_verified = 't' WHERE id = $1", [user_id]);
+	} catch {
+		return res.status(401).json(new ErrorResponse("Unauthorized"));
+	}
+
+	// redirect user to login page
+	return res.redirect("/login?status=verified");
 });
 
 router.post("/login", async (req, res) => {
 	const { email, password } = req.body;
 	if (!email || !password) {
-		return res.status(400).json({ error: "Email and password are required" });
+		return res.status(400).json(new ErrorResponse("Email and password are required"));
 	}
 
 	try {
 		const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
 		if (result.rows.length === 0) {
-			return res.status(401).json({ error: "Invalid credentials" });
+			return res.status(401).json(new ErrorResponse("Unauthorized"));
 		}
 
 		const user = result.rows[0];
 		const match = await verify_password(password, user.password_hash);
 		if (!match) {
-			return res.status(401).json({ error: "Invalid credentials" });
+			return res.status(401).json(new ErrorResponse("Unauthorized"));
 		}
 
 		// issue token and set in cookie
@@ -154,24 +216,23 @@ router.post("/login", async (req, res) => {
 			maxAge: 24 * 60 * 60 * 1000 // 24 hours
 		});
 
-		res.json({
-			message: "User logged in successfully",
-			user: { id: user.id, email: user.email }
-		});
+		res.json(new LoginResponse("User logged in successfully", new User(user)));
 	} catch (err) {
 		console.error("Login error:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });
 
 router.post("/logout", (req, res) => {
 	// Clear the JWT cookie
 	res.clearCookie("token");
-	res.json({ message: "User logged out" });
+	res.json(new StatusResponse(true));
 });
 
 router.get("/status", verify_session, (req, res) => {
-	res.json({ status: true, user: req.user });
+	const statusRes = new StatusResponse(true);
+	statusRes.user = new User(req.user);
+	res.json(statusRes);
 });
 
 module.exports = router;

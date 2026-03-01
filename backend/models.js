@@ -1,0 +1,95 @@
+class ErrorResponse {
+	constructor(error) {
+		this.error = error;
+	}
+}
+
+class StatusResponse {
+	constructor(status) {
+		this.status = status;
+	}
+}
+
+class User {
+	constructor(row) {
+		this.id = row.id;
+		this.email = row.email;
+		this.is_email_verified = row.is_email_verified;
+	}
+}
+
+class LoginResponse {
+	constructor(message, user) {
+		this.message = message;
+		this.user = user instanceof User ? user : new User(user);
+	}
+}
+
+class Charity {
+	constructor(row) {
+		this.id = row.id;
+		this.name = row.name;
+		this.description = row.description;
+		this.link = row.link;
+		this.logo_url = row.logo_url;
+		this.wallet_address = row.wallet_address;
+		this.created_at = row.created_at;
+	}
+}
+
+class CharityTotal {
+	constructor(row) {
+		this.market_charity_id = row.market_charity_id;
+		this.charity_id = row.charity_id;
+		this.total_sol = row.total_sol;
+	}
+}
+
+class Market {
+	constructor(row) {
+		this.id = row.id;
+		this.title = row.title;
+		this.description = row.description;
+		this.image_url = row.image_url;
+		this.status = row.status;
+		this.type = row.type;
+		this.time_length_s = row.time_length_s;
+		this.wallet_address = row.wallet_address;
+		this.winning_charity = row.winning_charity;
+		this.created_at = row.created_at;
+		this.total_sol = row.total_sol;
+
+		const charities = row.charity_totals;
+		if (Array.isArray(charities)) {
+			this.charity_totals = charities.map((c) => new CharityTotal(c));
+		} else if (typeof charities === "string") {
+			this.charity_totals = JSON.parse(charities).map((c) => new CharityTotal(c));
+		} else {
+			this.charity_totals = [];
+		}
+	}
+}
+
+class Share {
+	constructor(row) {
+		this.id = row.id;
+		this.user_id = row.user_id;
+		this.market_id = row.market_id;
+		this.market_charity_id = row.market_charity_id;
+		this.amount_sol = row.amount_sol;
+		this.transaction_signature = row.transaction_signature;
+		this.transaction_status = row.transaction_status;
+		this.created_at = row.created_at;
+	}
+}
+
+module.exports = {
+	ErrorResponse,
+	StatusResponse,
+	User,
+	LoginResponse,
+	Charity,
+	CharityTotal,
+	Market,
+	Share
+};

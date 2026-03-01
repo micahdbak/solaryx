@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("./db");
 const { verify_session } = require("./auth");
 const { checkTransaction } = require("./solana");
+const { Share, ErrorResponse } = require("./models");
 
 const router = express.Router();
 
@@ -12,9 +13,9 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 	const user_id = req.user.id;
 
 	if (!market_charity_id || !transaction_signature) {
-		return res.status(400).json({
-			error: "market_charity_id and transaction_signature are required"
-		});
+		return res
+			.status(400)
+			.json(new ErrorResponse("market_charity_id and transaction_signature are required"));
 	}
 
 	try {
@@ -34,10 +35,10 @@ router.post("/markets/:id/shares", verify_session, async (req, res) => {
 				tx.status === "finalized" ? "FINALIZED" : "WAITING"
 			]
 		);
-		res.status(201).json(result.rows[0]);
+		res.status(201).json(new Share(result.rows[0]));
 	} catch (err) {
 		console.error("Error creating share:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });
 
@@ -50,10 +51,10 @@ router.get("/markets/:id/shares", async (req, res) => {
 			`SELECT * FROM shares WHERE market_id = $1 ORDER BY created_at ASC`,
 			[market_id]
 		);
-		res.json(result.rows);
+		res.json(result.rows.map((row) => new Share(row)));
 	} catch (err) {
 		console.error("Error fetching shares:", err);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json(new ErrorResponse("Internal server error"));
 	}
 });
 
