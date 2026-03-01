@@ -139,7 +139,7 @@
 		if (!couponCode) return;
 		try {
 			isRedeeming = true;
-			await redeemCoupon(couponCode);
+			await redeemCoupon(couponCode.toLowerCase());
 
 			// Refresh data
 			const [balRes, depRes] = await Promise.all([
