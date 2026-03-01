@@ -20,6 +20,8 @@
 
 	const topics = ["Trending", "New", "Expiring Soon"];
 
+	let isMobileSearchOpen = $state(false);
+
 	// Sliding pill state
 	let topicContainerEl = $state(null);
 	let topicBtnEls = [];
@@ -142,34 +144,56 @@
 				</a>
 			</div>
 			{#if !["/login", "/signup", "/create", "/create-charity", "/settings", "/terms", "/profile", "/wallet", "/leaderboard"].includes($page.url.pathname)}
-				<div
-					class="flex items-center bg-white/5 border border-white/10 rounded-full py-2.5 px-5 w-full max-w-[450px] transition-all duration-300 focus-within:bg-white/[0.08] focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
-				>
-					<svg
-						class="w-[18px] h-[18px] text-gray-400 mr-3 shrink-0"
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+				<div class="flex items-center">
+					<!-- Desktop Search -->
+					<div
+						class="hidden md:flex items-center bg-white/5 border border-white/10 rounded-full py-2.5 px-5 w-full max-w-[450px] transition-all duration-300 focus-within:bg-white/[0.08] focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
 					>
-						<circle cx="11" cy="11" r="8"></circle>
-						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-					</svg>
-					<input
-						type="text"
-						placeholder="Search..."
-						class="bg-transparent border-none text-[#e0e4f0] w-full outline-none text-[0.95rem] placeholder-gray-400"
-						bind:value={$searchQueryStore}
-					/>
+						<svg
+							class="w-[18px] h-[18px] text-gray-400 mr-3 shrink-0"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+						</svg>
+						<input
+							type="text"
+							placeholder="Search..."
+							class="bg-transparent border-none text-[#e0e4f0] w-full outline-none text-[0.95rem] placeholder-gray-400"
+							bind:value={$searchQueryStore}
+						/>
+					</div>
+					<!-- Mobile Search Button -->
+					<button
+						class="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+						onclick={() => (isMobileSearchOpen = true)}
+					>
+						<svg
+							class="w-5 h-5"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+						</svg>
+					</button>
 				</div>
 			{/if}
 			{#if $page.url.pathname === "/" || $page.url.pathname === "/my-bets"}
 				<div
 					bind:this={topicContainerEl}
-					class="topic-switcher relative flex items-center ml-2 rounded-full p-0.5 bg-white/[0.06]"
+					class="topic-switcher hidden md:flex items-center ml-2 rounded-full p-0.5 bg-white/[0.06] relative"
 				>
 					<!-- Sliding pill indicator -->
 					<div
@@ -194,10 +218,10 @@
 				</div>
 			{/if}
 		</div>
-		<div class="flex items-center gap-4 pl-4">
+		<div class="flex items-center gap-2 sm:gap-4 pl-2 sm:pl-4">
 			<a
 				href="/leaderboard"
-				class="flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out no-underline {$page
+				class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-bold transition-all duration-300 ease-in-out no-underline {$page
 					.url.pathname === '/leaderboard'
 					? 'bg-white/10 text-[#e0e4f0] shadow-[0_0_10px_rgba(255,255,255,0.1)]'
 					: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}"
@@ -403,5 +427,53 @@
 				</div>
 			{/if}
 		</div>
+
+		<!-- Mobile Search Overlay -->
+		{#if isMobileSearchOpen}
+			<div class="absolute inset-0 z-[60] bg-[#0b0f19] flex items-center px-4 md:hidden">
+				<button
+					class="bg-transparent border-none text-gray-400 hover:text-white p-2 mr-2 cursor-pointer"
+					onclick={() => (isMobileSearchOpen = false)}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="lucide lucide-arrow-left"
+					>
+						<line x1="19" y1="12" x2="5" y2="12"></line>
+						<polyline points="12 19 5 12 12 5"></polyline>
+					</svg>
+				</button>
+				<div class="flex-1 relative">
+					<svg
+						class="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+					<input
+						type="text"
+						placeholder="Search..."
+						class="w-full bg-white/10 border border-white/20 rounded-full py-2.5 pl-10 pr-4 text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all text-base"
+						bind:value={$searchQueryStore}
+						autofocus
+					/>
+				</div>
+			</div>
+		{/if}
 	</nav>
 </header>
