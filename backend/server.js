@@ -15,9 +15,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", auth);
 app.use(charities);
-app.use(markets);
 app.use(shares);
 app.use(users);
+app.use(markets);
 
 app.get("/", (_, res) => {
 	res.json({ status: true });
