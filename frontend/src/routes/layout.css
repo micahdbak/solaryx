@@ -2,43 +2,49 @@
 
 /* Base body styles */
 html {
-    overscroll-behavior: none;
+	overscroll-behavior: none;
 }
 
 body {
-    background-color: #0b0f19;
-    color: #ffffff;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    margin: 0;
-    padding: 0;
-    overscroll-behavior: none;
+	background-color: #0b0f19;
+	color: #ffffff;
+	font-family:
+		"Inter",
+		system-ui,
+		-apple-system,
+		sans-serif;
+	margin: 0;
+	padding: 0;
+	overscroll-behavior: none;
 }
 
-/* Evil Theme Transitions */
+/* Hyde Theme Transitions */
 body {
-    transition: background-color 0.8s ease-in-out, color 0.8s ease-in-out;
+	transition:
+		background-color 0.8s ease-in-out,
+		color 0.8s ease-in-out;
 }
 
-body.evil-mode {
+body.hyde-mode {
 	background-color: #1a0000;
 }
 
-/* Evil mode overrides for interactive elements */
-body.evil-mode .dropdown-menu {
+/* Hyde mode overrides for interactive elements */
+body.hyde-mode .dropdown-menu {
 	border-color: rgba(255, 0, 0, 0.2);
 }
 
-body.evil-mode .dropdown-menu a:hover {
+body.hyde-mode .dropdown-menu a:hover {
 	background-color: rgba(255, 0, 0, 0.1);
 	color: #ef4444;
 }
 
 /* Hide Number Input Spinners globally */
-input[type=number].no-spinners::-webkit-inner-spin-button,
-input[type=number].no-spinners::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
+input[type="number"].no-spinners::-webkit-inner-spin-button,
+input[type="number"].no-spinners::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	appearance: none;
+	margin: 0;
 }
 
 input[type="number"].no-spinners {
@@ -47,8 +53,8 @@ input[type="number"].no-spinners {
 
 /* Global color variables (Default Good Mode) */
 :root {
-    --color-primary: #3b82f6;
-    --color-secondary: #0ea5e9;
+	--color-primary: #3b82f6;
+	--color-secondary: #0ea5e9;
 
 	--bg-primary-light: rgba(59, 130, 246, 0.1);
 	--bg-primary-medium: rgba(59, 130, 246, 0.2);
@@ -81,10 +87,10 @@ input[type="number"].no-spinners {
 	--fill-secondary-light: rgba(14, 165, 233, 0.15);
 }
 
-/* Evil Mode CSS Variables */
-body.evil-mode {
-    --color-primary: #dc2626;
-    --color-secondary: #991b1b;
+/* Hyde Mode CSS Variables */
+body.hyde-mode {
+	--color-primary: #dc2626;
+	--color-secondary: #991b1b;
 
 	--bg-primary-light: rgba(239, 68, 68, 0.1);
 	--bg-primary-medium: rgba(239, 68, 68, 0.2);
@@ -118,31 +124,31 @@ body.evil-mode {
 	--fill-secondary-light: rgba(249, 115, 22, 0.15);
 }
 
-/* Duplicate evil-mode overrides for bet pages */
-body.evil-mode {
-    --text-israel: #ef4444;
-    --text-palestine: #f87171;
+/* Duplicate hyde-mode overrides for bet pages */
+body.hyde-mode {
+	--text-israel: #ef4444;
+	--text-palestine: #f87171;
 
-    --bg-israel-light: rgba(239, 68, 68, 0.1);
-    --bg-israel-medium: rgba(239, 68, 68, 0.2);
-    --bg-palestine-light: rgba(248, 113, 113, 0.1);
-    --bg-palestine-medium: rgba(248, 113, 113, 0.2);
+	--bg-israel-light: rgba(239, 68, 68, 0.1);
+	--bg-israel-medium: rgba(239, 68, 68, 0.2);
+	--bg-palestine-light: rgba(248, 113, 113, 0.1);
+	--bg-palestine-medium: rgba(248, 113, 113, 0.2);
 
-    --border-israel: #ef4444;
-    --border-palestine: #f87171;
-    --shadow-israel: 0 0 15px rgba(239, 68, 68, 0.15);
-    --shadow-palestine: 0 0 15px rgba(248, 113, 113, 0.15);
+	--border-israel: #ef4444;
+	--border-palestine: #f87171;
+	--shadow-israel: 0 0 15px rgba(239, 68, 68, 0.15);
+	--shadow-palestine: 0 0 15px rgba(248, 113, 113, 0.15);
 
-    --fill-palestine-light: rgba(248, 113, 113, 0.15);
+	--fill-palestine-light: rgba(248, 113, 113, 0.15);
 
-    --border-primary: #ef4444;
-    --ring-primary: #ef4444;
-    --caret-primary: #ef4444;
-    --bg-primary: #ef4444;
-    --bg-primary-hover: #dc2626;
-    --text-invert: #ffffff;
-    --shadow-primary: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
-    --shadow-primary-hover: 0 6px 20px 0 rgba(239, 68, 68, 0.5);
+	--border-primary: #ef4444;
+	--ring-primary: #ef4444;
+	--caret-primary: #ef4444;
+	--bg-primary: #ef4444;
+	--bg-primary-hover: #dc2626;
+	--text-invert: #ffffff;
+	--shadow-primary: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
+	--shadow-primary-hover: 0 6px 20px 0 rgba(239, 68, 68, 0.5);
 }
 
 /* CSS Variable utility classes (used by bet pages) */
@@ -194,13 +200,13 @@ body.evil-mode {
 	box-shadow: var(--shadow-secondary);
 }
 
-/* Evil mode dropdown overrides using vars */
-body.evil-mode .dropdown-menu {
+/* Hyde mode dropdown overrides using vars */
+body.hyde-mode .dropdown-menu {
 	border-color: var(--border-card);
 	background-color: var(--bg-card);
 }
 
-body.evil-mode .dropdown-menu a:hover {
-    background-color: var(--hover-bg);
-    color: var(--hover-text);
+body.hyde-mode .dropdown-menu a:hover {
+	background-color: var(--hover-bg);
+	color: var(--hover-text);
 }

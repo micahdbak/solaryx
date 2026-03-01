@@ -20,9 +20,9 @@
 			const res = await fetch("/api/auth/login", {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json",
+					"Content-Type": "application/json"
 				},
-				body: JSON.stringify(body),
+				body: JSON.stringify(body)
 			});
 
 			if (!res.ok) {
@@ -47,18 +47,12 @@
 <div class="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
 	<div class="w-full max-w-md">
 		<!-- Login Card -->
-		<div
-			class="bg-[#11141c] border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-5"
-		>
-			<h1 class="text-2xl font-bold text-white text-center mb-2">
-				Log In
-			</h1>
+		<div class="bg-[#11141c] border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-5">
+			<h1 class="text-2xl font-bold text-white text-center mb-2">Log In</h1>
 
 			<!-- Email -->
 			<div class="space-y-1.5">
-				<label
-					for="login-email"
-					class="block text-sm font-semibold text-gray-300"
+				<label for="login-email" class="block text-sm font-semibold text-gray-300"
 					>Email</label
 				>
 				<input
@@ -72,9 +66,7 @@
 
 			<!-- Password -->
 			<div class="space-y-1.5">
-				<label
-					for="login-password"
-					class="block text-sm font-semibold text-gray-300"
+				<label for="login-password" class="block text-sm font-semibold text-gray-300"
 					>Password</label
 				>
 				<input

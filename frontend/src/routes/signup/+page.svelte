@@ -17,9 +17,7 @@
 
 	function is_valid_password(password) {
 		// a-Z, A-Z, 0-9, special chars, must be >=4 chars and <=32
-		return /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{4,32}$/.test(
-			password,
-		);
+		return /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{4,32}$/.test(password);
 	}
 
 	async function signup() {
@@ -39,9 +37,9 @@
 			const res = await fetch("/api/auth/signup", {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json",
+					"Content-Type": "application/json"
 				},
-				body: JSON.stringify(data),
+				body: JSON.stringify(data)
 			});
 
 			if (!res.ok) {
@@ -68,22 +66,16 @@
 	<div class="w-full max-w-md">
 		<!-- Welcome Header -->
 		<div class="text-center mb-8">
-			<h1
-				class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2"
-			>
+			<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">
 				Yahu Welcomes You
 			</h1>
 		</div>
 
 		<!-- Signup Card -->
-		<div
-			class="bg-[#11141c] border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-5"
-		>
+		<div class="bg-[#11141c] border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-5">
 			<!-- Email -->
 			<div class="space-y-1.5">
-				<label
-					for="signup-email"
-					class="block text-sm font-semibold text-gray-300"
+				<label for="signup-email" class="block text-sm font-semibold text-gray-300"
 					>Email</label
 				>
 				<input
@@ -97,9 +89,7 @@
 
 			<!-- Password -->
 			<div class="space-y-1.5">
-				<label
-					for="signup-password"
-					class="block text-sm font-semibold text-gray-300"
+				<label for="signup-password" class="block text-sm font-semibold text-gray-300"
 					>Password</label
 				>
 				<input
@@ -113,9 +103,7 @@
 
 			<!-- Confirm Password -->
 			<div class="space-y-1.5">
-				<label
-					for="signup-password-again"
-					class="block text-sm font-semibold text-gray-300"
+				<label for="signup-password-again" class="block text-sm font-semibold text-gray-300"
 					>Confirm Password</label
 				>
 				<input
