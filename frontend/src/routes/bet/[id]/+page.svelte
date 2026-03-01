@@ -222,11 +222,11 @@
 			let color;
 
 			if (currentBet.isHyde) {
-				// Hyde: Red vs Dark Red
-				color = isOptionA ? "#ef4444" : "#991b1b";
+				// Hyde: Muted red vs Dark muted red
+				color = isOptionA ? "#c45a5a" : "#7a3535";
 			} else {
-				// Jekyll: Blue vs Green
-				color = isOptionA ? "#3b82f6" : "#10b981";
+				// Jekyll: Tokyo Night blue vs cyan
+				color = isOptionA ? "#7aa2f7" : "#7dcfff";
 			}
 
 			return { ...s, fraction, startAngle, endAngle, color };
@@ -374,12 +374,7 @@
 				}
 			}
 
-			if (currentBet.isHyde) {
-				$isHydeStore = true;
-			} else {
-				$isHydeStore = false;
-			}
-			$themeLockedStore = true;
+			$isHydeStore = currentBet.isHyde;
 			selectedCause = currentBet.optionA.name;
 		} catch (e) {
 			console.error("Failed to load market:", e);
@@ -392,14 +387,7 @@
 		tickInterval = setInterval(computeTimeRemaining, 1000);
 	});
 
-	$effect(() => {
-		if (typeof document !== "undefined" && currentBet) {
-			$isHydeStore = currentBet.isHyde;
-		}
-	});
-
 	onDestroy(() => {
-		$themeLockedStore = false;
 		if (refreshInterval) clearInterval(refreshInterval);
 		if (tickInterval) clearInterval(tickInterval);
 	});
@@ -445,30 +433,30 @@
 						<div class="flex gap-2 text-xs text-gray-500 var-text-muted">
 							<button
 								onclick={() => (timeframe = "1H")}
-								class="hover:text-white var-hover-text px-2 py-1 rounded {timeframe ===
+								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
 								'1H'
-									? 'bg-gray-800 var-bg-muted text-white var-text-primary'
+									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
 									: ''}">1H</button
 							>
 							<button
 								onclick={() => (timeframe = "1D")}
-								class="hover:text-white var-hover-text px-2 py-1 rounded {timeframe ===
+								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
 								'1D'
-									? 'bg-gray-800 var-bg-muted text-white var-text-primary'
+									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
 									: ''}">1D</button
 							>
 							<button
 								onclick={() => (timeframe = "1W")}
-								class="hover:text-white var-hover-text px-2 py-1 rounded {timeframe ===
+								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
 								'1W'
-									? 'bg-gray-800 var-bg-muted text-white var-text-primary'
+									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
 									: ''}">1W</button
 							>
 							<button
 								onclick={() => (timeframe = "All")}
-								class="hover:text-white var-hover-text px-2 py-1 rounded {timeframe ===
+								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
 								'All'
-									? 'bg-gray-800 var-bg-muted text-white var-text-primary'
+									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
 									: ''}">All</button
 							>
 						</div>
@@ -528,7 +516,9 @@
 
 					<!-- Market Description -->
 					{#if currentBet.description}
-						<p class="text-gray-400 text-sm leading-relaxed mt-4 break-words">
+						<p
+							class="text-[var(--text-muted)] text-sm leading-relaxed mt-4 break-words"
+						>
 							{currentBet.description}
 						</p>
 					{/if}
@@ -557,12 +547,14 @@
 							</tr>
 						{:else}
 							{#each [...shares].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) as share, idx}
-								<tr class="hover:bg-gray-800/30 transition-colors">
-									<td class="py-3 px-4 text-gray-400">{shares.length - idx}</td>
+								<tr class="hover:bg-[var(--bg-muted)]/30 transition-colors">
+									<td class="py-3 px-4 text-[var(--text-muted)]"
+										>{shares.length - idx}</td
+									>
 									<td class="py-3 px-4">
 										<a
 											href="/profile/{share.user_id}"
-											class="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-semibold"
+											class="text-[var(--color-primary)] hover:brightness-125 hover:underline transition-colors font-semibold"
 										>
 											{share.username || "Anonymous"}
 										</a>
@@ -577,10 +569,12 @@
 												>{currentBet.optionB.name}</span
 											>
 										{:else}
-											<span class="text-gray-400">Unknown</span>
+											<span class="text-[var(--text-muted)]">Unknown</span>
 										{/if}
 									</td>
-									<td class="py-3 px-4 text-right font-bold text-gray-200">
+									<td
+										class="py-3 px-4 text-right font-bold text-[var(--text-primary)]"
+									>
 										{convertSol(Number(share.amount_sol))}
 									</td>
 								</tr>
@@ -592,11 +586,11 @@
 
 			<!-- Charity Info Cards -->
 			<div class="space-y-4 w-full overflow-hidden">
-				<h3 class="text-xl font-bold text-white mb-2">About the Causes</h3>
+				<h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">About the Causes</h3>
 				{#each [currentBet.optionA.charity, currentBet.optionB.charity] as charity}
 					{#if charity}
 						<div
-							class="bg-[#11141c] border border-gray-800 rounded-2xl p-6 flex flex-col gap-3 shadow-lg transition-colors duration-700 w-full overflow-hidden"
+							class="bg-[var(--bg-card)] border border-[var(--border-card)] rounded-2xl p-6 flex flex-col gap-3 shadow-lg transition-colors duration-700 w-full overflow-hidden"
 						>
 							<div class="flex items-center gap-4">
 								{#if charity.logo_url}
@@ -617,19 +611,21 @@
 										href={charity.link}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-lg font-bold text-blue-400 hover:text-blue-300 transition-colors w-full break-words underline"
+										class="text-lg font-bold text-[var(--color-primary)] hover:brightness-125 transition-colors w-full break-words underline"
 									>
 										{charity.name}
 									</a>
 								{:else}
-									<h4 class="text-lg font-bold text-white w-full break-words">
+									<h4
+										class="text-lg font-bold text-[var(--text-primary)] w-full break-words"
+									>
 										{charity.name}
 									</h4>
 								{/if}
 							</div>
 							{#if charity.description}
 								<p
-									class="text-gray-400 text-sm leading-relaxed whitespace-pre-wrap break-words w-full"
+									class="text-[var(--text-muted)] text-sm leading-relaxed whitespace-pre-wrap break-words w-full"
 								>
 									{charity.description}
 								</p>
@@ -644,13 +640,15 @@
 		<div class="sticky top-24 self-start space-y-3">
 			<!-- Make an Impact Card -->
 			<div
-				class="bg-[#11141c] transition-colors duration-700 border border-gray-800 rounded-2xl p-6 shadow-2xl"
+				class="bg-[var(--bg-card)] transition-colors duration-700 border border-[var(--border-card)] rounded-2xl p-6 shadow-2xl"
 			>
 				<!-- Header with timer -->
 				<div
 					class="flex items-center justify-between mb-4 pb-4 border-b border-gray-800/80 var-border-card"
 				>
-					<h2 class="text-xl font-bold text-white transition-colors duration-700">
+					<h2
+						class="text-xl font-bold text-[var(--text-primary)] transition-colors duration-700"
+					>
 						Make an Impact
 					</h2>
 					<div
@@ -678,19 +676,19 @@
 				<!-- Choose Cause -->
 				<div class="grid grid-cols-2 gap-3 mb-6">
 					<button
-						class="py-4 flex flex-col items-center justify-center rounded-xl border-2 font-bold cursor-pointer transition-colors
+						class="py-4 flex flex-col items-center justify-center rounded-xl font-bold cursor-pointer transition-all duration-200 hover-vibrate
                     {selectedCause === currentBet.optionA.name
-							? 'border-current'
-							: 'border-gray-700 bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-gray-200'}"
+							? 'bg-[#224d37] text-[#4ade80] shadow-[0_0_12px_rgba(34,77,55,0.4)]'
+							: 'bg-[#142a1e] text-[#2d6b4a] hover:bg-[#224d37] hover:text-white'}"
 						onclick={() => (selectedCause = currentBet.optionA.name)}
 					>
 						<span>{currentBet.optionA.name}</span>
 					</button>
 					<button
-						class="py-4 flex flex-col items-center justify-center rounded-xl border-2 font-bold cursor-pointer transition-colors
+						class="py-4 flex flex-col items-center justify-center rounded-xl font-bold cursor-pointer transition-all duration-200 hover-vibrate
                     {selectedCause === currentBet.optionB.name
-							? 'border-current'
-							: 'border-gray-700 bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-gray-200'}"
+							? 'bg-[#4d2222] text-[#ef4444] shadow-[0_0_12px_rgba(77,34,34,0.4)]'
+							: 'bg-[#2a1414] text-[#6b2d2d] hover:bg-[#4d2222] hover:text-white'}"
 						onclick={() => (selectedCause = currentBet.optionB.name)}
 					>
 						<span>{currentBet.optionB.name}</span>
@@ -701,17 +699,17 @@
 				<div class="space-y-3 relative group">
 					<div class="flex justify-between items-center text-sm font-medium">
 						<span
-							class="text-gray-400 var-text-muted group-focus-within:text-white transition-colors"
+							class="text-gray-400 var-text-muted group-focus-within:text-[#e0e4f0] transition-colors"
 							>Donation Amount ({getCurrencyLabel()})</span
 						>
 						<span
-							class="text-gray-500 var-text-muted hover:text-white cursor-pointer transition-colors"
+							class="text-gray-500 var-text-muted hover:text-[#e0e4f0] cursor-pointer transition-colors"
 							onclick={() => (donationAmount = 0)}>Balance: {convertSol(0)}</span
 						>
 					</div>
 					<div class="relative">
 						<span
-							class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-white transition-colors"
+							class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-[#e0e4f0] transition-colors"
 						>
 							{#if $selectedCurrencyStore === "SOL"}
 								<svg
@@ -748,12 +746,12 @@
 									.replace(/(\..*)\./g, "$1");
 								donationAmount = e.target.value;
 							}}
-							class="w-full bg-black border border-gray-700 rounded-xl py-4 pl-10 pr-4 text-right text-2xl font-bold text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all no-spinners"
+							class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-4 pl-10 pr-4 text-right text-2xl font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all no-spinners"
 						/>
 					</div>
 					<div class="flex gap-2 text-xs font-semibold">
 						<button
-							class="flex-1 py-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer"
+							class="flex-1 py-2 bg-[var(--bg-muted)]/80 hover:bg-[var(--bg-muted)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
 							onclick={() =>
 								(donationAmount = Number(
 									(Number(donationAmount || 0) + 0.1).toFixed(9)
@@ -792,7 +790,7 @@
 					<button
 						onclick={handleDonate}
 						disabled={donating}
-						class="w-full py-4 bg-white hover:bg-gray-200 disabled:opacity-50 text-black font-extrabold text-lg rounded-xl shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.2)] active:scale-[0.98] transition-all cursor-pointer tracking-wide"
+						class="w-full py-4 bg-[var(--donate-bg)] hover:bg-[var(--donate-bg-hover)] border-none disabled:opacity-50 text-[var(--donate-text)] hover:text-white font-extrabold text-lg rounded-xl shadow-[var(--donate-shadow)] hover:shadow-[var(--donate-shadow-hover)] active:scale-[0.98] transition-all cursor-pointer tracking-wide hover-vibrate"
 					>
 						{donating
 							? "Donating..."
@@ -803,18 +801,21 @@
 
 			<!-- Total Pot -->
 			<div
-				class="bg-[#11141c] transition-colors duration-700 border border-gray-800 rounded-xl px-5 py-4 flex items-center justify-between"
+				class="bg-[var(--bg-card)] transition-colors duration-700 border border-[var(--border-card)] rounded-xl px-5 py-4 flex items-center justify-between"
 			>
-				<span class="text-sm text-gray-400 font-semibold">Total Pot</span>
-				<span class="text-lg font-extrabold text-white" class:shake={refreshing}
-					>{convertSol(currentBet.totalSol)}</span
+				<span class="text-sm text-[var(--text-muted)] font-semibold">Total Pot</span>
+				<span
+					class="text-lg font-extrabold text-[var(--text-primary)]"
+					class:shake={refreshing}>{convertSol(currentBet.totalSol)}</span
 				>
 			</div>
 
 			<!-- Terms -->
-			<p class="text-center text-xs text-gray-500 px-2 mt-2">
+			<p class="text-center text-xs text-[var(--text-muted)] px-2 mt-2">
 				By donating you agree to our
-				<a href="/terms" class="underline hover:text-gray-300 transition-colors"
+				<a
+					href="/terms"
+					class="underline hover:text-[var(--text-primary)] transition-colors"
 					>Terms of Service</a
 				>.
 			</p>
@@ -827,17 +828,19 @@
 	<div
 		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md"
 	>
-		<h2 class="text-3xl md:text-5xl font-black text-white mb-12 tracking-wider uppercase">
+		<h2
+			class="text-3xl md:text-5xl font-black text-[var(--text-primary)] mb-12 tracking-wider uppercase"
+		>
 			Results
 		</h2>
 
 		<div class="relative w-72 h-72 md:w-96 md:h-96">
 			<!-- Center Pointer -->
 			<div
-				class="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-12 bg-white flex items-end justify-center rounded-t-lg shadow-[0_0_20px_white]"
+				class="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-12 bg-[var(--text-primary)] flex items-end justify-center rounded-t-lg shadow-[0_0_16px_rgba(192,202,245,0.3)]"
 			>
 				<div
-					class="w-0 h-0 border-l-[16px] border-r-[16px] border-t-[24px] border-l-transparent border-r-transparent border-t-white -mb-6"
+					class="w-0 h-0 border-l-[16px] border-r-[16px] border-t-[24px] border-l-transparent border-r-transparent border-t-[var(--text-primary)] -mb-6"
 				></div>
 			</div>
 
@@ -870,9 +873,9 @@
 				class="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-500"
 			>
 				<div
-					class="bg-gray-900 border-2 border-green-500 rounded-2xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(34,197,94,0.4)]"
+					class="bg-[var(--bg-card)] border-2 border-[#9ece6a] rounded-2xl p-8 max-w-sm w-full text-center shadow-[0_0_40px_rgba(158,206,106,0.2)]"
 				>
-					<h3 class="text-green-500 font-bold tracking-widest text-sm uppercase mb-4">
+					<h3 class="text-[#9ece6a] font-bold tracking-widest text-sm uppercase mb-4">
 						Winner Selected
 					</h3>
 					{#if rouletteWinner.avatar_url}
@@ -882,20 +885,22 @@
 							class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-white shadow-lg"
 						/>
 					{/if}
-					<div class="text-3xl font-black text-white mb-2">
+					<div class="text-3xl font-black text-[var(--text-primary)] mb-2">
 						{rouletteWinner.username || "Anonymous"}
 					</div>
 
 					<div class="bg-black/50 rounded-lg p-4 mt-6">
 						<div class="flex justify-between items-center mb-2">
-							<span class="text-gray-400 text-sm">Winning Bet:</span>
-							<span class="text-white font-bold"
+							<span class="text-[var(--text-muted)] text-sm">Winning Bet:</span>
+							<span class="text-[var(--text-primary)] font-bold"
 								>{formatSol(rouletteWinner.amount_sol)} SOL</span
 							>
 						</div>
 						<div class="flex justify-between items-center">
-							<span class="text-gray-400 text-sm">Donated to:</span>
-							<span class="text-white font-bold max-w-[150px] truncate text-right">
+							<span class="text-[var(--text-muted)] text-sm">Donated to:</span>
+							<span
+								class="text-[var(--text-primary)] font-bold max-w-[150px] truncate text-right"
+							>
 								{rouletteWinner.market_charity_id ===
 								currentBet.optionA.market_charity_id
 									? currentBet.optionA.name
@@ -939,5 +944,39 @@
 	}
 	:global(.shake) {
 		animation: shake 0.35s ease-in-out;
+	}
+
+	@keyframes vibrate {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		10% {
+			transform: translateX(-1px);
+		}
+		20% {
+			transform: translateX(1px);
+		}
+		30% {
+			transform: translateX(-1px);
+		}
+		40% {
+			transform: translateX(1px);
+		}
+		50% {
+			transform: translateX(-0.5px);
+		}
+		60% {
+			transform: translateX(0.5px);
+		}
+		70% {
+			transform: translateX(-0.5px);
+		}
+		80% {
+			transform: translateX(0.5px);
+		}
+	}
+	:global(.hover-vibrate:hover) {
+		animation: vibrate 0.4s ease-in-out;
 	}
 </style>

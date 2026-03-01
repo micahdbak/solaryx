@@ -32,7 +32,7 @@
 	}
 </script>
 
-<div class="px-4 py-8 max-w-[1400px] mx-auto min-h-screen text-slate-100 font-sans">
+<div class="px-4 py-8 max-w-[1400px] mx-auto min-h-screen text-[var(--text-primary)] font-sans">
 	<div class="flex flex-col lg:flex-row gap-12 items-start relative">
 		<!-- Left Main Content: Leaderboard -->
 		<div class="flex-1 w-full min-w-0">
@@ -44,14 +44,14 @@
 				class="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-4 mb-8"
 			>
 				<div
-					class="flex bg-slate-800/60 p-1 rounded-xl w-full sm:w-auto overflow-x-auto text-sm"
+					class="flex bg-[var(--bg-muted)]/60 p-1 rounded-xl w-full sm:w-auto overflow-x-auto text-sm"
 				>
 					{#each tabs as tab}
 						<button
 							class="px-5 py-2 whitespace-nowrap rounded-lg font-medium transition-colors {currentTab ===
 							tab.id
-								? 'bg-slate-700 text-white shadow-sm'
-								: 'text-slate-400 hover:text-slate-200'}"
+								? 'bg-[var(--bg-muted)] text-[var(--text-primary)] shadow-sm'
+								: 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}"
 							onclick={() => switchTab(tab.id)}
 						>
 							{tab.label}
@@ -61,7 +61,7 @@
 
 				<div class="flex gap-4 w-full sm:w-auto items-center text-sm font-medium">
 					<button
-						class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 transition-colors"
+						class="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--border-card)] hover:bg-[var(--bg-muted)] transition-colors"
 					>
 						All Categories
 						<svg
@@ -82,13 +82,13 @@
 
 			<!-- Enhanced Search and Sort Header -->
 			<div
-				class="bg-[#11141c] border border-gray-800 rounded-xl p-3 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
+				class="bg-[var(--bg-card)] border border-[var(--border-card)] rounded-xl p-3 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
 			>
 				<div
-					class="flex-1 flex items-center bg-black/20 border border-gray-800/50 rounded-lg px-3 py-2 w-full sm:max-w-xs focus-within:border-gray-600 transition-colors"
+					class="flex-1 flex items-center bg-black/15 border border-[var(--border-card)]/50 rounded-lg px-3 py-2 w-full sm:max-w-xs focus-within:border-[var(--text-muted)] transition-colors"
 				>
 					<svg
-						class="w-4 h-4 text-gray-400 mr-2 shrink-0"
+						class="w-4 h-4 text-[var(--text-muted)] mr-2 shrink-0"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -103,19 +103,19 @@
 					<input
 						type="text"
 						placeholder="Search by username..."
-						class="bg-transparent border-none outline-none text-gray-200 placeholder-gray-500 w-full text-sm"
+						class="bg-transparent border-none outline-none text-[var(--text-primary)] placeholder-[var(--text-muted)] w-full text-sm"
 					/>
 				</div>
 
 				<div
-					class="flex items-center gap-6 text-xs text-gray-400 font-bold uppercase tracking-wider px-2 w-full sm:w-auto overflow-hidden"
+					class="flex items-center gap-6 text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider px-2 w-full sm:w-auto overflow-hidden"
 				>
 					<div
-						class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+						class="flex items-center gap-1.5 cursor-pointer hover:text-[var(--text-primary)] transition-colors"
 					>
 						Profit/Loss
 						<svg
-							class="w-3 h-3 text-white"
+							class="w-3 h-3 text-[var(--text-primary)]"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -128,7 +128,7 @@
 						>
 					</div>
 					<div
-						class="hidden sm:flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+						class="hidden sm:flex items-center gap-1.5 cursor-pointer hover:text-[var(--text-primary)] transition-colors"
 					>
 						Volume
 					</div>
@@ -139,9 +139,9 @@
 			<div class="flex flex-col gap-1">
 				{#each topUsers as user, i}
 					<div
-						class="flex items-center px-4 py-3 hover:bg-slate-800/40 transition-colors rounded-xl text-sm"
+						class="reactive-hover flex items-center px-4 py-3 hover:bg-[var(--bg-muted)]/40 transition-colors rounded-xl text-sm"
 					>
-						<div class="w-6 text-slate-500 text-xs text-right mr-4 font-mono">
+						<div class="w-6 text-[var(--text-muted)] text-xs text-right mr-4 font-mono">
 							{i + 1}
 						</div>
 						<div class="flex-1 flex items-center gap-4">
@@ -173,14 +173,19 @@
 									</div>
 								{/if}
 							</div>
-							<span class="font-bold text-slate-200 truncate pr-4 text-base"
+							<span
+								class="font-bold text-[var(--text-primary)] truncate pr-4 text-base"
 								>{user.username}</span
 							>
 						</div>
-						<div class="w-32 text-right font-bold text-white tracking-tight">
+						<div
+							class="w-32 text-right font-bold text-[var(--text-primary)] tracking-tight"
+						>
 							{formatAmount(user.total_donated)}
 						</div>
-						<div class="w-24 text-right text-slate-400 font-medium hidden sm:block">
+						<div
+							class="w-24 text-right text-[var(--text-muted)] font-medium hidden sm:block"
+						>
 							${(parseFloat(user.total_donated) * 10 * Math.random()).toLocaleString(
 								undefined,
 								{
@@ -192,7 +197,7 @@
 				{/each}
 
 				{#if topUsers.length === 0}
-					<div class="text-center py-12 text-slate-500">
+					<div class="text-center py-12 text-[var(--text-muted)]">
 						No data available for this timeframe.
 					</div>
 				{/if}
@@ -202,9 +207,11 @@
 		<!-- Right Side Component: Biggest Wins -->
 		<div class="w-full lg:w-[400px] shrink-0 sticky top-24 self-start">
 			<div
-				class="bg-[#11141c] rounded-2xl p-6 border border-gray-800 shadow-xl shadow-black/20 flex flex-col h-[70vh] lg:h-[80vh] min-h-[500px]"
+				class="bg-[var(--bg-card)] rounded-2xl p-6 border border-[var(--border-card)] shadow-xl shadow-black/15 flex flex-col h-[70vh] lg:h-[80vh] min-h-[500px]"
 			>
-				<h2 class="text-xl font-bold mb-6 text-white tracking-tight shrink-0">
+				<h2
+					class="text-xl font-bold mb-6 text-[var(--text-primary)] tracking-tight shrink-0"
+				>
 					Biggest wins this month
 				</h2>
 
@@ -214,7 +221,9 @@
 				>
 					{#each biggestWins as win, i}
 						<div class="flex items-start gap-4">
-							<div class="w-4 text-slate-500 text-xs pt-2 font-mono shrink-0">
+							<div
+								class="w-4 text-[var(--text-muted)] text-xs pt-2 font-mono shrink-0"
+							>
 								{i + 1}
 							</div>
 
@@ -228,22 +237,23 @@
 
 							<div class="min-w-0 flex-1 leading-tight mt-0.5">
 								<div class="flex items-center flex-wrap gap-x-2">
-									<span class="font-bold text-slate-200 truncate max-w-[120px]"
+									<span
+										class="font-bold text-[var(--text-primary)] truncate max-w-[120px]"
 										>{win.username}</span
 									>
-									<span class="text-slate-400 text-xs truncate flex-1"
+									<span class="text-[var(--text-muted)] text-xs truncate flex-1"
 										>{win.market_title}</span
 									>
 								</div>
 								<div class="text-sm mt-1 flex items-center gap-2">
 									<span
-										class="text-slate-300 font-medium line-through decoration-slate-500/50"
+										class="text-[var(--text-muted)] font-medium line-through decoration-[var(--text-muted)]/50"
 										>${(parseFloat(win.amount_sol) * 30).toLocaleString(
 											undefined,
 											{ maximumFractionDigits: 0 }
 										)}</span
 									>
-									<span class="text-[#22c55e] font-bold"
+									<span class="text-[#9ece6a] font-bold"
 										>→ {formatAmount(win.amount_sol)}</span
 									>
 								</div>
@@ -252,7 +262,7 @@
 					{/each}
 
 					{#if biggestWins.length === 0}
-						<div class="text-center py-8 text-slate-500 text-sm">
+						<div class="text-center py-8 text-[var(--text-muted)] text-sm">
 							No big wins this month yet.
 						</div>
 					{/if}
@@ -271,7 +281,7 @@
 		background: transparent;
 	}
 	.scrollbar-thin::-webkit-scrollbar-thumb {
-		background-color: #334155;
+		background-color: var(--border-card);
 		border-radius: 20px;
 	}
 </style>

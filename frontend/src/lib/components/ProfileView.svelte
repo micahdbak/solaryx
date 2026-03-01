@@ -125,16 +125,14 @@
 <div class="max-w-[1240px] mx-auto p-4 md:p-6 lg:p-8 pt-8 font-sans">
 	{#if loading}
 		<div class="flex items-center justify-center py-20">
-			<p class="text-gray-400 text-sm">Loading profile...</p>
+			<p class="text-[var(--text-muted)] text-sm">Loading profile...</p>
 		</div>
 	{:else if profile}
 		<!-- Stats Boxes -->
 		<div class="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 mb-10">
 			<!-- Left Box: User Info & Core Stats -->
 			<div
-				class="bg-[#11141c] rounded-2xl p-6 shadow-lg border border-gray-800 {$isHydeStore
-					? 'bg-red-950/20 border-red-900/40'
-					: ''}"
+				class="reactive-hover bg-[var(--bg-card)] rounded-2xl p-6 shadow-lg border border-[var(--border-card)]"
 			>
 				<div class="flex justify-between items-start mb-10">
 					<div class="flex items-center gap-4">
@@ -142,15 +140,17 @@
 							<img
 								src={profile.avatar_url}
 								alt="User Avatar"
-								class="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-blue-500 to-purple-600 object-cover"
+								class="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] object-cover"
 							/>
 						{:else}
 							<div
-								class="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-blue-500 to-purple-600"
+								class="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)]"
 							></div>
 						{/if}
 						<div>
-							<h1 class="text-xl font-bold text-gray-100 flex items-center gap-2">
+							<h1
+								class="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2"
+							>
 								{profile.username}
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -162,13 +162,13 @@
 									stroke-width="2"
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									class="text-gray-500 hover:text-white cursor-pointer transition-colors"
+									class="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer transition-colors"
 									><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path
 										d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
 									/></svg
 								>
 							</h1>
-							<p class="text-[0.8rem] text-gray-400 mt-1 font-medium">
+							<p class="text-[0.8rem] text-[var(--text-muted)] mt-1 font-medium">
 								Joined {new Date().toLocaleDateString("en-US", {
 									month: "short",
 									year: "numeric"
@@ -177,7 +177,7 @@
 						</div>
 					</div>
 					<div
-						class="p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors text-gray-400 hover:text-white"
+						class="p-2 hover:bg-[var(--text-primary)]/5 rounded-lg cursor-pointer transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -196,38 +196,30 @@
 					</div>
 				</div>
 
-				<div
-					class="flex items-center gap-8 border-t border-gray-800/60 pt-5 {$isHydeStore
-						? 'border-red-900/40'
-						: ''}"
-				>
+				<div class="flex items-center gap-8 border-t border-[var(--border-card)] pt-5">
 					<div>
-						<div class="text-[1.1rem] font-bold text-gray-200">
+						<div class="text-[1.1rem] font-bold text-[var(--text-primary)]">
 							{formatSol(totalDonation)} SOL
 						</div>
-						<div class="text-[0.75rem] text-gray-500 font-semibold mt-0.5">
+						<div class="text-[0.75rem] text-[var(--text-muted)] font-semibold mt-0.5">
 							Total Donation
 						</div>
 					</div>
-					<div
-						class="w-px h-8 bg-gray-800/80 {$isHydeStore ? 'bg-red-900/50' : ''}"
-					></div>
+					<div class="w-px h-8 bg-[var(--border-card)]"></div>
 					<div>
-						<div class="text-[1.1rem] font-bold text-gray-200">
+						<div class="text-[1.1rem] font-bold text-[var(--text-primary)]">
 							{formatSol(topDonation)} SOL
 						</div>
-						<div class="text-[0.75rem] text-gray-500 font-semibold mt-0.5">
+						<div class="text-[0.75rem] text-[var(--text-muted)] font-semibold mt-0.5">
 							Top Donation
 						</div>
 					</div>
-					<div
-						class="w-px h-8 bg-gray-800/80 {$isHydeStore ? 'bg-red-900/50' : ''}"
-					></div>
+					<div class="w-px h-8 bg-[var(--border-card)]"></div>
 					<div>
-						<div class="text-[1.1rem] font-bold text-gray-200">
+						<div class="text-[1.1rem] font-bold text-[var(--text-primary)]">
 							{shares.length}
 						</div>
-						<div class="text-[0.75rem] text-gray-500 font-semibold mt-0.5">
+						<div class="text-[0.75rem] text-[var(--text-muted)] font-semibold mt-0.5">
 							Total Shares
 						</div>
 					</div>
@@ -236,14 +228,12 @@
 
 			<!-- Right Box: Chart & Total Value -->
 			<div
-				class="bg-[#11141c] rounded-2xl p-6 shadow-lg border border-gray-800 flex flex-col min-h-[220px] relative {$isHydeStore
-					? 'bg-red-950/20 border-red-900/40'
-					: ''}"
+				class="reactive-hover bg-[var(--bg-card)] rounded-2xl p-6 shadow-lg border border-[var(--border-card)] flex flex-col min-h-[220px] relative"
 			>
 				<div class="flex justify-between items-start mb-2 z-10 w-full">
 					<div>
 						<div
-							class="text-[0.7rem] text-green-400 font-bold flex items-center gap-1 uppercase tracking-wider mb-1"
+							class="text-[0.7rem] text-[#9ece6a] font-bold flex items-center gap-1 uppercase tracking-wider mb-1"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -256,39 +246,35 @@
 							Total Donated
 						</div>
 						<div
-							class="text-[2rem] font-bold text-white tracking-tight leading-none mb-1"
+							class="text-[2rem] font-bold text-[var(--text-primary)] tracking-tight leading-none mb-1"
 						>
 							{formatSol(totalDonation)} SOL
 						</div>
-						<div class="text-[0.75rem] text-gray-500 font-medium">Over All Time</div>
+						<div class="text-[0.75rem] text-[var(--text-muted)] font-medium">
+							Over All Time
+						</div>
 					</div>
 
 					<div
-						class="flex items-center gap-1 text-[0.75rem] font-bold text-gray-400 bg-black/20 p-1 rounded-md"
+						class="flex items-center gap-1 text-[0.75rem] font-bold text-[var(--text-muted)] bg-black/20 p-1 rounded-md"
 					>
 						<button
 							onclick={() => (timeFilter = "1D")}
 							class="px-2.5 py-1 rounded transition-colors {timeFilter === '1D'
-								? $isHydeStore
-									? 'bg-red-500/20 text-red-400'
-									: 'bg-blue-500/20 text-blue-400'
-								: 'hover:text-white'}">1D</button
+								? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)]'
+								: 'hover:text-[var(--text-primary)]'}">1D</button
 						>
 						<button
 							onclick={() => (timeFilter = "1W")}
 							class="px-2.5 py-1 rounded transition-colors {timeFilter === '1W'
-								? $isHydeStore
-									? 'bg-red-500/20 text-red-400'
-									: 'bg-blue-500/20 text-blue-400'
-								: 'hover:text-white'}">1W</button
+								? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)]'
+								: 'hover:text-[var(--text-primary)]'}">1W</button
 						>
 						<button
 							onclick={() => (timeFilter = "ALL")}
 							class="px-2.5 py-1 rounded transition-colors {timeFilter === 'ALL'
-								? $isHydeStore
-									? 'bg-red-500/20 text-red-400'
-									: 'bg-blue-500/20 text-blue-400'
-								: 'hover:text-white'}">ALL</button
+								? 'bg-[var(--color-primary)]/20 text-[var(--color-primary)]'
+								: 'hover:text-[var(--text-primary)]'}">ALL</button
 						>
 					</div>
 				</div>
@@ -306,24 +292,18 @@
 							<linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
 								<stop
 									offset="0%"
-									stop-color="var(--chart-color, #3b82f6)"
-									stop-opacity="0.3"
+									stop-color="var(--color-primary)"
+									stop-opacity="0.25"
 								></stop>
 								<stop
 									offset="100%"
-									stop-color="var(--chart-color, #3b82f6)"
+									stop-color="var(--color-primary)"
 									stop-opacity="0.0"
 								></stop>
 							</linearGradient>
 							<style>
 								.chart-path {
-									stroke: #6366f1;
-								}
-								:global(.hyde-mode) .chart-path {
-									stroke: #ef4444;
-								}
-								:global(.hyde-mode) stop {
-									stop-color: #ef4444;
+									stroke: var(--color-primary);
 								}
 							</style>
 						</defs>
@@ -345,15 +325,13 @@
 		<div class="mb-6">
 			<div class="flex items-center justify-between">
 				<div
-					class="flex items-center bg-[#11141c] p-1 rounded-lg border border-gray-800 {$isHydeStore
-						? 'bg-red-950/20 border-red-900/40'
-						: ''}"
+					class="flex items-center bg-[var(--bg-card)] p-1 rounded-lg border border-[var(--border-card)]"
 				>
 					<button
 						class="px-5 py-1.5 rounded-md text-[0.85rem] font-bold transition-all {activeTab ===
 						'ACTIVE'
-							? 'bg-gray-700 text-white shadow-sm'
-							: 'text-gray-400 hover:text-gray-200'}"
+							? 'bg-[var(--bg-muted)] text-[var(--text-primary)] shadow-sm'
+							: 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}"
 						onclick={() => (activeTab = "ACTIVE")}
 					>
 						Active
@@ -361,8 +339,8 @@
 					<button
 						class="px-5 py-1.5 rounded-md text-[0.85rem] font-bold transition-all {activeTab ===
 						'CLOSED'
-							? 'bg-gray-700 text-white shadow-sm'
-							: 'text-gray-400 hover:text-gray-200'}"
+							? 'bg-[var(--bg-muted)] text-[var(--text-primary)] shadow-sm'
+							: 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}"
 						onclick={() => (activeTab = "CLOSED")}
 					>
 						Closed
@@ -379,17 +357,17 @@
 
 			{#if displayMarkets.length === 0}
 				<div
-					class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-16 bg-[#1e212b]/50 rounded-lg border border-dashed border-gray-800 {$isHydeStore
-						? 'border-red-950/50'
-						: ''}"
+					class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-16 bg-[var(--bg-card)]/50 rounded-lg border border-dashed border-[var(--border-card)]"
 				>
-					<p class="text-gray-500 font-medium">
+					<p class="text-[var(--text-muted)] font-medium">
 						No {activeTab.toLowerCase()} markets found.
 					</p>
 				</div>
 			{/if}
 		</div>
 	{:else}
-		<div class="text-center py-20 text-red-500 font-bold">Failed to load profile.</div>
+		<div class="text-center py-20 text-[var(--color-primary)] font-bold">
+			Failed to load profile.
+		</div>
 	{/if}
 </div>

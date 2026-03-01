@@ -51,26 +51,26 @@
 
 <div class="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
 	<div class="mb-6">
-		<h1 class="text-2xl font-bold text-white">My Bets</h1>
-		<p class="text-gray-400 text-sm mt-1">Markets you have participated in.</p>
+		<h1 class="text-2xl font-bold text-[var(--text-primary)]">My Bets</h1>
+		<p class="text-[var(--text-muted)] text-sm mt-1">Markets you have participated in.</p>
 	</div>
 
 	{#if loading}
 		<div class="flex items-center justify-center py-20">
-			<p class="text-gray-400 text-sm">Loading your bets...</p>
+			<p class="text-[var(--text-muted)] text-sm">Loading your bets...</p>
 		</div>
 	{:else if errorMsg}
 		<div class="flex flex-col items-center justify-center py-20">
-			<p class="text-red-400 text-sm mb-4">{errorMsg}</p>
+			<p class="text-[var(--color-primary)] text-sm mb-4">{errorMsg}</p>
 			<a
 				href="/login"
-				class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
+				class="px-4 py-2 bg-[var(--color-primary)] hover:brightness-110 text-[#e0e4f0] font-bold rounded-lg transition-colors"
 				>Log In</a
 			>
 		</div>
 	{:else if displayBets.length === 0}
 		<div class="flex items-center justify-center py-20">
-			<p class="text-gray-500 text-sm">You haven't placed any bets here yet.</p>
+			<p class="text-[var(--text-muted)] text-sm">You haven't placed any bets here yet.</p>
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

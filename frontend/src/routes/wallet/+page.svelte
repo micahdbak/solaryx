@@ -173,8 +173,10 @@
 
 <div class="max-w-[1000px] mx-auto p-4 md:p-8 w-full mt-4">
 	<div class="mb-8">
-		<h1 class="text-3xl font-extrabold text-white mb-2 tracking-tight">Wallet Dashboard</h1>
-		<p class="text-gray-400">
+		<h1 class="text-3xl font-extrabold text-[var(--text-primary)] mb-2 tracking-tight">
+			Wallet Dashboard
+		</h1>
+		<p class="text-[var(--text-muted)]">
 			Manage your connected wallet, external funds, and platform balance.
 		</p>
 	</div>
@@ -188,18 +190,18 @@
 			<div class="space-y-6">
 				<!-- Platform Balance Card -->
 				<div
-					class="bg-[#11141c] border border-gray-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group"
+					class="bg-[var(--bg-card)] border border-[var(--border-card)] rounded-2xl p-6 shadow-xl relative overflow-hidden group"
 				>
 					<div
-						class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"
+						class="absolute inset-0 bg-[var(--color-primary)]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"
 					></div>
 					<div class="flex justify-between items-start mb-4">
 						<div class="flex items-center gap-2">
 							<div
-								class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center"
+								class="w-8 h-8 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center"
 							>
 								<svg
-									class="w-4 h-4 text-blue-400"
+									class="w-4 h-4 text-[var(--color-primary)]"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
@@ -211,15 +213,17 @@
 									></path></svg
 								>
 							</div>
-							<h2 class="text-lg font-bold text-gray-300">Platform Balance</h2>
+							<h2 class="text-lg font-bold text-[var(--text-muted)]">
+								Platform Balance
+							</h2>
 						</div>
 					</div>
 					<div>
 						<div
-							class="text-4xl font-extrabold text-white tracking-tight flex items-end gap-2"
+							class="text-4xl font-extrabold text-[var(--text-primary)] tracking-tight flex items-end gap-2"
 						>
 							{formatSol(balance)}
-							<span class="text-xl text-gray-500 font-bold mb-1">SOL</span>
+							<span class="text-xl text-[var(--text-muted)] font-bold mb-1">SOL</span>
 						</div>
 						<p class="text-xs text-gray-500 mt-2 font-medium">
 							Funds available instantly for charity markets
@@ -229,22 +233,22 @@
 
 				<!-- Connect Wallet Card -->
 				<div
-					class="bg-[#11141c] border {walletConnected
-						? 'border-green-500/30'
-						: 'border-gray-800'} rounded-2xl p-6 shadow-xl transition-all duration-500"
+					class="bg-[var(--bg-card)] border {walletConnected
+						? 'border-[#9ece6a]/30'
+						: 'border-[var(--border-card)]'} rounded-2xl p-6 shadow-xl transition-all duration-500"
 				>
-					<h2 class="text-lg font-bold text-white mb-4">Solana Wallet</h2>
+					<h2 class="text-lg font-bold text-[var(--text-primary)] mb-4">Solana Wallet</h2>
 
 					{#if walletConnected}
 						<div class="flex flex-col gap-4">
 							<div
-								class="flex items-center gap-3 p-3 bg-gray-800/40 rounded-xl border border-gray-700/50"
+								class="flex items-center gap-3 p-3 bg-[var(--bg-muted)]/40 rounded-xl border border-[var(--border-card)]"
 							>
 								<div
 									class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center shadow-lg"
 								>
 									<svg
-										class="w-5 h-5 text-white"
+										class="w-5 h-5 text-[#e0e4f0]"
 										viewBox="0 0 397 311"
 										fill="none"
 										xmlns="http://www.w3.org/2000/svg"
@@ -262,28 +266,30 @@
 								</div>
 								<div class="flex-1 overflow-hidden">
 									<div
-										class="text-xs text-green-400 font-bold mb-0.5 uppercase tracking-wider"
+										class="text-xs text-[#9ece6a] font-bold mb-0.5 uppercase tracking-wider"
 									>
 										Connected
 									</div>
-									<div class="text-gray-300 font-mono text-sm truncate">
+									<div
+										class="text-[var(--text-muted)] font-mono text-sm truncate"
+									>
 										{walletAddress}
 									</div>
 								</div>
 								<button
 									onclick={handleConnect}
-									class="text-xs text-gray-500 hover:text-red-400 transition-colors cursor-pointer font-bold px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded-lg"
+									class="text-xs text-[var(--text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-bold px-2 py-1 bg-[var(--bg-muted)] hover:bg-[var(--bg-muted)]/80 rounded-lg"
 									>Disconnect</button
 								>
 							</div>
-							<p class="text-xs text-gray-400 leading-relaxed">
+							<p class="text-xs text-[var(--text-muted)] leading-relaxed">
 								Your external wallet is connected. You can now deposit SOL into your
 								platform balance to donate in markets instantly.
 							</p>
 						</div>
 					{:else}
 						<div
-							class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/30"
+							class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[var(--border-card)] rounded-xl bg-[var(--bg-muted)]/30"
 						>
 							<svg
 								class="w-12 h-12 text-gray-600 mb-4"
@@ -304,7 +310,7 @@
 							<button
 								onclick={handleConnect}
 								disabled={isConnecting}
-								class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transform active:scale-95"
+								class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-[#e0e4f0] rounded-xl font-bold transition-all shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transform active:scale-95"
 							>
 								{isConnecting ? "Connecting..." : "Connect Wallet"}
 							</button>
@@ -315,9 +321,11 @@
 
 			<!-- Deposit Funds Card -->
 			<div
-				class="bg-[#11141c] border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col h-full"
+				class="bg-[var(--bg-card)] border border-[var(--border-card)] rounded-2xl p-6 shadow-xl flex flex-col h-full"
 			>
-				<h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+				<h2
+					class="text-xl font-bold text-[var(--text-primary)] mb-6 flex items-center gap-2"
+				>
 					<svg
 						class="w-5 h-5 text-gray-400"
 						fill="none"
@@ -335,13 +343,13 @@
 
 				<div class="space-y-4 mb-6 relative group flex-1">
 					<div class="flex justify-between items-center text-sm font-medium">
-						<span class="text-gray-400 group-focus-within:text-white transition-colors"
+						<span class="text-gray-400 group-focus-within:text-[#e0e4f0] transition-colors"
 							>Amount (SOL)</span
 						>
 					</div>
 					<div class="relative">
 						<span
-							class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-white transition-colors"
+							class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-[#e0e4f0] transition-colors"
 						>
 							<svg
 								class="w-5 h-5"
@@ -365,7 +373,7 @@
 							min="0"
 							placeholder="0.00"
 							bind:value={depositAmount}
-							class="w-full bg-black border border-gray-700 rounded-xl py-4 pl-12 pr-4 text-right text-2xl font-bold text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all no-spinners"
+							class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-4 pl-12 pr-4 text-right text-2xl font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all no-spinners"
 							disabled={!walletConnected || isDepositing}
 						/>
 					</div>
@@ -373,7 +381,7 @@
 					<div class="flex gap-2 text-xs font-semibold">
 						{#each [0.5, 1, 5, 10] as preset}
 							<button
-								class="flex-1 py-3 bg-gray-800/80 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+								class="flex-1 py-3 bg-[var(--bg-muted)]/80 hover:bg-[var(--bg-muted)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 								onclick={() => (depositAmount = preset)}
 								disabled={!walletConnected || isDepositing}
 							>
@@ -395,7 +403,7 @@
 						<button
 							onclick={handleDeposit}
 							disabled={isDepositing || !depositAmount || depositAmount <= 0}
-							class="w-full py-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:text-gray-500 text-black font-extrabold text-lg rounded-xl shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.2)] active:scale-[0.98] disabled:shadow-none disabled:active:scale-100 transition-all cursor-pointer tracking-wide"
+							class="w-full py-4 bg-[var(--color-primary)] hover:brightness-110 disabled:bg-[var(--bg-muted)] disabled:text-[var(--text-muted)] text-[#e0e4f0] font-extrabold text-lg rounded-xl shadow-[0_4px_14px_0_rgba(122,162,247,0.15)] hover:shadow-[0_6px_20px_0_rgba(122,162,247,0.25)] active:scale-[0.98] disabled:shadow-none disabled:active:scale-100 transition-all cursor-pointer tracking-wide"
 						>
 							{isDepositing
 								? "Processing on-chain..."
@@ -411,8 +419,10 @@
 		</div>
 
 		<!-- Redeem Coupon -->
-		<div class="mt-8 bg-[#11141c] border border-gray-800 rounded-2xl p-6 shadow-xl w-full">
-			<h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+		<div
+			class="mt-8 bg-[var(--bg-card)] border border-[var(--border-card)] rounded-2xl p-6 shadow-xl w-full"
+		>
+			<h2 class="text-xl font-bold text-[var(--text-primary)] mb-6 flex items-center gap-2">
 				<svg
 					class="w-5 h-5 text-gray-400"
 					fill="none"
@@ -431,7 +441,7 @@
 			<div class="flex flex-col sm:flex-row gap-4 items-stretch">
 				<div class="relative flex-1 group">
 					<span
-						class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-white transition-colors"
+						class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-[#e0e4f0] transition-colors"
 					>
 						<svg
 							class="w-4 h-4"
@@ -450,7 +460,7 @@
 						type="text"
 						placeholder="ABC123"
 						bind:value={couponCode}
-						class="w-full bg-black border border-gray-700 rounded-xl py-3 pl-11 pr-4 text-sm text-white font-mono tracking-widest focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all uppercase"
+						class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-3 pl-11 pr-4 text-sm text-[var(--text-primary)] font-mono tracking-widest focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all uppercase"
 						disabled={isRedeeming}
 					/>
 				</div>
@@ -458,7 +468,7 @@
 				<button
 					onclick={handleRedeemCoupon}
 					disabled={isRedeeming || !couponCode}
-					class="px-8 py-3 w-full sm:w-auto bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:text-gray-500 text-black font-extrabold text-sm rounded-xl shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.2)] active:scale-[0.98] disabled:shadow-none disabled:active:scale-100 transition-all cursor-pointer tracking-wide whitespace-nowrap"
+					class="px-8 py-3 w-full sm:w-auto bg-[var(--color-primary)] hover:brightness-110 disabled:bg-[var(--bg-muted)] disabled:text-[var(--text-muted)] text-[#e0e4f0] font-extrabold text-sm rounded-xl shadow-[0_4px_14px_0_rgba(122,162,247,0.15)] hover:shadow-[0_6px_20px_0_rgba(122,162,247,0.25)] active:scale-[0.98] disabled:shadow-none disabled:active:scale-100 transition-all cursor-pointer tracking-wide whitespace-nowrap"
 				>
 					{isRedeeming ? "Redeeming..." : "Redeem Coupon"}
 				</button>
@@ -466,13 +476,15 @@
 		</div>
 
 		<!-- Deposit History -->
-		<div class="mt-8 bg-[#11141c] border border-gray-800 rounded-2xl p-6 shadow-xl w-full">
-			<h3 class="text-lg font-bold text-white mb-4">Deposit History</h3>
+		<div
+			class="mt-8 bg-[var(--bg-card)] border border-[var(--border-card)] rounded-2xl p-6 shadow-xl w-full"
+		>
+			<h3 class="text-lg font-bold text-[var(--text-primary)] mb-4">Deposit History</h3>
 
 			<div class="overflow-x-auto">
 				<table class="w-full text-left border-collapse">
 					<thead
-						class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800"
+						class="text-[var(--text-muted)] text-xs uppercase tracking-wider border-b border-[var(--border-card)]"
 					>
 						<tr>
 							<th class="py-3 px-4 font-bold">Date</th>
@@ -499,7 +511,7 @@
 										>{formatDate(dep.created_at)}</td
 									>
 									<td
-										class="py-4 px-4 font-bold text-white flex items-center gap-1.5"
+										class="py-4 px-4 font-bold text-[#e0e4f0] flex items-center gap-1.5"
 									>
 										<svg
 											class="w-3.5 h-3.5 text-gray-500"
@@ -524,7 +536,7 @@
 											<div class="flex items-center gap-2">
 												{dep.transaction_signature.substring(0, 16)}...
 												<button
-													class="hover:text-white transition-colors cursor-pointer"
+													class="hover:text-[#e0e4f0] transition-colors cursor-pointer"
 													title="Copy signature"
 													><svg
 														class="w-3.5 h-3.5"
@@ -546,10 +558,10 @@
 									</td>
 									<td class="py-4 px-4 text-right">
 										<div
-											class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500/10 text-green-400 text-xs font-bold uppercase tracking-wider border border-green-500/20"
+											class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#9ece6a]/10 text-[#9ece6a] text-xs font-bold uppercase tracking-wider border border-[#9ece6a]/20"
 										>
 											<div
-												class="w-1.5 h-1.5 rounded-full bg-green-400"
+												class="w-1.5 h-1.5 rounded-full bg-[#9ece6a]"
 											></div>
 											{dep.status || "Confirmed"}
 										</div>

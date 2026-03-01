@@ -119,26 +119,33 @@
 	<div class="w-full max-w-md">
 		<!-- Welcome Header -->
 		<div class="text-center mb-8">
-			<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">
+			<h1
+				class="text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--text-primary)] mb-2"
+			>
 				Solaryx Welcomes You
 			</h1>
 		</div>
 
 		<!-- Signup Card -->
-		<div class="bg-[#11141c] border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-5">
+		<div
+			class="bg-[var(--bg-card)] border border-[var(--border-card)] rounded-2xl p-8 shadow-2xl space-y-5"
+		>
 			<!-- Username -->
 			<div class="space-y-1.5 relative">
-				<label for="signup-username" class="block text-sm font-semibold text-gray-300">
+				<label
+					for="signup-username"
+					class="block text-sm font-semibold text-[var(--text-muted)]"
+				>
 					Username
 				</label>
 				<div class="relative">
 					<input
 						id="signup-username"
-						class="w-full bg-black border {usernameAvailable === false
-							? 'border-red-500'
+						class="w-full bg-[var(--bg-input)] border {usernameAvailable === false
+							? 'border-[var(--color-primary)]'
 							: usernameAvailable === true
-								? 'border-green-500'
-								: 'border-gray-700'} rounded-lg px-4 py-3 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+								? 'border-[#9ece6a]'
+								: 'border-[var(--border-input)]'} rounded-lg px-4 py-3 pr-10 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors"
 						type="text"
 						placeholder="CryptoWhale"
 						bind:value={username}
@@ -151,7 +158,7 @@
 							></div>
 						</div>
 					{:else if usernameAvailable === true}
-						<div class="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+						<div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ece6a]">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="18"
@@ -165,7 +172,9 @@
 							>
 						</div>
 					{:else if usernameAvailable === false}
-						<div class="absolute right-3 top-1/2 -translate-y-1/2 text-red-500">
+						<div
+							class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-primary)]"
+						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="18"
@@ -189,12 +198,13 @@
 			</div>
 			<!-- Email -->
 			<div class="space-y-1.5">
-				<label for="signup-email" class="block text-sm font-semibold text-gray-300"
-					>Email</label
+				<label
+					for="signup-email"
+					class="block text-sm font-semibold text-[var(--text-muted)]">Email</label
 				>
 				<input
 					id="signup-email"
-					class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+					class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors"
 					type="text"
 					placeholder="name@example.com"
 					bind:value={email}
@@ -203,12 +213,13 @@
 
 			<!-- Password -->
 			<div class="space-y-1.5">
-				<label for="signup-password" class="block text-sm font-semibold text-gray-300"
-					>Password</label
+				<label
+					for="signup-password"
+					class="block text-sm font-semibold text-[var(--text-muted)]">Password</label
 				>
 				<input
 					id="signup-password"
-					class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+					class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors"
 					type="password"
 					placeholder="••••••••"
 					bind:value={password}
@@ -217,12 +228,14 @@
 
 			<!-- Confirm Password -->
 			<div class="space-y-1.5">
-				<label for="signup-password-again" class="block text-sm font-semibold text-gray-300"
+				<label
+					for="signup-password-again"
+					class="block text-sm font-semibold text-[var(--text-muted)]"
 					>Confirm Password</label
 				>
 				<input
 					id="signup-password-again"
-					class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+					class="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors"
 					type="password"
 					placeholder="••••••••"
 					bind:value={passwordAgain}
@@ -231,7 +244,7 @@
 
 			<!-- Submit Button -->
 			<button
-				class="w-full py-3 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-[0_4px_14px_0_rgba(59,130,246,0.3)] hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.5)] cursor-pointer mt-2"
+				class="w-full py-3 rounded-lg font-bold text-[#e0e4f0] bg-[var(--color-primary)] hover:brightness-110 transition-all duration-200 shadow-[0_4px_14px_0_rgba(122,162,247,0.2)] hover:shadow-[0_6px_20px_0_rgba(122,162,247,0.3)] cursor-pointer mt-2"
 				type="button"
 				onclick={signup}
 			>
@@ -241,17 +254,17 @@
 			<!-- Error Message -->
 			{#if error}
 				<p
-					class="text-red-400 text-sm text-center font-medium bg-red-950/20 border border-red-900/50 rounded-lg px-4 py-2"
+					class="text-[var(--color-primary)] text-sm text-center font-medium bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 rounded-lg px-4 py-2"
 				>
 					{error}
 				</p>
 			{/if}
 
 			<!-- Login Link -->
-			<p class="text-center text-sm text-gray-400 pt-2">
+			<p class="text-center text-sm text-[var(--text-muted)] pt-2">
 				Already have an account? <a
 					href="/login"
-					class="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+					class="text-[var(--color-primary)] hover:brightness-125 font-semibold transition-colors"
 					>Log In</a
 				>
 			</p>

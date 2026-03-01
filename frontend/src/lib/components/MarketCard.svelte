@@ -4,14 +4,14 @@
 	let { cause, buttonLabel = "Donate to Vote", showCompleteOverlay = false } = $props();
 </script>
 
-<div class="relative group">
+<div class="relative">
 	{#if showCompleteOverlay}
 		<a
 			href="/bet/{cause.id}"
-			class="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-xl border-2 border-gray-500/50 hover:bg-black/30 transition-all cursor-pointer no-underline"
+			class="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-xl border-2 border-[var(--text-muted)]/50 hover:bg-black/30 transition-all cursor-pointer no-underline"
 		>
 			<div
-				class="bg-gray-700 text-gray-200 font-black text-xl px-6 py-2 rounded-lg shadow-[0_0_20px_rgba(156,163,175,0.4)] transform hover:scale-105 transition-transform tracking-widest"
+				class="bg-[var(--bg-muted)] text-[var(--text-primary)] font-black text-xl px-6 py-2 rounded-lg shadow-[0_0_16px_rgba(86,95,137,0.3)] transform hover:scale-105 transition-transform tracking-widest"
 			>
 				COMPLETE
 			</div>
@@ -20,16 +20,14 @@
 
 	<a
 		href="/bet/{cause.id}"
-		class="bg-[#11141c] hover:bg-[#1a1e28] border border-gray-700/50 hover:border-gray-600/50 transition-all rounded-xl p-4 flex flex-col group block no-underline shadow-lg {$isHydeStore
-			? 'border-red-900/50 hover:border-red-800/80 bg-red-950/20 hover:bg-red-950/40'
-			: ''}"
+		class="reactive-hover bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-card)] hover:border-[var(--text-muted)]/40 transition-all rounded-xl p-4 flex flex-col block no-underline shadow-lg"
 	>
 		<!-- Title & Header -->
 		<div class="flex justify-between items-start mb-5 h-[50px]">
 			<div class="flex gap-3">
 				<img src={cause.image} alt="icon" class="w-7 h-7 rounded-full mt-0.5 bg-black/20" />
 				<h3
-					class="text-[0.90rem] font-semibold text-gray-200 leading-tight group-hover:text-white transition-colors line-clamp-3"
+					class="text-[0.90rem] font-semibold text-[var(--text-primary)] leading-tight transition-colors line-clamp-3"
 				>
 					{cause.title}
 				</h3>
@@ -40,9 +38,7 @@
 			<!-- Option Rows (Progress Bars) -->
 			<div class="flex flex-col gap-2 mb-4">
 				<div
-					class="relative overflow-hidden rounded bg-black/40 h-8 flex items-center border border-gray-800/50 {$isHydeStore
-						? 'border-red-950/50'
-						: ''}"
+					class="relative overflow-hidden rounded bg-black/30 h-8 flex items-center border border-[var(--border-card)]"
 				>
 					<div
 						class="absolute inset-y-0 left-0 var-bg-optionA-medium"
@@ -52,13 +48,13 @@
 						<span class="text-sm font-bold var-color-optionA z-10 truncate max-w-[70%]"
 							>{cause.optionA.name}</span
 						>
-						<span class="text-white text-sm font-black z-10">{cause.chance}%</span>
+						<span class="text-[var(--text-primary)] text-sm font-black z-10"
+							>{cause.chance}%</span
+						>
 					</div>
 				</div>
 				<div
-					class="relative overflow-hidden rounded bg-black/40 h-8 flex items-center border border-gray-800/50 {$isHydeStore
-						? 'border-red-950/50'
-						: ''}"
+					class="relative overflow-hidden rounded bg-black/30 h-8 flex items-center border border-[var(--border-card)]"
 				>
 					<div
 						class="absolute inset-y-0 left-0 var-bg-optionB-medium"
@@ -68,7 +64,7 @@
 						<span class="text-sm font-bold var-color-optionB z-10 truncate max-w-[70%]"
 							>{cause.optionB.name}</span
 						>
-						<span class="text-white text-sm font-black z-10"
+						<span class="text-[var(--text-primary)] text-sm font-black z-10"
 							>{cause.totalSol === 0 ? 0 : 100 - cause.chance}%</span
 						>
 					</div>
@@ -78,9 +74,7 @@
 			<!-- Single Button -->
 			<div class="mb-3">
 				<div
-					class="w-full py-2.5 rounded font-bold text-sm transition-colors text-center text-white/90 bg-white/10 group-hover:bg-white/20 {$isHydeStore
-						? 'group-hover:bg-red-500/30 text-red-100'
-						: 'group-hover:bg-blue-500/30'}"
+					class="w-full py-2.5 rounded font-bold text-sm transition-all text-center text-[var(--donate-text)] bg-[var(--donate-bg)] hover:bg-[var(--donate-bg-hover)] hover:text-white hover-vibrate"
 				>
 					{buttonLabel}
 				</div>
@@ -89,10 +83,10 @@
 
 		<!-- Footer -->
 		<div
-			class="flex items-center justify-between text-[0.65rem] text-gray-400 border-t border-gray-700/50 pt-2.5 mt-1 font-semibold"
+			class="flex items-center justify-between text-[0.65rem] text-[var(--text-muted)] border-t border-[var(--border-card)] pt-2.5 mt-1 font-semibold"
 		>
 			<div class="flex gap-2 items-center flex-wrap">
-				<span class="text-gray-500 flex items-center gap-1">
+				<span class="text-[var(--text-muted)] flex items-center gap-1">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="12"
@@ -111,7 +105,7 @@
 				</span>
 			</div>
 			<div class="flex gap-3">
-				<span class="text-gray-500 text-[0.6rem]">{cause.vol}</span>
+				<span class="text-[var(--text-muted)] text-[0.6rem]">{cause.vol}</span>
 			</div>
 		</div>
 	</a>
