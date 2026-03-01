@@ -1,5 +1,17 @@
 // ─── Raw API helpers ────────────────────────────────────────────
 
+export async function fetchConfig() {
+	const res = await fetch("/api/config");
+	if (!res.ok) throw new Error("Failed to fetch config");
+	return res.json();
+}
+
+export async function fetchBlockhash() {
+	const res = await fetch("/api/solana/blockhash");
+	if (!res.ok) throw new Error("Failed to fetch blockhash");
+	return res.json();
+}
+
 export async function fetchMarkets() {
 	const res = await fetch("/api/markets");
 	if (!res.ok) throw new Error("Failed to fetch markets");

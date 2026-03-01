@@ -18,6 +18,20 @@ if (!GLOBAL_POOL_WALLET) {
  */
 async function checkTransaction(signature) {
 	try {
+		// Wait for the transaction to be confirmed on the network first
+		const latestBlockhash = await connection.getLatestBlockhash();
+		const confirmation = await connection.confirmTransaction(
+			{
+				signature,
+				blockhash: latestBlockhash.blockhash,
+				lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+			},
+			"confirmed"
+		);
+		if (confirmation.value.err) {
+			throw new Error("Transaction failed to confirm on chain");
+		}
+
 		// Implement retry logic up to 5 times in case of RPC race conditions
 		let tx = null;
 		let retries = 5;
@@ -76,4 +90,4 @@ async function checkTransaction(signature) {
 	}
 }
 
-module.exports = { checkTransaction, GLOBAL_POOL_WALLET };
+module.exports = { checkTransaction, GLOBAL_POOL_WALLET, connection };

@@ -105,6 +105,22 @@ Check if the current session is valid. **Requires auth.**
 
 ---
 
+## System Config
+
+### `GET /config`
+
+Returns system configuration variables needed by the frontend.
+
+**Response:** `{ "pool_wallet_address": "string" }`
+
+### `GET /solana/blockhash`
+
+Proxies a request to the Solana RPC to fetch the latest blockhash. Used by the frontend to construct transactions without exposing its own RPC API key to the browser.
+
+**Response:** `{ "blockhash": "string" }`
+
+---
+
 ## Charities
 
 ### `POST /charities`

@@ -1,13 +1,14 @@
 <script>
 	import { onMount, onDestroy } from "svelte";
-	import { fetchWalletBalance, depositWallet, fetchDeposits } from "$lib/api";
+	import {
+		fetchWalletBalance,
+		depositWallet,
+		fetchDeposits,
+		fetchConfig,
+		fetchBlockhash
+	} from "$lib/api";
 	import { themeLockedStore } from "$lib/theme";
-	import { Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-
-	const network = import.meta.env.VITE_SOLANA_RPC_URL;
-	const connection = new Connection(network, "confirmed");
-	const platformWalletStr = import.meta.env.VITE_POOL_WALLET_ADDRESS;
-	const platformWalletPubKey = new PublicKey(platformWalletStr);
+	import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 	let balance = $state(0);
 	let deposits = $state([]);
@@ -78,13 +79,17 @@
 		try {
 			isDepositing = true;
 
-			// 1. Get user's public key
+			// 1. Fetch config to get the current platform wallet
+			const config = await fetchConfig();
+			const platformWalletPubKey = new PublicKey(config.pool_wallet_address);
+
+			// 2. Get user's public key
 			const fromPubKey = new PublicKey(walletAddress);
 
-			// 2. Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
+			// 3. Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
 			const lamports = Math.round(Number(depositAmount) * 1e9);
 
-			// 3. Create the transfer instruction
+			// 4. Create the transfer instruction
 			const transaction = new Transaction().add(
 				SystemProgram.transfer({
 					fromPubkey: fromPubKey,
@@ -93,18 +98,16 @@
 				})
 			);
 
-			// 4. Fetch a recent blockhash
-			const { blockhash } = await connection.getLatestBlockhash();
+			// 5. Fetch a recent blockhash via our backend proxy
+			const { blockhash } = await fetchBlockhash();
 			transaction.recentBlockhash = blockhash;
 			transaction.feePayer = fromPubKey;
 
 			// 5. Ask user to sign and send the transaction via Phantom
 			const { signature } = await window.solana.signAndSendTransaction(transaction);
 
-			// We do a quick poll to wait for confirmation, optional but good UX
-			await connection.confirmTransaction(signature, "confirmed");
-
 			// 6. Send signature to backend to verify and credit internal balance
+			// The backend will handle waiting for network confirmation
 			await depositWallet({ transaction_signature: signature });
 
 			// Refresh data

@@ -20,6 +20,22 @@ app.use(shares);
 app.use(users);
 app.use(markets);
 
+app.get("/config", (_, res) => {
+	const { GLOBAL_POOL_WALLET } = require("./solana");
+	res.json({ pool_wallet_address: GLOBAL_POOL_WALLET });
+});
+
+app.get("/solana/blockhash", async (_, res) => {
+	try {
+		const { connection } = require("./solana");
+		const { blockhash } = await connection.getLatestBlockhash();
+		res.json({ blockhash });
+	} catch (err) {
+		console.error("Error fetching blockhash:", err);
+		res.status(500).json({ error: "Failed to fetch blockhash" });
+	}
+});
+
 app.get("/", (_, res) => {
 	res.json(new StatusResponse(true));
 });

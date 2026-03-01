@@ -76,15 +76,9 @@ Required variables:
 | `SOLANA_RPC_URL` | Solana RPC endpoint (e.g. `https://api.devnet.solana.com` for dev) |
 | `POOL_WALLET_ADDRESS` | Solana wallet that receives deposits |
 
-**Frontend** — copy and fill in `frontend/.env`:
-```bash
-cp frontend/.env.example frontend/.env
-```
+**Frontend**
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SOLANA_RPC_URL` | Same Solana RPC endpoint as backend |
-| `VITE_POOL_WALLET_ADDRESS` | Same pool wallet address as backend |
+No environment variables are required for the frontend. It fetches its configuration directly from the backend API.
 
 ### 4. Install dependencies
 
@@ -141,9 +135,6 @@ Helius is the most common choice in the Solana ecosystem. Sign up, create an API
 ```env
 # backend/.env
 SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
-
-# frontend/.env
-VITE_SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
 ```
 
 ---
