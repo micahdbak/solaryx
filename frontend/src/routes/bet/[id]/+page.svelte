@@ -17,6 +17,7 @@
 		fetchShares,
 		createShare
 	} from "$lib/api";
+	import confetti from "canvas-confetti";
 
 	let currentBet = $state(null);
 	let shares = $state([]);
@@ -202,6 +203,8 @@
 	let rouletteSpinning = $state(false);
 	let rouletteWinner = $state(null);
 	let rouletteRotation = $state(0);
+	let ballRotation = $state(0);
+	let ballRadius = $state(41);
 	let authUser = $state(null);
 
 	let winnerShare = $derived(
@@ -249,6 +252,7 @@
 	async function triggerRoulette() {
 		if (showRoulette) return;
 		showRoulette = true;
+		ballRadius = 41; // Start radius (outer rim track)
 
 		if (authUser) {
 			try {
@@ -267,16 +271,38 @@
 
 			const sliceCenter =
 				winnerSlice.startAngle + (winnerSlice.endAngle - winnerSlice.startAngle) / 2;
-			const spins = 360 * 5;
-			const targetRotation = spins + (360 - sliceCenter);
 
-			rouletteRotation = targetRotation;
+			// Wheel spins 8 times clockwise
+			const wheelSpins = 360 * 8;
+			const targetWheelRotation = wheelSpins + (360 - sliceCenter);
+
+			rouletteRotation = targetWheelRotation;
+
+			// Ball spins counter-clockwise fast
+			// The winning slice aligns perfectly to the TOP of the container.
+			// Since our ball wrapper's neutral position (top: Y, left: 50%) is also the TOP,
+			// ballRotation ends at exactly a multiple of 360 to align perfectly.
+			const ballSpins = -360 * 12;
+			ballRotation = ballSpins; // Top position
+
 			rouletteSpinning = true;
+
+			// Ball drop animation: transition radius inward down to the inner slices
+			setTimeout(() => {
+				ballRadius = 27;
+			}, 5000);
 
 			setTimeout(() => {
 				rouletteSpinning = false;
 				rouletteWinner = winnerSlice;
-			}, 5500);
+
+				// Fire confetti
+				confetti({
+					particleCount: 150,
+					spread: 80,
+					origin: { y: 0.6 }
+				});
+			}, 8500);
 		}, 100);
 	}
 
@@ -981,47 +1007,141 @@
 <!-- ROULETTE OVERLAY -->
 {#if showRoulette}
 	<div
-		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md"
+		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm"
 	>
 		<h2
-			class="text-3xl md:text-5xl font-black text-[var(--text-primary)] mb-12 tracking-wider uppercase"
+			class="relative z-10 text-3xl md:text-5xl font-black text-white/90 mb-6 tracking-wider uppercase drop-shadow-2xl"
 		>
 			Results
 		</h2>
 
-		<div class="relative w-72 h-72 md:w-96 md:h-96">
-			<!-- Center Pointer -->
-			<div
-				class="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-12 bg-[var(--text-primary)] flex items-end justify-center rounded-t-lg shadow-[0_0_16px_rgba(192,202,245,0.3)]"
-			>
+		<!-- Minimal Green Felt Table Container -->
+		<div
+			class="relative w-[320px] h-[320px] md:w-[480px] md:h-[480px] bg-[#0f381c] rounded-full shadow-2xl flex items-center justify-center border-4 border-[#0a2412]"
+			style="background-image: radial-gradient(circle at center, #1b532d 0%, #081c0e 100%);"
+		>
+			<!-- The Wheel Container -->
+			<div class="relative w-[300px] h-[300px] md:w-[460px] md:h-[460px] z-10">
+				<!-- Outer Wood Rim -->
 				<div
-					class="w-0 h-0 border-l-[16px] border-r-[16px] border-t-[24px] border-l-transparent border-r-transparent border-t-[var(--text-primary)] -mb-6"
+					class="absolute inset-0 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_4px_15px_rgba(255,255,255,0.2),inset_0_-4px_30px_rgba(0,0,0,0.9)] border-[20px] md:border-[28px] border-[#5e3818] bg-[#222]"
 				></div>
-			</div>
+				<!-- Inner Metallic Rim (Track Delimiter) -->
+				<div
+					class="absolute inset-[20px] md:inset-[28px] rounded-full border-[3px] border-[#a38052] bg-[#111] shadow-[inset_0_8px_20px_rgba(0,0,0,0.9)]"
+				></div>
 
-			<svg
-				viewBox="-100 -100 200 200"
-				class="w-full h-full transform transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-				style="transform: rotate({rouletteRotation}deg); transition-duration: 5s;"
-			>
-				<circle cx="0" cy="0" r="95" fill="#111" stroke="#333" stroke-width="2" />
-				{#each rouletteSlices as slice}
-					<path
-						d="M0,0 L{Math.cos((slice.startAngle - 90) * (Math.PI / 180)) *
-							95},{Math.sin((slice.startAngle - 90) * (Math.PI / 180)) *
-							95} A95,95 0 {slice.endAngle - slice.startAngle > 180
-							? 1
-							: 0},1 {Math.cos((slice.endAngle - 90) * (Math.PI / 180)) *
-							95},{Math.sin((slice.endAngle - 90) * (Math.PI / 180)) * 95} Z"
-						fill={slice.color}
-						stroke="#000"
-						stroke-width="1"
+				<!-- Wheel SVG -->
+				<svg
+					viewBox="-100 -100 200 200"
+					class="absolute inset-[24px] md:inset-[32px] w-[calc(100%-48px)] md:w-[calc(100%-64px)] h-[calc(100%-48px)] md:h-[calc(100%-64px)] transform transition-transform filter drop-shadow-xl"
+					style="transform: rotate({rouletteRotation}deg); transition-duration: 8.5s; transition-timing-function: cubic-bezier(0.1, 0.85, 0.15, 1);"
+				>
+					<defs>
+						<radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+							<stop offset="0%" stop-color="#cfb078" />
+							<stop offset="70%" stop-color="#916c31" />
+							<stop offset="100%" stop-color="#4a3512" />
+						</radialGradient>
+						<filter id="insetShadow">
+							<feOffset dx="0" dy="0" />
+							<feGaussianBlur stdDeviation="2" result="offset-blur" />
+							<feComposite
+								operator="out"
+								in="SourceGraphic"
+								in2="offset-blur"
+								result="inverse"
+							/>
+							<feFlood flood-color="black" flood-opacity="0.7" result="color" />
+							<feComposite operator="in" in="color" in2="inverse" result="shadow" />
+							<feComposite operator="over" in="shadow" in2="SourceGraphic" />
+						</filter>
+					</defs>
+
+					<circle cx="0" cy="0" r="95" fill="#111" />
+					{#each rouletteSlices as slice}
+						<path
+							d="M0,0 L{Math.cos((slice.startAngle - 90) * (Math.PI / 180)) *
+								95},{Math.sin((slice.startAngle - 90) * (Math.PI / 180)) *
+								95} A95,95 0 {slice.endAngle - slice.startAngle > 180
+								? 1
+								: 0},1 {Math.cos((slice.endAngle - 90) * (Math.PI / 180)) *
+								95},{Math.sin((slice.endAngle - 90) * (Math.PI / 180)) * 95} Z"
+							fill={slice.color}
+							stroke="#d4af37"
+							stroke-width="0.75"
+						/>
+						<!-- Number pocket separators -->
+						<line
+							x1={Math.cos((slice.startAngle - 90) * (Math.PI / 180)) * 40}
+							y1={Math.sin((slice.startAngle - 90) * (Math.PI / 180)) * 40}
+							x2={Math.cos((slice.startAngle - 90) * (Math.PI / 180)) * 95}
+							y2={Math.sin((slice.startAngle - 90) * (Math.PI / 180)) * 95}
+							stroke="#fff"
+							stroke-width="0.5"
+							opacity="0.3"
+						/>
+
+						{#if slice.endAngle - slice.startAngle > 8}
+							<text
+								x="65"
+								y="0"
+								fill="white"
+								font-size="6.5"
+								font-weight="bold"
+								text-anchor="middle"
+								dominant-baseline="central"
+								transform="rotate({slice.startAngle +
+									(slice.endAngle - slice.startAngle) / 2 -
+									90})"
+								style="text-shadow: 0px 1px 2px rgba(0,0,0,0.8);"
+							>
+								{slice.username
+									? slice.username.length > 10
+										? slice.username.substring(0, 8) + ".."
+										: slice.username
+									: "Anon"}
+							</text>
+						{/if}
+					{/each}
+
+					<!-- Inner dark area -->
+					<circle cx="0" cy="0" r="45" fill="#1a1a1a" filter="url(#insetShadow)" />
+
+					<!-- Center Turret / Boss -->
+					<circle
+						cx="0"
+						cy="0"
+						r="28"
+						fill="url(#centerGrad)"
+						stroke="#ffdf73"
+						stroke-width="1.5"
 					/>
-				{/each}
-				<!-- Inner black hole -->
-				<circle cx="0" cy="0" r="15" fill="#000" />
-			</svg>
+					<!-- Turret Spokes -->
+					<path
+						d="M-22,0 L22,0 M0,-22 L0,22"
+						stroke="#ffdf73"
+						stroke-width="4"
+						stroke-linecap="round"
+						filter="drop-shadow(0px 2px 2px rgba(0,0,0,0.5))"
+					/>
+					<!-- Turret Center Nut -->
+					<circle cx="0" cy="0" r="6" fill="#ffd700" stroke="#be9122" stroke-width="1" />
+				</svg>
+
+				<!-- The Spinning Ball -->
+				<div
+					class="absolute inset-0 pointer-events-none origin-center transition-transform"
+					style="transform: rotate({ballRotation}deg); transition-duration: 8.5s; transition-timing-function: cubic-bezier(0.1, 0.7, 0.4, 1);"
+				>
+					<div
+						class="absolute w-3.5 h-3.5 md:w-5 md:h-5 rounded-full bg-white shadow-[0_4px_6px_rgba(0,0,0,0.8),inset_-2px_-2px_4px_rgba(0,0,0,0.3)] transition-all"
+						style="top: calc(50% - {ballRadius}%); left: 50%; transform: translate(-50%, -50%); transition-duration: 3.5s; transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);"
+					></div>
+				</div>
+			</div>
 		</div>
+		<!-- End Green Felt Table Container -->
 
 		{#if rouletteWinner && !rouletteSpinning}
 			<div

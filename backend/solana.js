@@ -38,14 +38,21 @@ async function checkTransaction(signature) {
 
 	let transferLamports = 0;
 	for (const ix of tx.transaction?.message?.instructions ?? []) {
-		if (ix.program === "system" || ix.programId?.toString() === "11111111111111111111111111111111") {
-			if (ix.parsed?.type === "transfer" && ix.parsed.info?.destination === GLOBAL_POOL_WALLET) {
+		if (
+			ix.program === "system" ||
+			ix.programId?.toString() === "11111111111111111111111111111111"
+		) {
+			if (
+				ix.parsed?.type === "transfer" &&
+				ix.parsed.info?.destination === GLOBAL_POOL_WALLET
+			) {
 				transferLamports += Number(ix.parsed.info.lamports);
 			}
 		}
 	}
 
-	if (transferLamports <= 0) throw new Error("Transaction did not transfer SOL to the pool wallet");
+	if (transferLamports <= 0)
+		throw new Error("Transaction did not transfer SOL to the pool wallet");
 
 	return { amount: transferLamports / LAMPORTS_PER_SOL, status: "finalized" };
 }
@@ -88,7 +95,8 @@ async function sendToCharity(charityWalletAddress, amountSol) {
 		await new Promise((r) => setTimeout(r, 2000));
 	}
 
-	if (!verified) throw new Error(`Transaction ${signature} dropped — not found on-chain after 5 attempts`);
+	if (!verified)
+		throw new Error(`Transaction ${signature} dropped — not found on-chain after 5 attempts`);
 	if (verified.meta?.err) throw new Error(`Transaction ${signature} failed on-chain`);
 
 	return signature;

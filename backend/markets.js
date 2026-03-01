@@ -163,12 +163,17 @@ router.get("/markets/:id", async (req, res) => {
 									const j = crypto.randomInt(0, i + 1);
 									[shares[i], shares[j]] = [shares[j], shares[i]];
 								}
-								const r = (crypto.randomBytes(4).readUInt32LE(0) / 0x100000000) * totalSol;
+								const r =
+									(crypto.randomBytes(4).readUInt32LE(0) / 0x100000000) *
+									totalSol;
 								let cumulative = 0;
 								winningShareId = shares[shares.length - 1].id;
 								for (const share of shares) {
 									cumulative += parseFloat(share.amount_sol);
-									if (cumulative > r) { winningShareId = share.id; break; }
+									if (cumulative > r) {
+										winningShareId = share.id;
+										break;
+									}
 								}
 
 								await client.query(
@@ -207,17 +212,19 @@ router.get("/markets/:id", async (req, res) => {
 						const charity = charityRows[0];
 						if (charity?.wallet_address) {
 							const signature = await sendToCharity(charity.wallet_address, totalSol);
-							await pool.query(
-								"UPDATE markets SET payout_tx = $1 WHERE id = $2",
-								[signature, marketRow.id]
-							);
+							await pool.query("UPDATE markets SET payout_tx = $1 WHERE id = $2", [
+								signature,
+								marketRow.id
+							]);
 							await pool.query(
 								`INSERT INTO payouts (market_id, charity_id, amount_sol, transaction_signature) VALUES ($1, $2, $3, $4)`,
 								[marketRow.id, charity.id, totalSol, signature]
 							);
 							marketRow.payout_tx = signature;
 						} else {
-							console.warn(`Market resolution: charity "${charity?.name}" has no wallet_address`);
+							console.warn(
+								`Market resolution: charity "${charity?.name}" has no wallet_address`
+							);
 						}
 					} catch (phase2Err) {
 						console.error("Market resolution error (phase 2 payout):", phase2Err);
