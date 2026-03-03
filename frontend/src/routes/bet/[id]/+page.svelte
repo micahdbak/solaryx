@@ -18,6 +18,7 @@
 		createShare
 	} from "$lib/api";
 	import confetti from "canvas-confetti";
+	import Graph from "$lib/components/Graph.svelte";
 
 	let currentBet = $state(null);
 	let shares = $state([]);
@@ -97,106 +98,8 @@
 		}
 	}
 
-	// Calculate SVG paths based on historical shares
+	// Historical shares timeframe setting
 	let timeframe = $state("All");
-
-	function getChartPaths(sharesData, selectedTimeframe) {
-		if (!currentBet || sharesData.length === 0) {
-			return {
-				top: "M0,0 L100,0 L100,100 L0,100 Z",
-				divider: "M0,100 L100,100"
-			};
-		}
-
-		const aId = currentBet.optionA.market_charity_id;
-		const bId = currentBet.optionB.market_charity_id;
-
-		const now = Date.now();
-		let cutoff = currentBet.createdAt;
-
-		if (selectedTimeframe === "1H") cutoff = now - 60 * 60 * 1000;
-		if (selectedTimeframe === "1D") cutoff = now - 24 * 60 * 60 * 1000;
-		if (selectedTimeframe === "1W") cutoff = now - 7 * 24 * 60 * 60 * 1000;
-		cutoff = Math.max(cutoff, currentBet.createdAt);
-
-		let totalA = 0;
-		let totalB = 0;
-
-		// Calculate background totals up to cutoff
-		sharesData.forEach((s) => {
-			const t = new Date(s.created_at).getTime();
-			if (t <= cutoff) {
-				const amount = Number(s.amount_sol) || 0;
-				if (s.market_charity_id === aId) totalA += amount;
-				if (s.market_charity_id === bId) totalB += amount;
-			}
-		});
-
-		const sharesInRange = sharesData.filter((s) => new Date(s.created_at).getTime() > cutoff);
-
-		let startTime, endTime;
-		if (sharesInRange.length === 0) {
-			startTime = cutoff;
-			endTime = now;
-		} else {
-			const times = sharesInRange.map((s) => new Date(s.created_at).getTime());
-			startTime = Math.min(...times);
-			endTime = Math.max(...times);
-		}
-
-		const timeRange = Math.max(endTime - startTime, 1000);
-		const initialSum = totalA + totalB;
-		const initialY = initialSum === 0 ? 100 : 100 - (totalA / initialSum) * 100;
-		const points = [{ x: 0, y: initialY }];
-
-		sharesInRange
-			.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-			.forEach((share) => {
-				const t = new Date(share.created_at).getTime();
-				const amount = Number(share.amount_sol) || 0;
-				if (share.market_charity_id === aId) totalA += amount;
-				if (share.market_charity_id === bId) totalB += amount;
-
-				const sum = totalA + totalB;
-				const y = sum === 0 ? 100 : 100 - (totalA / sum) * 100;
-				const x = Math.max(0, Math.min(100, ((t - startTime) / timeRange) * 100));
-				points.push({ x, y });
-			});
-
-		// Ensure we draw the line to the very end edge (100%)
-		points.push({ x: 100, y: points[points.length - 1].y });
-
-		// Build the divider path using smooth Bézier curves
-		let dividerPath = "";
-		for (let i = 0; i < points.length; i++) {
-			if (i === 0) {
-				dividerPath += `M${points[i].x.toFixed(1)},${points[i].y.toFixed(1)}`;
-			} else {
-				const prev = points[i - 1];
-				const curr = points[i];
-				const cpx = (prev.x + curr.x) / 2;
-				dividerPath += ` C${cpx.toFixed(1)},${prev.y.toFixed(1)} ${cpx.toFixed(1)},${curr.y.toFixed(1)} ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
-			}
-		}
-
-		// Top fill follows the smooth curve then closes up
-		let topPath = `M0,0 `;
-		for (let i = 0; i < points.length; i++) {
-			if (i === 0) {
-				topPath += `L${points[i].x.toFixed(1)},${points[i].y.toFixed(1)}`;
-			} else {
-				const prev = points[i - 1];
-				const curr = points[i];
-				const cpx = (prev.x + curr.x) / 2;
-				topPath += ` C${cpx.toFixed(1)},${prev.y.toFixed(1)} ${cpx.toFixed(1)},${curr.y.toFixed(1)} ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
-			}
-		}
-		topPath += ` L100,0 Z`;
-
-		return { top: topPath, divider: dividerPath };
-	}
-
-	let chartPaths = $derived(getChartPaths(shares, timeframe));
 
 	// ── Roulette state ──
 	let showRoulette = $state(false);
@@ -362,15 +265,20 @@
 
 	async function doRefresh() {
 		try {
-			const [rawMarket, rawCharities, rawShares] = await Promise.all([
+			const [rawMarket, rawCharities, rawShares, authRes] = await Promise.all([
 				fetchMarket($page.params.id),
 				fetchCharities(),
 				fetchShares($page.params.id),
+				fetch("/api/auth/status"),
 				invalidateAll()
 			]);
 			const lookup = indexCharities(rawCharities);
 			currentBet = formatMarket(rawMarket, lookup);
 			shares = rawShares;
+
+			const authData = await authRes.json();
+			if (authData.status) authUser = authData.user;
+
 			refreshing = true;
 
 			if (
@@ -461,14 +369,16 @@
 								class="text-base md:text-lg font-bold var-color-optionA var-text-israel"
 								class:shake={refreshing}
 							>
-								{currentBet.chance}% {currentBet.optionA.name}
+								{currentBet.chance}% {currentBet.optionA.name} ({formatSol(
+									currentBet.optionA.totalSol
+								)} SOL)
 							</span>
 							<span
 								class="text-base md:text-lg font-bold var-text-palestine"
 								class:shake={refreshing}
 							>
 								{currentBet.totalSol === 0 ? 0 : 100 - currentBet.chance}% {currentBet
-									.optionB.name}
+									.optionB.name} ({formatSol(currentBet.optionB.totalSol)} SOL)
 							</span>
 						</div>
 						<div class="flex gap-2 text-xs text-gray-500 var-text-muted">
@@ -504,49 +414,7 @@
 					</div>
 
 					<!-- Chart Area -->
-					<div
-						class="group h-[280px] relative w-full mt-2 rounded-lg overflow-hidden border border-gray-800/80 var-border-card"
-					>
-						<div
-							class="absolute inset-0 var-bg-optionA-medium var-bg-israel-medium"
-						></div>
-						<svg
-							class="absolute inset-0 w-full h-full"
-							viewBox="0 0 100 100"
-							preserveAspectRatio="none"
-						>
-							<!-- Top Polygon (Option B color) -->
-							<path
-								d={chartPaths.top}
-								fill="currentColor"
-								class="var-color-optionB var-text-palestine opacity-20"
-							/>
-							<!-- Divider Line -->
-							<path
-								d={chartPaths.divider}
-								fill="none"
-								class="var-stroke-divider"
-								stroke="#e5e7eb"
-								stroke-width="1.5"
-								vector-effect="non-scaling-stroke"
-							/>
-						</svg>
-						<!-- Hover Tooltip -->
-						<div
-							class="absolute opacity-0 group-hover:opacity-100 transition-opacity bg-white var-bg-tooltip text-black var-text-tooltip p-2 rounded text-xs font-bold shadow-xl pointer-events-none -translate-x-1/2 -translate-y-full"
-							style="top: {100 - currentBet.chance}%; left: 80%;"
-						>
-							<div>Current Ratio</div>
-							<div class="flex flex-col gap-1 mt-1">
-								<span class="var-color-optionA var-text-israel"
-									>{currentBet.optionA.name}: {currentBet.chance}%</span
-								>
-								<span class="var-text-palestine"
-									>{currentBet.optionB.name}: {100 - currentBet.chance}%</span
-								>
-							</div>
-						</div>
-					</div>
+					<Graph {shares} {currentBet} {timeframe} bind:selectedCause />
 
 					<!-- Axis Labels -->
 					<div class="flex justify-between text-xs text-gray-500 var-text-muted mt-2">
@@ -883,7 +751,9 @@
 							>
 							<span
 								class="text-gray-500 var-text-muted hover:text-[#e0e4f0] cursor-pointer transition-colors"
-								onclick={() => (donationAmount = 0)}>Balance: {convertSol(0)}</span
+								onclick={() =>
+									(donationAmount = authUser ? authUser.balance_sol : 0)}
+								>Balance: {convertSol(authUser ? authUser.balance_sol : 0)}</span
 							>
 						</div>
 						<div class="relative">

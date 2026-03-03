@@ -172,8 +172,18 @@ export function formatMarket(market, charitiesById) {
 		description: market.description || "",
 		image: market.image_url || `https://api.dicebear.com/7.x/identicon/svg?seed=${market.id}`,
 		chance,
-		optionA: { name: aName, market_charity_id: a?.market_charity_id ?? "", charity: aCharity },
-		optionB: { name: bName, market_charity_id: b?.market_charity_id ?? "", charity: bCharity },
+		optionA: {
+			name: aName,
+			market_charity_id: a?.market_charity_id ?? "",
+			charity: aCharity,
+			totalSol: aSol
+		},
+		optionB: {
+			name: bName,
+			market_charity_id: b?.market_charity_id ?? "",
+			charity: bCharity,
+			totalSol: bSol
+		},
 		vol: totalSol > 0 ? `${formatSol(totalSol)} SOL` : "0 SOL",
 		totalSol,
 		timeRemaining,
