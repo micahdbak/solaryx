@@ -286,6 +286,34 @@ body.hyde-mode .dropdown-menu a:hover {
 	color: var(--hover-text);
 }
 
+/* Shake animation (used on data refresh) */
+@keyframes shake {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+
+	20% {
+		transform: translateX(-2px);
+	}
+
+	40% {
+		transform: translateX(2px);
+	}
+
+	60% {
+		transform: translateX(-1px);
+	}
+
+	80% {
+		transform: translateX(1px);
+	}
+}
+
+.shake {
+	animation: shake 0.35s ease-in-out;
+}
+
 /* Vibrate on hover animation */
 @keyframes vibrate {
 	0%,
