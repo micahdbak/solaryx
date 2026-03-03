@@ -10,6 +10,7 @@
 	import { formatSol } from "$lib/utils";
 	import { page } from "$app/stores";
 	import { onMount, tick } from "svelte";
+	import SolanaIcon from "$lib/components/SolanaIcon.svelte";
 
 	let { data } = $props();
 	let isMenuOpen = $state(false);
@@ -270,22 +271,7 @@
 						class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all duration-200 hover:-translate-y-px cursor-pointer bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-[#e0e4f0]"
 					>
 						{#if $selectedCurrencyStore === "SOL"}
-							<svg
-								class="w-3.5 h-3.5"
-								viewBox="0 0 397 311"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
-									fill="currentColor"
-								/><path
-									d="M64.6 3.8C67 1.4 70.3 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
-									fill="currentColor"
-								/><path
-									d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
-									fill="currentColor"
-								/></svg
-							>
+							<SolanaIcon class="w-3.5 h-3.5" />
 							<span>{formatSol(data.user.balance_sol)} SOL</span>
 						{:else if $selectedCurrencyStore === "USD"}
 							<span

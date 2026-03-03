@@ -2,22 +2,12 @@
 	import { onMount, onDestroy } from "svelte";
 	import { isHydeStore, searchQueryStore, activeTopicStore } from "$lib/theme";
 	import { fetchMarkets, fetchCharities, formatMarket, indexCharities } from "$lib/api";
+	import { formatTimeRemaining, filterAndSortMarkets } from "$lib/utils";
 	import MarketCard from "$lib/components/MarketCard.svelte";
 
 	let markets = $state([]);
 	let loading = $state(true);
 	let tickInterval;
-
-	function computeLiveTime(endsAt) {
-		const remaining = endsAt - Date.now();
-		if (remaining <= 0) return "Ended";
-		const h = Math.floor(remaining / 3600000);
-		const m = Math.floor((remaining % 3600000) / 60000);
-		const s = Math.floor((remaining % 60000) / 1000);
-		if (h > 0) return `${h}h ${m}m ${s}s`;
-		if (m > 0) return `${m}m ${s}s`;
-		return `${s}s`;
-	}
 
 	onMount(async () => {
 		try {
@@ -36,7 +26,7 @@
 		tickInterval = setInterval(() => {
 			markets = markets.map((m) => ({
 				...m,
-				timeRemaining: computeLiveTime(m.endsAt)
+				timeRemaining: formatTimeRemaining(m.endsAt)
 			}));
 		}, 1000);
 	});
@@ -46,36 +36,12 @@
 	});
 
 	let displayBets = $derived(
-		markets
-			.filter((b) => {
-				if (b.isHyde !== $isHydeStore) return false;
-
-				if ($searchQueryStore) {
-					const query = $searchQueryStore.toLowerCase();
-					const matchesTitle = b.title.toLowerCase().includes(query);
-					if (!matchesTitle) return false;
-				}
-
-				if (b.endsAt < Date.now()) return false;
-
-				if ($activeTopicStore === "Expiring Soon") {
-					// already filtered out ended ones above
-				}
-
-				return true;
-			})
-			.sort((a, b) => {
-				if ($activeTopicStore === "Trending" || $activeTopicStore === "Breaking") {
-					return b.totalSol - a.totalSol;
-				}
-				if ($activeTopicStore === "New") {
-					return b.createdAt - a.createdAt;
-				}
-				if ($activeTopicStore === "Expiring Soon") {
-					return a.endsAt - b.endsAt;
-				}
-				return 0;
-			})
+		filterAndSortMarkets(markets, {
+			isHyde: $isHydeStore,
+			searchQuery: $searchQueryStore,
+			activeTopic: $activeTopicStore,
+			excludeEnded: true
+		})
 	);
 </script>
 
