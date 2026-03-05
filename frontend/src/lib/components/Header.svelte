@@ -174,6 +174,7 @@
 					<button
 						class="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
 						onclick={() => (isMobileSearchOpen = true)}
+						aria-label="Open mobile search"
 					>
 						<svg
 							class="w-5 h-5"
@@ -356,6 +357,7 @@
 					<button
 						onclick={toggleMenu}
 						class="flex items-center gap-1 border-none cursor-pointer p-2 text-gray-300 bg-transparent hover:text-[#e0e4f0] hover:bg-white/10 rounded-full transition-all duration-200"
+						aria-label="Toggle user menu"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -420,6 +422,7 @@
 				<button
 					class="bg-transparent border-none text-gray-400 hover:text-white p-2 mr-2 cursor-pointer"
 					onclick={() => (isMobileSearchOpen = false)}
+					aria-label="Close mobile search"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -456,7 +459,6 @@
 						placeholder="Search..."
 						class="w-full bg-white/10 border border-white/20 rounded-full py-2.5 pl-10 pr-4 text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all text-base"
 						bind:value={$searchQueryStore}
-						autofocus
 					/>
 				</div>
 			</div>

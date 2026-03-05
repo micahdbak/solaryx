@@ -77,10 +77,11 @@
 				class="text-gray-400 var-text-muted group-focus-within:text-[#e0e4f0] transition-colors"
 				>Donation Amount ({getCurrencyLabel($selectedCurrencyStore)})</span
 			>
-			<span
-				class="text-gray-500 var-text-muted hover:text-[#e0e4f0] cursor-pointer transition-colors"
+			<button
+				type="button"
+				class="text-gray-500 var-text-muted hover:text-[#e0e4f0] cursor-pointer transition-colors border-none bg-transparent m-0 p-0 text-sm font-medium"
 				onclick={() => (donationAmount = authUser ? authUser.balance_sol : 0)}
-				>Balance: {fmtSol(authUser ? authUser.balance_sol : 0)}</span
+				>Balance: {fmtSol(authUser ? authUser.balance_sol : 0)}</button
 			>
 		</div>
 		<div class="relative">

@@ -72,3 +72,103 @@ export function filterAndSortMarkets(
 			return b.createdAt - a.createdAt;
 		});
 }
+
+/**
+ * Generate axis labels for the chart based on the selected timeframe.
+ * @param {string} selectedTimeframe - e.g., "1H", "1D", "1W", "All"
+ * @param {object} currentBet - The current market object containing createdAt
+ * @returns {Array<string>} The generated axis labels
+ */
+export function getAxisLabels(selectedTimeframe, currentBet) {
+	const now = new Date();
+	const labels = [];
+	const count = 4;
+
+	if (selectedTimeframe === "1H") {
+		for (let i = 0; i < count; i++) {
+			const d = new Date(now.getTime() - (count - 1 - i) * 15 * 60 * 1000);
+			labels.push(
+				d.toLocaleTimeString([], {
+					hour: "2-digit",
+					minute: "2-digit"
+				})
+			);
+		}
+	} else if (selectedTimeframe === "1D") {
+		for (let i = 0; i < count; i++) {
+			const d = new Date(now.getTime() - (count - 1 - i) * 6 * 60 * 60 * 1000);
+			labels.push(
+				d.toLocaleTimeString([], {
+					hour: "2-digit",
+					minute: "2-digit"
+				})
+			);
+		}
+	} else if (selectedTimeframe === "1W") {
+		for (let i = 0; i < count; i++) {
+			const d = new Date(now.getTime() - (count - 1 - i) * 2 * 24 * 60 * 60 * 1000);
+			labels.push(
+				d.toLocaleDateString([], {
+					month: "short",
+					day: "numeric"
+				})
+			);
+		}
+	} else {
+		if (!currentBet) return ["", "", "", "Now"];
+		const start = currentBet.createdAt;
+		const range = now.getTime() - start;
+		for (let i = 0; i < count; i++) {
+			const d = new Date(start + (i / (count - 1)) * range);
+			labels.push(
+				d.toLocaleDateString([], {
+					month: "short",
+					day: "numeric"
+				})
+			);
+		}
+	}
+	return labels;
+}
+
+/**
+ * Shared handleDonation logic for components like TrendingHeader and Individual Market page.
+ * @param {object} params
+ * @param {object} params.currentBet - The active market
+ * @param {string} params.selectedCause - The cause name the user selected to donate to
+ * @param {number|string} params.donationAmount - The amount in SOL to donate
+ * @param {function} params.createShare - The API function to create a new share
+ * @param {function} params.onSuccess - Callback triggered after a successful donation
+ * @param {function} params.onError - Callback triggered when donation fails (e.g. alert)
+ */
+export async function handleDonation({
+	currentBet,
+	selectedCause,
+	donationAmount,
+	createShare,
+	onSuccess,
+	onError
+}) {
+	if (!donationAmount || donationAmount <= 0) return;
+
+	if (currentBet.endsAt < Date.now()) {
+		if (onError) onError("This market has ended. Donations are no longer accepted.");
+		return;
+	}
+
+	const charityId =
+		selectedCause === currentBet.optionA.name
+			? currentBet.optionA.market_charity_id
+			: currentBet.optionB.market_charity_id;
+
+	try {
+		await createShare(currentBet.id, {
+			market_charity_id: charityId,
+			amount_sol: donationAmount
+		});
+		if (onSuccess) await onSuccess();
+	} catch (e) {
+		console.error("Donation failed:", e);
+		if (onError) onError(e.message || "Donation failed");
+	}
+}
