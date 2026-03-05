@@ -8,7 +8,7 @@
 		selectedCurrencyStore,
 		exchangeRatesStore
 	} from "$lib/theme";
-	import { formatSol, formatTimeRemaining, convertSol } from "$lib/utils";
+	import { formatTimeRemaining, convertSol, getAxisLabels, handleDonation } from "$lib/utils";
 	import {
 		fetchMarket,
 		fetchCharities,
@@ -22,6 +22,8 @@
 	import RouletteOverlay from "$lib/components/RouletteOverlay.svelte";
 	import DonationSidebar from "$lib/components/DonationSidebar.svelte";
 	import MarketReceipt from "$lib/components/MarketReceipt.svelte";
+	import TimeframeControls from "$lib/components/TimeframeControls.svelte";
+	import MarketHeaderInfo from "$lib/components/MarketHeaderInfo.svelte";
 
 	let currentBet = $state(null);
 	let shares = $state([]);
@@ -44,32 +46,22 @@
 	}
 
 	async function handleDonate() {
-		if (!donationAmount || donationAmount <= 0) return;
-
-		if (currentBet.endsAt < Date.now()) {
-			alert("This market has ended. Donations are no longer accepted.");
-			return;
-		}
-
-		const charityId =
-			selectedCause === currentBet.optionA.name
-				? currentBet.optionA.market_charity_id
-				: currentBet.optionB.market_charity_id;
-
-		try {
-			donating = true;
-			await createShare(currentBet.id, {
-				market_charity_id: charityId,
-				amount_sol: donationAmount
-			});
-			await doRefresh();
-			donationAmount = "";
-		} catch (e) {
-			console.error("Donation failed:", e);
-			alert(e.message || "Donation failed");
-		} finally {
-			donating = false;
-		}
+		donating = true;
+		await handleDonation({
+			currentBet,
+			selectedCause,
+			donationAmount,
+			createShare,
+			onSuccess: async () => {
+				await doRefresh();
+				donationAmount = "";
+				donating = false;
+			},
+			onError: (msg) => {
+				alert(msg);
+				donating = false;
+			}
+		});
 	}
 
 	// Historical shares timeframe setting
@@ -174,59 +166,7 @@
 		}, 100);
 	}
 
-	function getAxisLabels(selectedTimeframe) {
-		const now = new Date();
-		const labels = [];
-		const count = 4;
-
-		if (selectedTimeframe === "1H") {
-			for (let i = 0; i < count; i++) {
-				const d = new Date(now.getTime() - (count - 1 - i) * 15 * 60 * 1000);
-				labels.push(
-					d.toLocaleTimeString([], {
-						hour: "2-digit",
-						minute: "2-digit"
-					})
-				);
-			}
-		} else if (selectedTimeframe === "1D") {
-			for (let i = 0; i < count; i++) {
-				const d = new Date(now.getTime() - (count - 1 - i) * 6 * 60 * 60 * 1000);
-				labels.push(
-					d.toLocaleTimeString([], {
-						hour: "2-digit",
-						minute: "2-digit"
-					})
-				);
-			}
-		} else if (selectedTimeframe === "1W") {
-			for (let i = 0; i < count; i++) {
-				const d = new Date(now.getTime() - (count - 1 - i) * 2 * 24 * 60 * 60 * 1000);
-				labels.push(
-					d.toLocaleDateString([], {
-						month: "short",
-						day: "numeric"
-					})
-				);
-			}
-		} else {
-			if (!currentBet) return ["", "", "", "Now"];
-			const start = currentBet.createdAt;
-			const range = now.getTime() - start;
-			for (let i = 0; i < count; i++) {
-				const d = new Date(start + (i / (count - 1)) * range);
-				labels.push(
-					d.toLocaleDateString([], {
-						month: "short",
-						day: "numeric"
-					})
-				);
-			}
-		}
-		return labels;
-	}
-
-	let axisLabels = $derived(getAxisLabels(timeframe));
+	let axisLabels = $derived(getAxisLabels(timeframe, currentBet));
 
 	async function doRefresh() {
 		try {
@@ -324,58 +264,9 @@
 			<!-- Chart Box -->
 			<div class="relative p-0 flex flex-col overflow-hidden">
 				<div class="mb-2 pt-4">
-					<h1 class="text-2xl md:text-3xl font-bold tracking-tight var-text-primary mb-2">
-						{currentBet.title}
-					</h1>
-					<!-- Percentages left, time buttons right -->
-					<div class="flex justify-between items-center mb-2">
-						<div class="flex items-baseline gap-4">
-							<span
-								class="text-base md:text-lg font-bold var-color-optionA var-text-israel"
-								class:shake={refreshing}
-							>
-								{currentBet.chance}% {currentBet.optionA.name} ({formatSol(
-									currentBet.optionA.totalSol
-								)} SOL)
-							</span>
-							<span
-								class="text-base md:text-lg font-bold var-text-palestine"
-								class:shake={refreshing}
-							>
-								{currentBet.totalSol === 0 ? 0 : 100 - currentBet.chance}% {currentBet
-									.optionB.name} ({formatSol(currentBet.optionB.totalSol)} SOL)
-							</span>
-						</div>
-						<div class="flex gap-2 text-xs text-gray-500 var-text-muted">
-							<button
-								onclick={() => (timeframe = "1H")}
-								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
-								'1H'
-									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
-									: ''}">1H</button
-							>
-							<button
-								onclick={() => (timeframe = "1D")}
-								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
-								'1D'
-									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
-									: ''}">1D</button
-							>
-							<button
-								onclick={() => (timeframe = "1W")}
-								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
-								'1W'
-									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
-									: ''}">1W</button
-							>
-							<button
-								onclick={() => (timeframe = "All")}
-								class="hover:text-[#e0e4f0] var-hover-text px-2 py-1 rounded {timeframe ===
-								'All'
-									? 'bg-gray-800 var-bg-muted text-[#e0e4f0] var-text-primary'
-									: ''}">All</button
-							>
-						</div>
+					<div class="flex justify-between items-center mb-2 gap-4">
+						<MarketHeaderInfo {currentBet} />
+						<TimeframeControls bind:timeframe />
 					</div>
 
 					<!-- Chart Area -->

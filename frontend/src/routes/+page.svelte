@@ -4,6 +4,7 @@
 	import { fetchMarkets, fetchCharities, formatMarket, indexCharities } from "$lib/api";
 	import { formatTimeRemaining, filterAndSortMarkets } from "$lib/utils";
 	import MarketCard from "$lib/components/MarketCard.svelte";
+	import TrendingHeader from "$lib/components/TrendingHeader.svelte";
 
 	let markets = $state([]);
 	let loading = $state(true);
@@ -57,6 +58,9 @@
 			<p class="text-gray-500 text-sm">No markets found.</p>
 		</div>
 	{:else}
+		<!-- Trending Markets Header -->
+		<TrendingHeader markets={displayBets} />
+
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 			{#each displayBets as cause}
 				<MarketCard {cause} />

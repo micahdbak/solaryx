@@ -1,7 +1,14 @@
 <script>
 	import { formatSol } from "$lib/utils";
+	import { goto } from "$app/navigation";
 
-	let { shares = [], currentBet, timeframe = "All", selectedCause = $bindable() } = $props();
+	let {
+		shares = [],
+		currentBet,
+		timeframe = "All",
+		selectedCause = $bindable(),
+		href = ""
+	} = $props();
 
 	let chartWrapper;
 	let width = $state(800);
@@ -80,8 +87,7 @@
 			return null;
 		}
 
-		const { points, startTime, endTime } = chartData;
-		const timeRange = endTime - startTime;
+		const { points } = chartData;
 
 		let maxY = -Infinity;
 		let minY = Infinity;
@@ -206,6 +212,11 @@
 	}
 
 	function handleClick(e) {
+		if (href) {
+			goto(href);
+			return;
+		}
+
 		if (!chartData || !chartWrapper || !hoveredData) return;
 		const rect = chartWrapper.getBoundingClientRect();
 		const y = e.clientY - rect.top;
@@ -254,7 +265,9 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-	class="relative w-full h-[280px] mt-2 rounded-lg overflow-hidden border border-gray-800/80 var-border-card bg-[var(--bg-card)] cursor-crosshair select-none"
+	class="relative w-full h-[280px] mt-2 rounded-lg overflow-hidden border border-gray-800/80 var-border-card bg-[var(--bg-card)] select-none {href
+		? 'cursor-pointer'
+		: 'cursor-crosshair'}"
 	bind:this={chartWrapper}
 	bind:clientWidth={width}
 	bind:clientHeight={height}

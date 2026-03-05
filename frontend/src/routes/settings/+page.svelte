@@ -174,6 +174,7 @@
 					<h2 class="text-xl font-bold text-[#e0e4f0]">Account Settings</h2>
 					<button
 						class="text-gray-400 hover:text-[#e0e4f0] transition-colors"
+						aria-label="Close modal"
 						onclick={() => {
 							activeItem = null;
 							successMsg = "";

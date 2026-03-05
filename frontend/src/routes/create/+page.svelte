@@ -105,8 +105,10 @@
 		</div>
 
 		<!-- Type -->
-		<div class="space-y-2">
-			<label class="block text-sm font-semibold text-[var(--text-muted)]">Type</label>
+		<fieldset class="space-y-2 border-none p-0 m-0">
+			<legend class="block text-sm font-semibold text-[var(--text-muted)] w-full mb-2"
+				>Type</legend
+			>
 			<div class="flex gap-3">
 				<button
 					type="button"
@@ -129,7 +131,7 @@
 					Hyde
 				</button>
 			</div>
-		</div>
+		</fieldset>
 
 		<!-- Time -->
 		<div class="space-y-2">
@@ -158,8 +160,10 @@
 		</div>
 
 		<!-- Charities -->
-		<div class="space-y-2">
-			<label class="block text-sm font-semibold text-[var(--text-muted)]">Charities</label>
+		<fieldset class="space-y-2 border-none p-0 m-0">
+			<legend class="block text-sm font-semibold text-[var(--text-muted)] w-full mb-2"
+				>Charities</legend
+			>
 			{#if charities.length === 0}
 				<p class="text-[var(--text-muted)] text-sm italic">
 					No charities available yet. Create charities via the API first.
@@ -167,6 +171,7 @@
 			{:else}
 				<div class="grid grid-cols-2 gap-3">
 					<select
+						aria-label="Select first charity"
 						class="rounded-lg px-4 py-3 text-[var(--text-primary)] outline-none transition-colors bg-[var(--bg-input)] border border-[var(--border-input)]"
 						bind:value={charityA}
 					>
@@ -176,6 +181,7 @@
 						{/each}
 					</select>
 					<select
+						aria-label="Select second charity"
 						class="rounded-lg px-4 py-3 text-[var(--text-primary)] outline-none transition-colors bg-[var(--bg-input)] border border-[var(--border-input)]"
 						bind:value={charityB}
 					>
@@ -186,7 +192,7 @@
 					</select>
 				</div>
 			{/if}
-		</div>
+		</fieldset>
 
 		<!-- Submit -->
 		<button
